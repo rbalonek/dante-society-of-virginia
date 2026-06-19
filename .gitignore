@@ -8,6 +8,10 @@ Thumbs.db
 # Node (static preview server)
 node_modules/
 npm-debug.log*
+package-lock.json
+
+# Claude Code session data
+.claude/
 
 # Local / WordPress runtime artifacts (should never be committed from a Local site)
 wp-config.php
