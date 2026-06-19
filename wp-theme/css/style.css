@@ -1,0 +1,700 @@
+/* ===== Dante Society of Virginia — Main Stylesheet ===== */
+:root {
+  --green: #1B4332;
+  --gold: #C8963E;
+  --cream: #FAF3E0;
+  --dark-green: #0D2B1F;
+  --light-gold: #E8C97A;
+  --white: #FFFFFF;
+  --light-gray: #F5F0E8;
+  --text-dark: #2D2D2D;
+  --text-light: #5A5A5A;
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-dark);
+  background-color: var(--cream);
+  background-image: url('/images/background2.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  min-height: 100vh;
+}
+
+/* ===== Navigation ===== */
+.site-header {
+  background: linear-gradient(135deg, var(--green) 0%, var(--dark-green) 100%);
+  border-bottom: 3px solid var(--gold);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--green);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-name {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  color: var(--gold);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.logo-subtitle {
+  font-size: 0.7rem;
+  color: var(--light-gold);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.main-nav {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.main-nav a {
+  color: var(--cream);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.main-nav a:hover,
+.main-nav a.active {
+  background: var(--gold);
+  color: var(--dark-green);
+}
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-size: 28px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* ===== Hero Section ===== */
+.hero {
+  background: linear-gradient(rgba(27,67,50,0.85), rgba(13,43,31,0.9)), url('/images/background1.jpg');
+  background-size: cover;
+  background-position: center;
+  color: var(--cream);
+  text-align: center;
+  padding: 80px 20px;
+  position: relative;
+}
+
+.hero h1 {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero .tagline {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0.9;
+  line-height: 1.8;
+}
+
+.hero-separator {
+  width: 80px;
+  height: 3px;
+  background: var(--gold);
+  margin: 20px auto;
+}
+
+/* ===== Page Header (inner pages) ===== */
+.page-header {
+  background: linear-gradient(rgba(27,67,50,0.9), rgba(13,43,31,0.95));
+  color: var(--cream);
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.page-header h1 {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.page-header .breadcrumb {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* ===== Main Content ===== */
+.main-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.content-card {
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 40px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  border-top: 4px solid var(--gold);
+}
+
+.content-card h2 {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: var(--green);
+  margin-bottom: 20px;
+}
+
+.content-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  color: var(--gold);
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+
+.content-card h3:first-of-type {
+  margin-top: 0;
+}
+
+.content-card p {
+  margin-bottom: 16px;
+  color: var(--text-dark);
+}
+
+.content-card ul {
+  margin: 12px 0 20px 24px;
+}
+
+.content-card li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: #B07D2E;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(200,150,62,0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold);
+  border: 2px solid var(--gold);
+}
+
+.btn-outline:hover {
+  background: var(--gold);
+  color: var(--white);
+}
+
+/* ===== Event Cards ===== */
+.event-card {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  margin-bottom: 20px;
+  background: var(--light-gray);
+  border-radius: 8px;
+  border-left: 4px solid var(--gold);
+  align-items: flex-start;
+}
+
+.event-card-image {
+  width: 220px;
+  min-width: 220px;
+  height: 160px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.event-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-card-content {
+  flex: 1;
+}
+
+.event-card-content .event-date {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.event-card-content h3 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--green);
+  margin: 0 0 8px;
+}
+
+.event-card-content p {
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ===== Board Grid ===== */
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.board-card {
+  background: var(--light-gray);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  border-bottom: 3px solid var(--gold);
+  transition: transform 0.3s ease;
+}
+
+.board-card:hover {
+  transform: translateY(-4px);
+}
+
+.board-card .board-role {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.board-card .board-name {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  color: var(--green);
+}
+
+.officer-card {
+  border-left: 4px solid var(--gold);
+  text-align: left;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.officer-card .officer-initials {
+  width: 50px;
+  height: 50px;
+  background: var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--white);
+  flex-shrink: 0;
+}
+
+/* ===== Membership ===== */
+.membership-tiers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.tier-card {
+  background: var(--light-gray);
+  border-radius: 10px;
+  padding: 32px;
+  text-align: center;
+  border-top: 4px solid var(--gold);
+  transition: transform 0.3s ease;
+}
+
+.tier-card:hover {
+  transform: translateY(-4px);
+}
+
+.tier-card .tier-name {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+
+.tier-card .tier-price {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.tier-card .tier-desc {
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+/* ===== Info Box ===== */
+.info-box {
+  background: var(--light-gray);
+  border-left: 4px solid var(--gold);
+  padding: 20px 24px;
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.info-box strong {
+  color: var(--green);
+}
+
+/* ===== Contact Form ===== */
+.contact-form {
+  max-width: 600px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--green);
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  background: var(--white);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.contact-info {
+  margin-top: 30px;
+}
+
+.contact-info p {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-info .label {
+  font-weight: 600;
+  color: var(--green);
+  min-width: 80px;
+}
+
+/* ===== Programs Section ===== */
+.program-item {
+  padding: 20px;
+  margin-bottom: 16px;
+  background: var(--light-gray);
+  border-radius: 8px;
+  border-left: 4px solid var(--gold);
+}
+
+.program-item .program-date {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.program-item h3 {
+  font-family: var(--font-heading);
+  color: var(--green);
+  margin: 4px 0 8px;
+  font-size: 1.2rem;
+}
+
+/* ===== Newsletter Section ===== */
+.newsletter-signup {
+  background: linear-gradient(135deg, var(--green), var(--dark-green));
+  border-radius: 12px;
+  padding: 40px;
+  color: var(--cream);
+  text-align: center;
+  margin-top: 30px;
+}
+
+.newsletter-signup h3 {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.newsletter-signup p {
+  opacity: 0.9;
+  margin-bottom: 20px;
+}
+
+.newsletter-form {
+  display: flex;
+  max-width: 500px;
+  margin: 0 auto;
+  gap: 10px;
+}
+
+.newsletter-form input {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+}
+
+.newsletter-form button {
+  padding: 12px 24px;
+}
+
+/* ===== Photo Gallery ===== */
+.photo-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.photo-gallery img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.photo-gallery img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+/* ===== Footer ===== */
+.site-footer {
+  background: linear-gradient(135deg, var(--dark-green) 0%, var(--green) 100%);
+  color: var(--cream);
+  padding: 40px 20px 20px;
+  border-top: 3px solid var(--gold);
+}
+
+.footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+}
+
+.footer-col h4 {
+  font-family: var(--font-heading);
+  color: var(--gold);
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.footer-col p,
+.footer-col a {
+  font-size: 0.9rem;
+  color: var(--cream);
+  opacity: 0.85;
+  text-decoration: none;
+  line-height: 1.8;
+}
+
+.footer-col a:hover {
+  opacity: 1;
+  color: var(--light-gold);
+}
+
+.footer-bottom {
+  max-width: 1100px;
+  margin: 20px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* ===== WordPress Admin Bar Spacing ===== */
+.admin-bar .site-header {
+  top: 32px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .header-inner { height: 64px; }
+  .logo-name { font-size: 1rem; }
+  .logo-subtitle { display: none; }
+  .hero { padding: 60px 20px; }
+  .hero h1 { font-size: 2.2rem; }
+  .page-header { padding: 40px 20px; }
+  .page-header h1 { font-size: 2rem; }
+  .main-content { padding: 40px 20px; }
+  .content-card { padding: 28px; }
+  .footer-inner { grid-template-columns: 1fr; gap: 24px; }
+  .membership-tiers { grid-template-columns: 1fr; }
+  .newsletter-form { flex-direction: column; }
+  .photo-gallery { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .nav-toggle { display: block; }
+  .main-nav {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: var(--dark-green);
+    flex-direction: column;
+    padding: 12px;
+    gap: 2px;
+    border-bottom: 3px solid var(--gold);
+  }
+  .main-nav.open { display: flex; }
+  .main-nav a {
+    padding: 12px 16px;
+    width: 100%;
+    border-radius: 4px;
+  }
+  .event-card { flex-direction: column; }
+  .event-card-image { width: 100%; min-width: 100%; height: 200px; }
+  .hero h1 { font-size: 1.8rem; }
+  .hero .tagline { font-size: 1rem; }
+  .page-header h1 { font-size: 1.6rem; }
+  .content-card { padding: 20px; }
+}
+
+/* ---- WordPress nav-menu markup compatibility ----
+   WordPress (and the theme's menu fallback) renders the navigation as a
+   <ul><li><a> list. The base styles above target bare <a> links, so these
+   rules normalize the list markup back into the same horizontal nav. */
+.main-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.main-nav li { margin: 0; padding: 0; }
+.main-nav .current-menu-item > a,
+.main-nav .current_page_item > a {
+  background: var(--gold);
+  color: var(--dark-green);
+}
+
+@media (max-width: 700px) {
+  .main-nav ul {
+    flex-direction: column;
+    width: 100%;
+    gap: 2px;
+  }
+  .main-nav li { width: 100%; }
+}

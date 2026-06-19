@@ -1,0 +1,1067 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Dante Alighieri Society of Virginia — WordPress content import (WXR 1.2)
+
+  Import via:  WP Admin → Tools → Import → WordPress (install the "WordPress Importer"
+  plugin if prompted) → choose this file → assign posts to your admin user.
+
+  Creates 8 editable Pages (block editor) and a pre-built "Primary Menu".
+  See SETUP-LOCAL.md for the full step-by-step.
+-->
+<rss version="2.0"
+  xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:wp="http://wordpress.org/export/1.2/"
+>
+<channel>
+  <title>Dante Alighieri Society of Virginia</title>
+  <link>http://dante.local</link>
+  <description>Celebrating Italian culture in Virginia since 1998.</description>
+  <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+  <language>en-US</language>
+  <wp:wxr_version>1.2</wp:wxr_version>
+  <wp:base_site_url>http://dante.local</wp:base_site_url>
+  <wp:base_blog_url>http://dante.local</wp:base_blog_url>
+
+  <wp:author>
+    <wp:author_id>1</wp:author_id>
+    <wp:author_login><![CDATA[admin]]></wp:author_login>
+    <wp:author_email><![CDATA[admin@dante.local]]></wp:author_email>
+    <wp:author_display_name><![CDATA[Dante Society]]></wp:author_display_name>
+    <wp:author_first_name><![CDATA[]]></wp:author_first_name>
+    <wp:author_last_name><![CDATA[]]></wp:author_last_name>
+  </wp:author>
+
+  <wp:term>
+    <wp:term_id>100</wp:term_id>
+    <wp:term_taxonomy>nav_menu</wp:term_taxonomy>
+    <wp:term_slug>primary-menu</wp:term_slug>
+    <wp:term_name><![CDATA[Primary Menu]]></wp:term_name>
+  </wp:term>
+
+  <generator>https://wordpress.org/?v=6.5</generator>
+
+  <!-- ============================================================ -->
+  <!-- PAGE: Home (Events) — set this as the static front page       -->
+  <!-- ============================================================ -->
+  <item>
+    <title>Home</title>
+    <link>http://dante.local/home/</link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?page_id=10</guid>
+    <description></description>
+    <content:encoded><![CDATA[
+<!-- wp:heading -->
+<h2>Upcoming Events</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Join the Dante Alighieri Society of Virginia for a year of celebration, learning, and community — all things Italian! Below are our upcoming and recent programs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image size-large"><img src="/images/valentino-the-last-emperor.jpg" alt="Valentino: The Last Emperor film poster"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Film: Valentino: The Last Emperor</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><strong>Tuesday, May 19, 2026 · 4:00 PM</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Join the Dante Society for a screening of <em>Valentino: The Last Emperor</em> at Westminster Canterbury, 3rd Floor Commons. This look into the lavish times of the iconic designer is made with humor and an eye for detail, documenting the dramatic closing of the last true couturier's career and work. The film highlights the planning of Valentino's 45th anniversary show in Rome and the end of old-school handmade couture in the modern business of fashion.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Dinner:</strong> Following the film at Isabella's, 6:00 PM. Reservations: Pat Bradbury, (910) 695-5644.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Parking & Directions:</strong> Westminster Canterbury from V.E.S. Road. Park in visitor parking lots (immediate right or left). Walk towards buildings, enter the Main Entrance (building on your left). Turn right, take elevator to 3rd floor. Turn right — the Commons is the room straight ahead.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:image -->
+<figure class="wp-block-image size-large"><img src="/images/dantemilanosdinner012026.jpg" alt="Milano's Italian Dinner event"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Milano's Italian Dinner</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><strong>January 2026</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Members and guests gathered for a wonderful evening of Italian cuisine at Milano's. A delightful start to our 2026 programming season with good food, great company, and lively conversation.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:image -->
+<figure class="wp-block-image size-large"><img src="/images/dantecarnevale2026.jpg" alt="Carnevale 2026 celebration"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Carnevale Celebration 2026</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><strong>February 2026</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>An evening of masks, music, and merriment celebrating the Italian Carnevale tradition. Members enjoyed traditional Carnevale treats and festive entertainment.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:image -->
+<figure class="wp-block-image size-large"><img src="/images/tyap-flyer.png" alt="Youth & Arts Program flyer"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Youth & Arts Program</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><strong>Season 2026</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Our Youth & Arts Program (TYAP) continues to promote Italian cultural appreciation among younger members of our community. Details of upcoming youth-oriented events will be announced soon.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:image -->
+<figure class="wp-block-image size-large"><img src="/images/dantevandv-jerryhits-danteinart-apr-2026.jpg" alt="Dante in Art lecture"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Dante in Art: A Lecture by Jerry Carney</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><strong>April 2026</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A fascinating exploration of Dante Alighieri's influence on visual art through the centuries — from Renaissance illustrations of <em>The Divine Comedy</em> to modern interpretations.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Event Photos</h2>
+<!-- /wp:heading -->
+
+<!-- wp:gallery {"linkTo":"none"} -->
+<figure class="wp-block-gallery has-nested-images columns-default is-cropped">
+<!-- wp:image {"linkDestination":"none"} -->
+<figure class="wp-block-image"><img src="/images/dantemilanosdinner012026.jpg" alt="Milano's Italian Dinner"/></figure>
+<!-- /wp:image -->
+<!-- wp:image {"linkDestination":"none"} -->
+<figure class="wp-block-image"><img src="/images/dantecarnevale2026.jpg" alt="Carnevale 2026"/></figure>
+<!-- /wp:image -->
+<!-- wp:image {"linkDestination":"none"} -->
+<figure class="wp-block-image"><img src="/images/dantevandv-jerryhits-danteinart-apr-2026.jpg" alt="Dante in Art Lecture"/></figure>
+<!-- /wp:image -->
+<!-- wp:image {"linkDestination":"none"} -->
+<figure class="wp-block-image"><img src="/images/valentino-the-last-emperor.jpg" alt="Valentino Film Screening"/></figure>
+<!-- /wp:image -->
+<!-- wp:image {"linkDestination":"none"} -->
+<figure class="wp-block-image"><img src="/images/dante-s-influence.jpg" alt="Dante's Influence"/></figure>
+<!-- /wp:image -->
+</figure>
+<!-- /wp:gallery -->
+
+<!-- wp:heading -->
+<h2>Stay Connected</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Subscribe to our newsletter for updates on events, programs, and all things Italian in Virginia.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact">Join Our Mailing List</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
+]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>10</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:00:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[home]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+
+  <!-- ============================================================ -->
+  <!-- PAGE: About                                                   -->
+  <!-- ============================================================ -->
+  <item>
+    <title>About</title>
+    <link>http://dante.local/about/</link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?page_id=20</guid>
+    <description></description>
+    <content:encoded><![CDATA[
+<!-- wp:heading -->
+<h2>The Dante Alighieri Society of Virginia</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The Dante Alighieri Society of Virginia was organized in 1998 by a group of Lynchburg residents with a love of Italy and an interest in forming a sister city program in Vicenza, Italy.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Our Mission</h3>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul>
+<!-- wp:list-item --><li>Promote an appreciation of Italian achievements in the arts, literature, science and industry.</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Promote a spirit of understanding among people through the arts and other cultural activities.</li><!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Our Activities</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Monthly events and activities include lectures on Italian-related topics, programs in cooperation with Opera on the James, the Maier Museum and other area organizations, a film/dinner series, as well as travel opportunities.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>About Dante Alighieri</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The Dante Society of Virginia is a non-profit organization named after <strong>Dante Alighieri (1265–1321)</strong>, the Italian Florentine poet and author of <em>The Divine Comedy</em>, who is considered the father of the Italian language. His work continues to inspire generations across the globe, and our society carries forward his legacy by fostering Italian culture in the Commonwealth of Virginia.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>History of the Society</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Founded in 1998, the Dante Alighieri Society of Virginia began with a core group of Lynchburg residents passionate about Italy and its rich cultural heritage. The initial vision of a sister city program with Vicenza, Italy, grew into a vibrant organization that now hosts a full calendar of cultural events throughout the year.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Over the decades, the Society has partnered with local cultural institutions including Opera on the James, the Maier Museum of Art, and other area organizations to bring Italian arts, music, literature, and cuisine to Central Virginia. Our membership has grown from a small founding group to dozens of households united by a shared love of all things Italian.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The Society is a 501(c)(3) non-profit organization funded entirely by membership dues and donations.</p>
+<!-- /wp:paragraph -->
+]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>20</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:01:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:01:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[about]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>1</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+
+  <!-- ============================================================ -->
+  <!-- PAGE: Board of Directors                                      -->
+  <!-- ============================================================ -->
+  <item>
+    <title>Board of Directors</title>
+    <link>http://dante.local/board/</link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?page_id=30</guid>
+    <description></description>
+    <content:encoded><![CDATA[
+<!-- wp:heading -->
+<h2>2026 Officers & Board of Directors</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The Society is governed by a dedicated group of volunteers who share a passion for Italian culture. Our Board meets regularly to plan events, manage the Society's finances, and advance our mission of promoting Italian arts, literature, and community.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Officers</h3>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul>
+<!-- wp:list-item --><li><strong>First Vice President</strong> — Susan Stevens</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Secretary</strong> — Kathy Muehlemann</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Treasurer</strong> — Justin McCarthy</li><!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Board Members</h3>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul>
+<!-- wp:list-item --><li>Jerry Carney</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Bettye Chambers</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Ellen DeLuca</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Diane Garmey</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Cathy Greene</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Gail Morrison</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Constance Paske</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Sharlene Tenaglia</li><!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2>Contact the Board</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Have questions or ideas to share? We'd love to hear from you.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact">Send Us a Message</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
+]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>30</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:02:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:02:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[board]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>2</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+
+  <!-- ============================================================ -->
+  <!-- PAGE: Programs                                                -->
+  <!-- ============================================================ -->
+  <item>
+    <title>Programs</title>
+    <link>http://dante.local/programs/</link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?page_id=40</guid>
+    <description></description>
+    <content:encoded><![CDATA[
+<!-- wp:heading -->
+<h2>Our Programming Season</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The Dante Society's programming year runs from <strong>September through August</strong>, with meetings held on the <strong>third Tuesday of each month</strong> from September through May. Summer months feature special gatherings and local excursions.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Programs include lectures on Italian-related topics, musical performances, film screenings, cooking demonstrations, wine tastings, and Carnevale celebrations. We also partner with Opera on the James, the Maier Museum of Art, and other area organizations for special events.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Unless otherwise noted, programs are held at <strong>Westminster Canterbury, 3rd Floor Commons</strong> at 4:00 PM, with optional dinner following at a local Italian restaurant.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Programs & Events — 2026–2027 Season</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Milano's Italian Dinner — January 2026</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>An evening of Italian cuisine and camaraderie at Milano's Restaurant. Members and guests enjoyed a wonderful start to the 2026 season with delicious food and great company.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Carnevale Celebration — February 2026</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A festive evening celebrating the Italian Carnevale tradition with masks, music, traditional treats, and entertainment. A highlight of the Society's social calendar.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Dante in Art — Lecture by Jerry Carney — April 2026</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A fascinating lecture exploring Dante Alighieri's profound influence on visual art, from Renaissance manuscript illuminations of <em>The Divine Comedy</em> to contemporary interpretations. Jerry Carney led members through centuries of artistic responses to Dante's masterpiece.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Film: Valentino: The Last Emperor — May 19, 2026</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A screening of the acclaimed documentary at Westminster Canterbury, followed by dinner at Isabella's Restaurant. The film documents the life and career of legendary fashion designer Valentino Garavani.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Viva l'Italia — September 20, 2026</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Our signature annual event celebrating Italian heritage. Membership dues are due by this date. Details of this year's celebration will be announced soon — stay tuned!</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Additional Programs Coming Soon — Fall 2026 – Spring 2027</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Our Board is planning an exciting lineup of lectures, film screenings, dinners, and cultural events for the 2026–2027 season. Check back regularly for updates, and subscribe to our newsletter to receive announcements directly.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Monthly Film & Dinner Series — Ongoing</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Each month, the Society screens an Italian-themed film followed by dinner at a local Italian restaurant. Films range from classic Italian cinema to documentaries about Italian arts, history, and culture. Dinner reservations are coordinated by Pat Bradbury.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Collaborations with Local Organizations — Ongoing</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>We regularly partner with <strong>Opera on the James</strong>, the <strong>Maier Museum of Art</strong>, and other cultural organizations for special programs. Members receive advance notice and discounted tickets where available.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Program Format & Email Reminders</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Program reminders are sent by email approximately one week before each event. Each reminder includes:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<!-- wp:list-item --><li>Event date, time, and location</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Program description and featured speaker/performer</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Dinner details and reservation contact</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Parking instructions and directions</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>RSVP information</li><!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>40</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:03:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:03:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[programs]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>3</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+
+  <!-- ============================================================ -->
+  <!-- PAGE: Membership                                              -->
+  <!-- ============================================================ -->
+  <item>
+    <title>Membership</title>
+    <link>http://dante.local/membership/</link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?page_id=50</guid>
+    <description></description>
+    <content:encoded><![CDATA[
+<!-- wp:heading -->
+<h2>Become a Member</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Funding for the Virginia Society is provided by its membership, which is open to all who have a love of all things Italian. Your membership makes our programs possible — from lectures and musical performances to Carnevale celebrations and film series.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The Dante Society's fiscal year runs <strong>September through September</strong>. Annual dues are payable in September and are requested by our signature <strong>Viva l'Italia</strong> event on <strong>September 20th</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Membership Dues</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul>
+<!-- wp:list-item --><li><strong>Individual — $35/year.</strong> Annual membership for one person.</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Family — $60/year.</strong> Annual membership for the whole family.</li><!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2>Member Benefits</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul>
+<!-- wp:list-item --><li>Invitations to all monthly programs, lectures, and events</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Film & dinner series participation</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Carnevale celebration access</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Advance notice of special events and collaborations with Opera on the James, the Maier Museum, and other cultural organizations</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Travel opportunities with fellow members</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Monthly email updates and program reminders</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Connection to a vibrant community of Italian-culture enthusiasts</li><!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2>How to Pay Dues</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><strong>We do not accept Zelle.</strong> Please use one of the following methods:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Option 1: Mail a Check</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Make checks payable to <strong>Dante Society of Virginia</strong> and mail to:<br>P.O. Box 131, Forest, VA 24551</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Option 2: Bank Bill Pay</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Use your bank's online bill pay feature to send a payment to:<br>Dante Society of Virginia, P.O. Box 131, Forest, VA 24551</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Online Payment (Coming Soon)</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>We are working on offering an online payment option. For now, please use one of the methods above. <strong>No payment system is connected on this site</strong> — all dues are processed offline via check or bank bill pay.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Renew for 2026</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>We welcome your 2026 annual dues! It is a new year of exciting programs celebrating all things Italian — lectures, musical events, Carnevale celebration, local restaurant group dinners, wine tastings, and much more!</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Member funding makes it all possible. Renew your membership today: <strong>$35 for individuals · $60 for families.</strong> Mail a check to Dante Society of VA, P.O. Box 131, Forest, VA 24551, or use your bank's "bill pay" function.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="http://www.dantesocietyofva.org/uploads/5/0/4/7/50473557/dantemembershipapplication_2026_3_.docx">Download Membership Application</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
+]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>50</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:04:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:04:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[membership]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>4</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+
+  <!-- ============================================================ -->
+  <!-- PAGE: Italian Culture                                         -->
+  <!-- ============================================================ -->
+  <item>
+    <title>Italian Culture</title>
+    <link>http://dante.local/italian-culture/</link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?page_id=60</guid>
+    <description></description>
+    <content:encoded><![CDATA[
+<!-- wp:heading -->
+<h2>La Cultura Italiana</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Italy's cultural legacy is one of the greatest in human history — from the poetry of Dante and the art of the Renaissance to the music of Verdi, the cinema of Fellini, and the cuisine that has conquered the world. The Dante Alighieri Society of Virginia celebrates this rich heritage through our programs, events, and community.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We hope you enjoy this presentation we've put together on Italian culture!</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Italian Arts & Literature</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The Society's programs explore the full breadth of Italian cultural achievement:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<!-- wp:list-item --><li><strong>Literature:</strong> From Dante's <em>Divine Comedy</em> to the works of Petrarch, Boccaccio, Pirandello, Calvino, and Eco</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Art:</strong> Renaissance masters (Leonardo, Michelangelo, Raphael), Baroque (Caravaggio, Bernini), Futurism, and contemporary Italian art</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Music:</strong> Opera (Verdi, Puccini, Rossini), classical (Vivaldi), and Italian popular music</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Cinema:</strong> Fellini, Visconti, Pasolini, Antonioni, Benigni, Moretti, and Sorrentino</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Cuisine:</strong> Regional Italian cooking, wine appreciation, and the culture of <em>la dolce vita</em></li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>History:</strong> Ancient Rome, the Renaissance, the Risorgimento, and modern Italy</li><!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2>Featured: Dante's Influence</h2>
+<!-- /wp:heading -->
+
+<!-- wp:image -->
+<figure class="wp-block-image size-large"><img src="/images/dante-s-influence.jpg" alt="Dante's Influence on art and culture"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Dante Alighieri (1265–1321) is considered the father of the Italian language. His <em>Divine Comedy</em> is one of the greatest works of world literature, a visionary journey through Hell, Purgatory, and Paradise that has inspired artists, writers, and thinkers for over 700 years.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The Society is proud to bear his name and to carry forward his legacy of elevating the Italian language and culture.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Explore Further</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>For additional resources on Italian culture, we recommend visiting the <a href="https://italianculturalsociety.org/cooking-classes/" target="_blank" rel="noreferrer noopener">Italian Cultural Society</a> for their cooking classes and cultural programs.</p>
+<!-- /wp:paragraph -->
+]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>60</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:05:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:05:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[italian-culture]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>5</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+
+  <!-- ============================================================ -->
+  <!-- PAGE: Contact                                                 -->
+  <!-- ============================================================ -->
+  <item>
+    <title>Contact</title>
+    <link>http://dante.local/contact/</link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?page_id=70</guid>
+    <description></description>
+    <content:encoded><![CDATA[
+<!-- wp:heading -->
+<h2>Get in Touch</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>We'd love to hear from you! Whether you have questions about membership, upcoming events, or just want to learn more about the Dante Society, please reach out. Our Board typically responds within 2–3 business days.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<!-- wp:list-item --><li><strong>Mailing:</strong> P.O. Box 131, Forest, VA 24551</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Membership:</strong> See our <a href="/membership">Membership page</a> for dues and application</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Dinner Reservations:</strong> Pat Bradbury, (910) 695-5644</li><!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p><em>A contact form will appear here once the Contact Form 7 plugin is installed (see SETUP-LOCAL.md). To add it, place the form's shortcode in this spot.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Membership Application</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Download our membership application form:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="http://www.dantesocietyofva.org/uploads/5/0/4/7/50473557/dantemembershipapplication_2026_3_.docx">Download Application (DOCX)</a></div>
+<!-- /wp:button -->
+
+<!-- wp:button {"className":"is-style-outline"} -->
+<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="http://www.dantesocietyofva.org/uploads/5/0/4/7/50473557/memberappwebsite__2_.pdf">Download Application (PDF)</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
+]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>70</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:06:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:06:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[contact]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>6</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+
+  <!-- ============================================================ -->
+  <!-- PAGE: Newsletter                                              -->
+  <!-- ============================================================ -->
+  <item>
+    <title>Newsletter</title>
+    <link>http://dante.local/newsletter/</link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?page_id=80</guid>
+    <description></description>
+    <content:encoded><![CDATA[
+<!-- wp:heading -->
+<h2>Stay Connected</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Our newsletter keeps members informed about upcoming events, program reminders, and Italian culture highlights. We send approximately one email per month, plus special announcements for major events.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><em>A newsletter signup form will appear here once a mailer plugin (e.g. MailPoet) is installed — see SETUP-LOCAL.md. In the meantime, contact us to be added to the mailing list.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact">Join Our Mailing List</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Newsletter Archive</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Past newsletters will be archived here once the WordPress site is live. Check back for updates!</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Email Reminder Format</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Program reminders are sent by email approximately one week before each event. Each reminder will include:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<!-- wp:list-item --><li><strong>Event:</strong> Name and type of program</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Date & Time:</strong> Day and start time</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Location:</strong> Venue address and parking instructions</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Description:</strong> Program details and speaker/performer information</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>Dinner:</strong> Post-event dinner details (if applicable) with reservation contact</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li><strong>RSVP:</strong> How to confirm attendance</li><!-- /wp:list-item -->
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>This standardized format ensures members always have the key information at a glance.</p>
+<!-- /wp:paragraph -->
+]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>80</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:07:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:07:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[newsletter]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>7</wp:menu_order>
+    <wp:post_type><![CDATA[page]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+  </item>
+
+  <!-- ============================================================ -->
+  <!-- PRIMARY MENU ITEMS                                            -->
+  <!-- ============================================================ -->
+  <item>
+    <title>Events</title>
+    <link></link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?p=200</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>200</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:10:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:10:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[events]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>1</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="primary-menu"><![CDATA[Primary Menu]]></category>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key><wp:meta_value><![CDATA[post_type]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key><wp:meta_value><![CDATA[0]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key><wp:meta_value><![CDATA[10]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key><wp:meta_value><![CDATA[page]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key><wp:meta_value><![CDATA[a:1:{i:0;s:0:"";}]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+  </item>
+
+  <item>
+    <title>About</title>
+    <link></link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?p=210</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>210</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:10:10]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:10:10]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[about-item]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>2</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="primary-menu"><![CDATA[Primary Menu]]></category>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key><wp:meta_value><![CDATA[post_type]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key><wp:meta_value><![CDATA[0]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key><wp:meta_value><![CDATA[20]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key><wp:meta_value><![CDATA[page]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key><wp:meta_value><![CDATA[a:1:{i:0;s:0:"";}]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+  </item>
+
+  <item>
+    <title>Board</title>
+    <link></link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?p=220</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>220</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:10:20]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:10:20]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[board-item]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>3</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="primary-menu"><![CDATA[Primary Menu]]></category>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key><wp:meta_value><![CDATA[post_type]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key><wp:meta_value><![CDATA[0]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key><wp:meta_value><![CDATA[30]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key><wp:meta_value><![CDATA[page]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key><wp:meta_value><![CDATA[a:1:{i:0;s:0:"";}]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+  </item>
+
+  <item>
+    <title>Programs</title>
+    <link></link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?p=230</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>230</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:10:30]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:10:30]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[programs-item]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>4</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="primary-menu"><![CDATA[Primary Menu]]></category>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key><wp:meta_value><![CDATA[post_type]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key><wp:meta_value><![CDATA[0]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key><wp:meta_value><![CDATA[40]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key><wp:meta_value><![CDATA[page]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key><wp:meta_value><![CDATA[a:1:{i:0;s:0:"";}]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+  </item>
+
+  <item>
+    <title>Membership</title>
+    <link></link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?p=240</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>240</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:10:40]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:10:40]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[membership-item]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>5</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="primary-menu"><![CDATA[Primary Menu]]></category>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key><wp:meta_value><![CDATA[post_type]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key><wp:meta_value><![CDATA[0]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key><wp:meta_value><![CDATA[50]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key><wp:meta_value><![CDATA[page]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key><wp:meta_value><![CDATA[a:1:{i:0;s:0:"";}]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+  </item>
+
+  <item>
+    <title>Italian Culture</title>
+    <link></link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?p=250</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>250</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:10:50]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:10:50]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[italian-culture-item]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>6</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="primary-menu"><![CDATA[Primary Menu]]></category>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key><wp:meta_value><![CDATA[post_type]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key><wp:meta_value><![CDATA[0]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key><wp:meta_value><![CDATA[60]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key><wp:meta_value><![CDATA[page]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key><wp:meta_value><![CDATA[a:1:{i:0;s:0:"";}]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+  </item>
+
+  <item>
+    <title>Contact</title>
+    <link></link>
+    <pubDate>Fri, 19 Jun 2026 12:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">http://dante.local/?p=260</guid>
+    <description></description>
+    <content:encoded><![CDATA[]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>260</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-19 09:11:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-19 09:11:00]]></wp:post_date_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[contact-item]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>7</wp:menu_order>
+    <wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="nav_menu" nicename="primary-menu"><![CDATA[Primary Menu]]></category>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key><wp:meta_value><![CDATA[post_type]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key><wp:meta_value><![CDATA[0]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object_id]]></wp:meta_key><wp:meta_value><![CDATA[70]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_object]]></wp:meta_key><wp:meta_value><![CDATA[page]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_target]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_classes]]></wp:meta_key><wp:meta_value><![CDATA[a:1:{i:0;s:0:"";}]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_xfn]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+    <wp:postmeta><wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key><wp:meta_value><![CDATA[]]></wp:meta_value></wp:postmeta>
+  </item>
+
+</channel>
+</rss>

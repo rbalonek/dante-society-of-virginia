@@ -147,6 +147,36 @@ function dante_customize_register( $wp_customize ) {
 add_action( 'customize_register', 'dante_customize_register' );
 
 /**
+ * Primary menu fallback.
+ *
+ * Used by header.php when no menu has been assigned to the "Primary" location
+ * (e.g. on a fresh install). This lets the site navigation work out of the box.
+ * Once an editor builds a menu under Appearance → Menus and assigns it to
+ * "Primary Menu", that menu takes over automatically.
+ */
+function dante_primary_menu_fallback() {
+    $links = array(
+        home_url( '/' )                => 'Events',
+        home_url( '/about' )           => 'About',
+        home_url( '/board' )           => 'Board',
+        home_url( '/programs' )        => 'Programs',
+        home_url( '/membership' )      => 'Membership',
+        home_url( '/italian-culture' ) => 'Italian Culture',
+        home_url( '/contact' )         => 'Contact',
+    );
+
+    echo '<ul id="menu-primary" class="menu">';
+    foreach ( $links as $url => $label ) {
+        printf(
+            '<li class="menu-item"><a href="%s">%s</a></li>',
+            esc_url( $url ),
+            esc_html( $label )
+        );
+    }
+    echo '</ul>';
+}
+
+/**
  * Get page ID by template
  */
 function dante_get_page_id_by_template( $template_name ) {
