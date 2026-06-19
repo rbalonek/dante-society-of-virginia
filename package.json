@@ -1,0 +1,15 @@
+{
+  "name": "dante-society-of-virginia",
+  "version": "1.0.0",
+  "description": "Website for the Dante Alighieri Society of Virginia — a non-profit promoting Italian culture in Virginia.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["dante", "italian", "culture", "virginia", "nonprofit"],
+  "license": "GPL-2.0",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

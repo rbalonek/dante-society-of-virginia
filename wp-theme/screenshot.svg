@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D2B1F"/>
+      <stop offset="100%" style="stop-color:#1B4332"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <circle cx="600" cy="300" r="70" fill="#C8963E"/>
+  <text x="600" y="325" font-family="Georgia,serif" font-size="72" font-weight="bold" fill="#1B4332" text-anchor="middle">D</text>
+  <text x="600" y="430" font-family="Georgia,serif" font-size="48" font-weight="bold" fill="#C8963E" text-anchor="middle">Dante Society of Virginia</text>
+  <rect x="560" y="455" width="80" height="3" fill="#C8963E"/>
+  <text x="600" y="500" font-family="Arial,sans-serif" font-size="18" fill="#FAF3E0" text-anchor="middle" opacity="0.9">Dante Alighieri Society &bull; Since 1998</text>
+  <text x="600" y="850" font-family="Arial,sans-serif" font-size="14" fill="#FAF3E0" text-anchor="middle" opacity="0.5">WordPress Theme &mdash; v1.0.0</text>
+</svg>
