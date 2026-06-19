@@ -1,0 +1,67 @@
+name: Deploy theme to WordPress
+
+# Deploys the contents of wp-theme/ to the production WordPress host's theme
+# directory via rsync over SSH. Theme code only — site content lives in the
+# WordPress database and is NOT touched by this workflow.
+#
+# Required GitHub repo secrets (Settings → Secrets and variables → Actions):
+#   SSH_HOST            e.g. ssh.yourhost.com
+#   SSH_USER            SFTP/SSH username
+#   SSH_PRIVATE_KEY     private key whose public half is on the host
+#   REMOTE_THEME_PATH   absolute path to the theme dir on the host,
+#                       e.g. /home/site/public_html/wp-content/themes/dante-society
+# Optional:
+#   SSH_PORT            defaults to 22
+#
+# See DEPLOY.md for setup details.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wp-theme/**'
+      - '.github/workflows/deploy-theme.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-theme
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy wp-theme/ via rsync over SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_THEME_PATH: ${{ secrets.REMOTE_THEME_PATH }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SSH_HOST}" ] || [ -z "${REMOTE_THEME_PATH}" ]; then
+            echo "Deploy secrets not configured yet (SSH_HOST / REMOTE_THEME_PATH empty). Skipping."
+            exit 0
+          fi
+
+          mkdir -p ~/.ssh
+          printf '%s\n' "${SSH_PRIVATE_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${SSH_PORT}" "${SSH_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Trailing slash on source copies the CONTENTS of wp-theme/ into the
+          # remote theme directory. --delete mirrors deletions (the remote theme
+          # dir must be dedicated to this theme).
+          rsync -avz --delete \
+            --exclude='.DS_Store' \
+            -e "ssh -i ~/.ssh/deploy_key -p ${SSH_PORT}" \
+            ./wp-theme/ \
+            "${SSH_USER}@${SSH_HOST}:${REMOTE_THEME_PATH}/"
+
+          rm -f ~/.ssh/deploy_key
+          echo "Theme deployed to ${REMOTE_THEME_PATH}"

@@ -1,0 +1,16 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Node (static preview server)
+node_modules/
+npm-debug.log*
+
+# Local / WordPress runtime artifacts (should never be committed from a Local site)
+wp-config.php
+*.sql
+*.sql.gz
+wp-content/uploads/
