@@ -626,50 +626,182 @@ body {
   top: 32px;
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 900px) {
-  .header-inner { height: 64px; }
-  .logo-name { font-size: 1rem; }
-  .logo-subtitle { display: none; }
-  .hero { padding: 60px 20px; }
-  .hero h1 { font-size: 2.2rem; }
-  .page-header { padding: 40px 20px; }
-  .page-header h1 { font-size: 2rem; }
-  .main-content { padding: 40px 20px; }
-  .content-card { padding: 28px; }
-  .footer-inner { grid-template-columns: 1fr; gap: 24px; }
-  .membership-tiers { grid-template-columns: 1fr; }
-  .newsletter-form { flex-direction: column; }
-  .photo-gallery { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+/* ===== Image & block alignment =====
+   Makes the image toolbar's Left / Center / Right alignment buttons actually
+   work. (Alignment only shows an effect once an image is narrower than the
+   column — drag the bottom-right handle to shrink it first.) */
+.entry-content img,
+.content-card img { max-width: 100%; height: auto; }
+
+.wp-block-image { margin: 1.2em 0; }
+
+.wp-block-image.aligncenter,
+figure.aligncenter,
+.aligncenter {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+.wp-block-image.aligncenter img { margin-left: auto; margin-right: auto; }
+
+.wp-block-image.alignleft,
+.alignleft {
+  float: left;
+  margin: 0.3em 1.5em 1em 0;
+  max-width: 50%;
+}
+.wp-block-image.alignright,
+.alignright {
+  float: right;
+  margin: 0.3em 0 1em 1.5em;
+  max-width: 50%;
 }
 
-@media (max-width: 700px) {
-  .nav-toggle { display: block; }
-  .main-nav {
-    display: none;
-    position: absolute;
-    top: 64px;
-    left: 0;
-    right: 0;
-    background: var(--dark-green);
-    flex-direction: column;
-    padding: 12px;
-    gap: 2px;
-    border-bottom: 3px solid var(--gold);
-  }
-  .main-nav.open { display: flex; }
-  .main-nav a {
-    padding: 12px 16px;
-    width: 100%;
-    border-radius: 4px;
-  }
-  .event-card { flex-direction: column; }
-  .event-card-image { width: 100%; min-width: 100%; height: 200px; }
-  .hero h1 { font-size: 1.8rem; }
-  .hero .tagline { font-size: 1rem; }
-  .page-header h1 { font-size: 1.6rem; }
-  .content-card { padding: 20px; }
+/* One-click labeled image alignment (the image "Styles" panel). */
+.wp-block-image.is-style-align-center {
+  display: block;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
+.wp-block-image.is-style-align-center img { display: inline-block; }
+.wp-block-image.is-style-align-left {
+  float: left;
+  margin: 0.3em 1.5em 1em 0;
+  max-width: 50%;
+}
+.wp-block-image.is-style-align-right {
+  float: right;
+  margin: 0.3em 0 1em 1.5em;
+  max-width: 50%;
+}
+
+/* Image-beside-text (Media & Text block): comfortable gap, vertical centering. */
+.wp-block-media-text {
+  gap: 32px;
+  align-items: center;
+  margin: 1.6em 0;
+}
+.wp-block-media-text img { height: auto; }
+
+/* Clear floated images so following content doesn't wrap oddly. */
+.entry-content::after,
+.content-card::after { content: ""; display: table; clear: both; }
+
+/* ===== Events list (custom post type) ===== */
+.event-listing {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--light-gray);
+}
+.event-listing:last-child { border-bottom: none; }
+.event-listing-text { flex: 1 1 60%; }
+.event-listing-image { flex: 0 0 32%; max-width: 32%; }
+.event-listing-image img { width: 100%; height: auto; border-radius: 8px; display: block; }
+.event-listing-title { font-family: var(--font-heading); color: var(--green); margin-bottom: 6px; }
+.event-listing-date { color: var(--gold); font-weight: 600; margin-bottom: 6px; }
+.event-listing-location { margin-bottom: 8px; }
+
+/* ===== Events calendar (FullCalendar) ===== */
+#dante-calendar {
+  --fc-button-bg-color: var(--green);
+  --fc-button-border-color: var(--green);
+  --fc-button-hover-bg-color: var(--dark-green);
+  --fc-button-hover-border-color: var(--dark-green);
+  --fc-button-active-bg-color: var(--gold);
+  --fc-button-active-border-color: var(--gold);
+  --fc-today-bg-color: rgba(200, 150, 62, 0.12);
+  --fc-event-bg-color: var(--gold);
+  --fc-event-border-color: var(--gold);
+  --fc-event-text-color: #ffffff;
+  margin-top: 12px;
+}
+.fc .fc-toolbar-title { font-family: var(--font-heading); color: var(--green); font-size: 1.5rem; }
+.fc .fc-button {
+  text-transform: none;
+  font-weight: 600;
+  border-radius: 6px;
+  box-shadow: none !important;
+}
+.fc .fc-button:focus { box-shadow: none !important; }
+.fc-event { cursor: pointer; }
+.fc .fc-daygrid-day.fc-day-today { font-weight: 600; }
+.events-calendar-hint { color: var(--text-light); font-size: 0.9rem; }
+
+/* Brief highlight when the calendar scrolls to an event. */
+.event-listing { scroll-margin-top: 90px; transition: background-color 0.4s ease; border-radius: 8px; }
+.event-listing.event-highlight { background-color: rgba(200, 150, 62, 0.16); }
+
+/* Sleeker, fits-on-mobile calendar. */
+@media (max-width: 640px) {
+  .fc .fc-toolbar.fc-header-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 1em;
+  }
+  .fc .fc-toolbar-title { font-size: 1.25rem; text-align: center; }
+  .fc .fc-toolbar-chunk { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
+  .fc .fc-button { padding: 6px 10px; font-size: 0.78rem; }
+  .fc .fc-col-header-cell-cushion { font-size: 0.72rem; }
+  .fc .fc-daygrid-day-number { font-size: 0.78rem; padding: 2px 4px; }
+  .fc .fc-daygrid-day-frame { min-height: 44px; }
+  .fc-daygrid-event { font-size: 0.68rem; padding: 1px 3px; }
+  .fc .fc-daygrid-more-link { font-size: 0.68rem; }
+}
+
+/* ===== Event popup modal ===== */
+.dante-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 43, 31, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 20px;
+}
+.dante-modal-overlay[hidden] { display: none; }
+.dante-modal {
+  background: #fff;
+  border-radius: 10px;
+  max-width: 520px;
+  width: 100%;
+  padding: 28px;
+  position: relative;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.dante-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--green);
+}
+.dante-modal-img {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.dante-modal h3 { font-family: var(--font-heading); color: var(--green); margin-bottom: 8px; }
+.dante-modal-meta { color: var(--gold); font-weight: 600; margin-bottom: 12px; }
+.dante-modal-desc { color: var(--text-dark); line-height: 1.6; }
+
+/* ===== Responsive =====
+   The mobile/responsive rules are generated by PHP (see dante_responsive_css()
+   in functions.php) so the breakpoint is adjustable from the Customizer
+   (Appearance → Customize → Layout & Mobile). Default: 900px. */
 
 /* ---- WordPress nav-menu markup compatibility ----
    WordPress (and the theme's menu fallback) renders the navigation as a
@@ -688,13 +820,4 @@ body {
 .main-nav .current_page_item > a {
   background: var(--gold);
   color: var(--dark-green);
-}
-
-@media (max-width: 700px) {
-  .main-nav ul {
-    flex-direction: column;
-    width: 100%;
-    gap: 2px;
-  }
-  .main-nav li { width: 100%; }
 }

@@ -1,0 +1,34 @@
+/* ===========================================================================
+   Dante Society — Block editor CHROME styles
+   Loaded via enqueue_block_editor_assets(). Styles the editor UI *outside*
+   the content canvas (the block toolbar) so the controls are bigger and
+   easier to read/click for non-technical editors.
+   =========================================================================== */
+
+/* Larger, easier-to-hit block toolbar buttons. */
+.block-editor-block-toolbar .components-button,
+.block-editor-block-contextual-toolbar .components-button {
+  height: 44px !important;
+  min-width: 44px !important;
+}
+
+.block-editor-block-toolbar .components-button svg,
+.block-editor-block-contextual-toolbar .components-button svg {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+/* Make text labels in the toolbar a touch larger. */
+.block-editor-block-toolbar .components-button {
+  font-size: 14px !important;
+}
+
+/* Emphasize the image "Replace" control — the most common edit task. */
+.block-editor-media-replace-flow__media-replace-button {
+  font-weight: 600 !important;
+}
+
+/* Slightly larger block-type label so editors know what they've selected. */
+.block-editor-block-card__title {
+  font-size: 15px !important;
+}

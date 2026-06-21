@@ -9,6 +9,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'DANTE_THEME_VERSION', '1.0.0' );
 
+// Events: custom post type, fields, and helpers.
+require_once get_template_directory() . '/inc/events.php';
+
+// One-time seeder for the starter events (safe to remove after it runs once).
+require_once get_template_directory() . '/inc/seed-events.php';
+
 /**
  * Theme Setup
  */
@@ -143,8 +149,190 @@ function dante_customize_register( $wp_customize ) {
         'section' => 'dante_hero',
         'type'    => 'textarea',
     ) );
+
+    // Layout & Mobile
+    $wp_customize->add_section( 'dante_layout', array(
+        'title'    => __( 'Layout & Mobile', 'dante-society' ),
+        'priority' => 35,
+    ) );
+
+    $wp_customize->add_setting( 'dante_mobile_breakpoint', array(
+        'default'           => 900,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'refresh',
+    ) );
+
+    $wp_customize->add_control( 'dante_mobile_breakpoint', array(
+        'label'       => __( 'Mobile layout breakpoint (px)', 'dante-society' ),
+        'description' => __( 'Screens at or below this width show the stacked mobile layout (hamburger menu, single column). 900 makes tablets use the mobile layout. Range 480–1200.', 'dante-society' ),
+        'section'     => 'dante_layout',
+        'type'        => 'number',
+        'input_attrs' => array(
+            'min'  => 480,
+            'max'  => 1200,
+            'step' => 10,
+        ),
+    ) );
 }
 add_action( 'customize_register', 'dante_customize_register' );
+
+/**
+ * ---------------------------------------------------------------------------
+ * Simplified block editor for non-technical editors
+ * ---------------------------------------------------------------------------
+ */
+
+/**
+ * Load the front-end fonts/colors into the editor canvas (WYSIWYG) and the
+ * editor-clarity styles (large, obvious resize handles, visible spacers).
+ */
+function dante_editor_setup() {
+    add_theme_support( 'editor-styles' );
+    add_editor_style( array(
+        // Load brand fonts inside the editor canvas (iframe).
+        'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:wght@400;600;700&display=swap',
+        'css/editor.css',
+    ) );
+}
+add_action( 'after_setup_theme', 'dante_editor_setup' );
+
+/**
+ * Styles for the editor chrome (block toolbar) — outside the canvas iframe.
+ */
+function dante_editor_chrome_assets() {
+    wp_enqueue_style(
+        'dante-editor-chrome',
+        get_template_directory_uri() . '/css/editor-chrome.css',
+        array(),
+        DANTE_THEME_VERSION
+    );
+
+    wp_enqueue_script(
+        'dante-editor-js',
+        get_template_directory_uri() . '/js/editor.js',
+        array( 'wp-dom-ready', 'wp-data', 'wp-notices', 'wp-preferences' ),
+        DANTE_THEME_VERSION,
+        true
+    );
+
+    // Make the admin-set mobile breakpoint available to the editor script.
+    wp_add_inline_script(
+        'dante-editor-js',
+        'window.danteEditor = { breakpoint: ' . dante_get_mobile_breakpoint() . ' };',
+        'before'
+    );
+}
+add_action( 'enqueue_block_editor_assets', 'dante_editor_chrome_assets' );
+
+/**
+ * Restrict the block inserter to a small, friendly set of blocks so editors
+ * aren't faced with 90+ options. Extend this list as custom blocks/widgets
+ * are added later.
+ */
+function dante_allowed_blocks( $allowed_blocks, $context ) {
+    return array(
+        'core/paragraph',
+        'core/heading',
+        'core/image',
+        'core/media-text', // image beside text, draggable width, left/right toggle
+        'core/gallery',
+        'core/list',
+        'core/list-item',
+        'core/buttons',
+        'core/button',
+        'core/quote',
+        'core/separator',
+        'core/spacer',
+        'dante/events', // calendar + auto event list
+    );
+}
+add_filter( 'allowed_block_types_all', 'dante_allowed_blocks', 10, 2 );
+
+/**
+ * Labeled one-click image alignment. These appear in the image block's "Styles"
+ * panel as clearly named choices — friendlier than the unlabeled alignment icon
+ * in the toolbar for non-technical editors.
+ */
+function dante_register_block_styles() {
+    register_block_style( 'core/image', array(
+        'name'  => 'align-center',
+        'label' => __( 'Centered', 'dante-society' ),
+    ) );
+    register_block_style( 'core/image', array(
+        'name'  => 'align-left',
+        'label' => __( 'Float left (text wraps right)', 'dante-society' ),
+    ) );
+    register_block_style( 'core/image', array(
+        'name'  => 'align-right',
+        'label' => __( 'Float right (text wraps left)', 'dante-society' ),
+    ) );
+}
+add_action( 'init', 'dante_register_block_styles' );
+
+/**
+ * Mobile breakpoint (px): screen widths at or below this switch the site to its
+ * stacked mobile layout (hamburger menu, single column). Admin-set via the
+ * Customizer (Appearance → Customize → Layout & Mobile); also surfaced in the
+ * block editor. Default 900 so tablets use the mobile layout.
+ */
+function dante_get_mobile_breakpoint() {
+    $bp = absint( get_theme_mod( 'dante_mobile_breakpoint', 900 ) );
+    return max( 480, min( 1200, $bp ) );
+}
+
+/**
+ * Output the responsive (mobile) CSS at the admin-selected breakpoint.
+ * Attached to the main theme stylesheet so it loads right after it.
+ */
+function dante_responsive_css() {
+    $bp = dante_get_mobile_breakpoint();
+
+    $css = "@media (max-width:{$bp}px){"
+        . '.header-inner{height:64px}'
+        . '.logo-name{font-size:1rem}'
+        . '.logo-subtitle{display:none}'
+        . '.hero{padding:60px 20px}'
+        . '.hero h1{font-size:1.8rem}'
+        . '.hero .tagline{font-size:1rem}'
+        . '.page-header{padding:40px 20px}'
+        . '.page-header h1{font-size:1.6rem}'
+        . '.main-content{padding:40px 20px}'
+        . '.content-card{padding:20px}'
+        . '.footer-inner{grid-template-columns:1fr;gap:24px}'
+        . '.membership-tiers{grid-template-columns:1fr}'
+        . '.newsletter-form{flex-direction:column}'
+        . '.photo-gallery{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}'
+        . '.nav-toggle{display:block}'
+        . '.main-nav{display:none;position:absolute;top:64px;left:0;right:0;background:var(--dark-green);flex-direction:column;padding:12px;gap:2px;border-bottom:3px solid var(--gold)}'
+        . '.main-nav.open{display:flex}'
+        . '.main-nav a{padding:12px 16px;width:100%;border-radius:4px}'
+        . '.main-nav ul{flex-direction:column;width:100%;gap:2px}'
+        . '.main-nav li{width:100%}'
+        . '.event-card{flex-direction:column}'
+        . '.event-card-image{width:100%;min-width:100%;height:200px}'
+        // Stack "image beside text" (Media & Text) into one column on small screens.
+        . '.wp-block-media-text{grid-template-columns:1fr!important;gap:16px}'
+        . '.wp-block-media-text .wp-block-media-text__media{grid-column:1;grid-row:1}'
+        . '.wp-block-media-text .wp-block-media-text__content{grid-column:1;grid-row:2}'
+        // Stack the events list (image below text) on small screens.
+        . '.event-listing{flex-direction:column}'
+        . '.event-listing-image{max-width:100%;flex-basis:auto}'
+        . '}';
+
+    wp_add_inline_style( 'dante-custom', $css );
+}
+add_action( 'wp_enqueue_scripts', 'dante_responsive_css', 20 );
+
+/**
+ * Load the calendar assets on the (optional) Events page template.
+ * The Events block loads them itself via its render callback.
+ */
+function dante_events_assets() {
+    if ( is_page_template( 'page-events.php' ) ) {
+        dante_enqueue_calendar_assets();
+    }
+}
+add_action( 'wp_enqueue_scripts', 'dante_events_assets' );
 
 /**
  * Primary menu fallback.

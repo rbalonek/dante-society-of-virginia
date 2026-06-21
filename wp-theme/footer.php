@@ -1,17 +1,14 @@
     <footer class="site-footer">
         <div class="footer-inner">
-            <?php if ( is_active_sidebar( 'footer-1' ) ) : ?>
-                <?php dynamic_sidebar( 'footer-1' ); ?>
-            <?php else : ?>
             <div class="footer-col">
-                <h4><?php bloginfo( 'name' ); ?></h4>
-                <p>Promoting Italian culture, arts, literature, and community in Virginia since 1998.</p>
+                <h4>Contact</h4>
+                <p>
+                    P.O. Box 131<br>
+                    Forest, VA 24551<br>
+                    <a href="<?php echo esc_url( home_url( '/contact' ) ); ?>">Send us a message</a>
+                </p>
             </div>
-            <?php endif; ?>
 
-            <?php if ( is_active_sidebar( 'footer-2' ) ) : ?>
-                <?php dynamic_sidebar( 'footer-2' ); ?>
-            <?php else : ?>
             <div class="footer-col">
                 <h4>Quick Links</h4>
                 <p>
@@ -23,20 +20,11 @@
                     <a href="<?php echo esc_url( home_url( '/contact' ) ); ?>">Contact</a>
                 </p>
             </div>
-            <?php endif; ?>
 
-            <?php if ( is_active_sidebar( 'footer-3' ) ) : ?>
-                <?php dynamic_sidebar( 'footer-3' ); ?>
-            <?php else : ?>
             <div class="footer-col">
-                <h4>Contact</h4>
-                <p>
-                    P.O. Box 131<br>
-                    Forest, VA 24551<br>
-                    <a href="<?php echo esc_url( home_url( '/contact' ) ); ?>">Send us a message</a>
-                </p>
+                <h4><?php bloginfo( 'name' ); ?></h4>
+                <p>Promoting Italian culture, arts, literature, and community in Virginia since 1998.</p>
             </div>
-            <?php endif; ?>
         </div>
         <div class="footer-bottom">
             &copy; <?php echo date( 'Y' ); ?> <?php bloginfo( 'name' ); ?>. All rights reserved.

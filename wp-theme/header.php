@@ -45,6 +45,5 @@
 <?php elseif ( ! is_front_page() ) : ?>
 <section class="page-header">
     <h1><?php wp_title( '' ); ?></h1>
-    <div class="breadcrumb"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a> &raquo; <?php wp_title( '' ); ?></div>
 </section>
 <?php endif; ?>
