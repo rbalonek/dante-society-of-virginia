@@ -15,6 +15,9 @@ require_once get_template_directory() . '/inc/events.php';
 // One-time seeder for the starter events (safe to remove after it runs once).
 require_once get_template_directory() . '/inc/seed-events.php';
 
+// Newsletter: subscribers + composer (send via wp_mail).
+require_once get_template_directory() . '/inc/newsletter.php';
+
 /**
  * Theme Setup
  */
@@ -243,6 +246,7 @@ function dante_allowed_blocks( $allowed_blocks, $context ) {
         'core/quote',
         'core/separator',
         'core/spacer',
+        'core/shortcode', // allows [dante_subscribe] signup form
         'dante/events', // calendar + auto event list
     );
 }
