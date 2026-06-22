@@ -176,8 +176,58 @@ function dante_customize_register( $wp_customize ) {
             'step' => 10,
         ),
     ) );
+
+    // Background Images
+    $wp_customize->add_section( 'dante_backgrounds', array(
+        'title'    => __( 'Background Images', 'dante-society' ),
+        'priority' => 36,
+    ) );
+
+    $wp_customize->add_setting( 'dante_bg_image', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'dante_bg_image', array(
+        'label'       => __( 'Page background image', 'dante-society' ),
+        'description' => __( 'Shown behind the whole site. Leave empty to use the default Dante painting.', 'dante-society' ),
+        'section'     => 'dante_backgrounds',
+    ) ) );
+
+    $wp_customize->add_setting( 'dante_hero_image', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ) );
+    $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'dante_hero_image', array(
+        'label'       => __( 'Homepage hero background', 'dante-society' ),
+        'description' => __( 'Background behind the homepage title area. Leave empty for the default.', 'dante-society' ),
+        'section'     => 'dante_backgrounds',
+    ) ) );
 }
 add_action( 'customize_register', 'dante_customize_register' );
+
+/**
+ * Apply Customizer background image choices (override the CSS defaults).
+ */
+function dante_background_css() {
+    $css = '';
+
+    $bg = get_theme_mod( 'dante_bg_image' );
+    if ( $bg ) {
+        $css .= 'body{background-image:url(' . esc_url( $bg ) . ');}';
+    }
+
+    $hero = get_theme_mod( 'dante_hero_image' );
+    if ( $hero ) {
+        $css .= '.hero{background:linear-gradient(rgba(27,67,50,0.85),rgba(13,43,31,0.9)),url(' . esc_url( $hero ) . ');background-size:cover;background-position:center;}';
+    }
+
+    if ( $css ) {
+        wp_add_inline_style( 'dante-custom', $css );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'dante_background_css', 25 );
 
 /**
  * ---------------------------------------------------------------------------

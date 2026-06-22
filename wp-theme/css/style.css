@@ -24,7 +24,7 @@ body {
   line-height: 1.7;
   color: var(--text-dark);
   background-color: var(--cream);
-  background-image: url('/images/background2.jpg');
+  background-image: url('../images/background2.jpg');
   background-attachment: fixed;
   background-size: cover;
   background-repeat: no-repeat;
@@ -130,7 +130,7 @@ body {
 
 /* ===== Hero Section ===== */
 .hero {
-  background: linear-gradient(rgba(27,67,50,0.85), rgba(13,43,31,0.9)), url('/images/background1.jpg');
+  background: linear-gradient(rgba(27,67,50,0.85), rgba(13,43,31,0.9)), url('../images/background1.jpg');
   background-size: cover;
   background-position: center;
   color: var(--cream);
