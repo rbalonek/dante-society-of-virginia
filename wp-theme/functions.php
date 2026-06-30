@@ -476,6 +476,19 @@ function dante_primary_menu_fallback() {
 }
 
 /**
+ * Auto-add a "Calendar" item to the primary menu (opens the calendar popup).
+ * Saves having to add a Custom Link by hand. Skipped if one already exists.
+ */
+function dante_add_calendar_menu_item( $items, $args ) {
+    if ( isset( $args->theme_location ) && 'primary' === $args->theme_location
+        && false === strpos( $items, '#calendar' ) ) {
+        $items .= '<li class="menu-item"><a href="#calendar" class="dante-calendar-toggle">Calendar</a></li>';
+    }
+    return $items;
+}
+add_filter( 'wp_nav_menu_items', 'dante_add_calendar_menu_item', 10, 2 );
+
+/**
  * Get page ID by template
  */
 function dante_get_page_id_by_template( $template_name ) {
