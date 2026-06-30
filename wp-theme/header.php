@@ -10,17 +10,31 @@
 
 <header class="site-header" id="site-header">
     <div class="header-inner">
-        <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="logo">
-            <?php if ( has_custom_logo() ) : ?>
-                <?php the_custom_logo(); ?>
-            <?php else : ?>
+        <?php if ( has_custom_logo() ) : ?>
+            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="logo logo--custom">
+                <?php echo wp_get_attachment_image(
+                    get_theme_mod( 'custom_logo' ),
+                    'full',
+                    false,
+                    array(
+                        'class' => 'custom-logo',
+                        'alt'   => get_bloginfo( 'name' ),
+                    )
+                ); ?>
+                <div class="logo-text">
+                    <span class="logo-name"><?php bloginfo( 'name' ); ?></span>
+                    <span class="logo-subtitle">Since 1998</span>
+                </div>
+            </a>
+        <?php else : ?>
+            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="logo">
                 <div class="logo-icon">D</div>
                 <div class="logo-text">
                     <span class="logo-name"><?php bloginfo( 'name' ); ?></span>
-                    <span class="logo-subtitle">Dante Alighieri Society</span>
+                    <span class="logo-subtitle">Dante Society</span>
                 </div>
-            <?php endif; ?>
-        </a>
+            </a>
+        <?php endif; ?>
         <button class="nav-toggle" id="nav-toggle" aria-label="<?php esc_attr_e( 'Toggle navigation', 'dante-society' ); ?>">&#9776;</button>
         <nav class="main-nav" id="main-nav">
             <?php
@@ -40,7 +54,7 @@
 <section class="hero">
     <h1><?php echo esc_html( get_theme_mod( 'dante_hero_title', 'Calendar of Events 2026' ) ); ?></h1>
     <div class="hero-separator"></div>
-    <p class="tagline"><?php echo esc_html( get_theme_mod( 'dante_hero_tagline', 'Join the Dante Alighieri Society of Virginia for a year of celebration, learning, and community.' ) ); ?></p>
+    <p class="tagline"><?php echo esc_html( get_theme_mod( 'dante_hero_tagline', 'Join the Dante Society of Virginia for a year of celebration, learning, and community.' ) ); ?></p>
 </section>
 <?php elseif ( ! is_front_page() ) : ?>
 <section class="page-header">

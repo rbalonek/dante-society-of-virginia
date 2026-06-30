@@ -82,8 +82,32 @@ function dante_enqueue_assets() {
         DANTE_THEME_VERSION,
         true
     );
+
+    // Membership checkout (demo) — only on the checkout page template.
+    if ( is_page_template( 'page-checkout.php' ) ) {
+        wp_enqueue_script(
+            'dante-checkout',
+            get_template_directory_uri() . '/js/checkout.js',
+            array(),
+            DANTE_THEME_VERSION,
+            true
+        );
+    }
 }
 add_action( 'wp_enqueue_scripts', 'dante_enqueue_assets' );
+
+/**
+ * The site logo (emblem) displays at 64px in the header, but WordPress emits a
+ * "100vw" sizes attribute that makes browsers fetch a much larger source than
+ * needed. Constrain it so a small, appropriately sized variant is served.
+ */
+function dante_custom_logo_image_attributes( $attr ) {
+    if ( isset( $attr['class'] ) && false !== strpos( $attr['class'], 'custom-logo' ) ) {
+        $attr['sizes'] = '64px';
+    }
+    return $attr;
+}
+add_filter( 'wp_get_attachment_image_attributes', 'dante_custom_logo_image_attributes' );
 
 /**
  * Register Widget Areas
@@ -132,7 +156,7 @@ function dante_customize_register( $wp_customize ) {
     ) );
 
     $wp_customize->add_setting( 'dante_hero_title', array(
-        'default'           => 'Dante Alighieri Society of Virginia',
+        'default'           => 'Dante Society of Virginia',
         'sanitize_callback' => 'sanitize_text_field',
     ) );
 

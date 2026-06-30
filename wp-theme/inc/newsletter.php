@@ -252,7 +252,7 @@ function dante_handle_unsubscribe() {
     if ( $q->have_posts() ) {
         update_post_meta( $q->posts[0]->ID, '_nl_status', 'unsubscribed' );
         wp_die(
-            '<h1>You have been unsubscribed</h1><p>You will no longer receive emails from the Dante Alighieri Society of Virginia.</p><p><a href="' . esc_url( home_url( '/' ) ) . '">Return to the website</a></p>',
+            '<h1>You have been unsubscribed</h1><p>You will no longer receive emails from the Dante Society of Virginia.</p><p><a href="' . esc_url( home_url( '/' ) ) . '">Return to the website</a></p>',
             'Unsubscribed',
             array( 'response' => 200 )
         );
@@ -273,7 +273,7 @@ function dante_nl_email_shell( $inner_html, $unsubscribe_url = '#', $footer_text
 <div style="background:#FAF3E0;padding:24px 0;font-family:Arial,Helvetica,sans-serif;color:#2D2D2D;">
   <table width="600" align="center" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:8px;overflow:hidden;">
     <tr><td style="background:#1B4332;padding:20px 28px;">
-      <span style="color:#C8963E;font-size:22px;font-weight:bold;">Dante Alighieri Society of Virginia</span>
+      <span style="color:#C8963E;font-size:22px;font-weight:bold;">Dante Society of Virginia</span>
     </td></tr>
     <tr><td style="padding:28px;line-height:1.6;font-size:16px;"><?php echo $inner_html; // phpcs:ignore WordPress.Security.EscapeOutput ?></td></tr>
     <tr><td style="background:#1B4332;padding:22px 28px;color:#cbbfa6;font-size:12px;line-height:1.6;text-align:center;">
@@ -283,7 +283,7 @@ function dante_nl_email_shell( $inner_html, $unsubscribe_url = '#', $footer_text
       <p style="margin:0 0 14px;">
         <a href="<?php echo esc_url( $unsubscribe_url ); ?>" style="background:#C8963E;color:#1B4332;text-decoration:none;font-weight:bold;padding:9px 18px;border-radius:5px;display:inline-block;">Unsubscribe</a>
       </p>
-      Dante Alighieri Society of Virginia &middot; P.O. Box 131, Forest, VA 24551
+      Dante Society of Virginia &middot; P.O. Box 131, Forest, VA 24551
     </td></tr>
   </table>
 </div>
@@ -415,7 +415,7 @@ function dante_newsletter_page() {
         'intro'    => '',
         'event_id' => 0,
         'body'     => '',
-        'footer'   => "You're receiving this email because you subscribed to updates from the Dante Alighieri Society of Virginia.",
+        'footer'   => "You're receiving this email because you subscribed to updates from the Dante Society of Virginia.",
     );
 
     if ( isset( $_POST['dante_nl_nonce'] ) && wp_verify_nonce( $_POST['dante_nl_nonce'], 'dante_nl_compose' ) ) {
