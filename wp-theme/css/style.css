@@ -714,7 +714,8 @@ figure.aligncenter,
 .event-listing-location { margin-bottom: 8px; }
 
 /* ===== Events calendar (FullCalendar) ===== */
-#dante-calendar {
+#dante-calendar,
+#dante-calendar-popup {
   --fc-button-bg-color: var(--green);
   --fc-button-border-color: var(--green);
   --fc-button-hover-bg-color: var(--dark-green);
@@ -760,6 +761,42 @@ figure.aligncenter,
   .fc-daygrid-event { font-size: 0.68rem; padding: 1px 3px; }
   .fc .fc-daygrid-more-link { font-size: 0.68rem; }
 }
+
+/* ===== Calendar popup (from the nav) ===== */
+.dante-cal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 43, 31, 0.6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 9998;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+.dante-cal-overlay[hidden] { display: none; }
+.dante-cal-modal {
+  background: #fff;
+  border-radius: 10px;
+  max-width: 780px;
+  width: 100%;
+  margin: auto;
+  padding: 28px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.dante-cal-close {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--green);
+}
+.dante-cal-title { font-family: var(--font-heading); color: var(--green); margin-bottom: 16px; }
 
 /* ===== Event popup modal ===== */
 .dante-modal-overlay {

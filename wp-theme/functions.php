@@ -415,15 +415,34 @@ function dante_responsive_css() {
 add_action( 'wp_enqueue_scripts', 'dante_responsive_css', 20 );
 
 /**
- * Load the calendar assets on the (optional) Events page template.
- * The Events block loads them itself via its render callback.
+ * Load the calendar assets site-wide so the nav "Calendar" popup works on every
+ * page (and the inline Events-block calendar too).
  */
 function dante_events_assets() {
-    if ( is_page_template( 'page-events.php' ) ) {
+    if ( ! is_admin() ) {
         dante_enqueue_calendar_assets();
     }
 }
 add_action( 'wp_enqueue_scripts', 'dante_events_assets' );
+
+/**
+ * Output the site-wide calendar popup (opened by a nav link to #calendar).
+ */
+function dante_calendar_popup_markup() {
+    if ( is_admin() ) {
+        return;
+    }
+    ?>
+    <div class="dante-cal-overlay" id="dante-cal-overlay" hidden>
+        <div class="dante-cal-modal">
+            <button class="dante-cal-close" aria-label="Close">&times;</button>
+            <h2 class="dante-cal-title">Events Calendar</h2>
+            <div id="dante-calendar-popup"></div>
+        </div>
+    </div>
+    <?php
+}
+add_action( 'wp_footer', 'dante_calendar_popup_markup' );
 
 /**
  * Primary menu fallback.
@@ -436,6 +455,7 @@ add_action( 'wp_enqueue_scripts', 'dante_events_assets' );
 function dante_primary_menu_fallback() {
     $links = array(
         home_url( '/' )                => 'Events',
+        '#calendar'                    => 'Calendar',
         home_url( '/about' )           => 'About',
         home_url( '/board' )           => 'Board',
         home_url( '/programs' )        => 'Programs',
