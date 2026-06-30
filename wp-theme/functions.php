@@ -9,6 +9,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'DANTE_THEME_VERSION', '1.0.0' );
 
+/**
+ * Asset version based on a theme file's modification time, so updated CSS/JS
+ * always busts browser + server caches (instead of a static version that never
+ * changes). Falls back to the theme version if the file is missing.
+ *
+ * @param string $relative Path relative to the theme root, e.g. 'css/style.css'.
+ * @return string
+ */
+function dante_ver( $relative ) {
+    $path = get_template_directory() . '/' . ltrim( $relative, '/' );
+    return file_exists( $path ) ? (string) filemtime( $path ) : DANTE_THEME_VERSION;
+}
+
 // Events: custom post type, fields, and helpers.
 require_once get_template_directory() . '/inc/events.php';
 
@@ -63,7 +76,7 @@ function dante_enqueue_assets() {
         'dante-style',
         get_stylesheet_uri(),
         array( 'dante-google-fonts' ),
-        DANTE_THEME_VERSION
+        dante_ver( 'style.css' )
     );
 
     // Custom CSS file
@@ -71,7 +84,7 @@ function dante_enqueue_assets() {
         'dante-custom',
         get_template_directory_uri() . '/css/style.css',
         array( 'dante-style' ),
-        DANTE_THEME_VERSION
+        dante_ver( 'css/style.css' )
     );
 
     // Navigation toggle script
@@ -79,7 +92,7 @@ function dante_enqueue_assets() {
         'dante-navigation',
         get_template_directory_uri() . '/js/navigation.js',
         array(),
-        DANTE_THEME_VERSION,
+        dante_ver( 'js/navigation.js' ),
         true
     );
 
