@@ -52,9 +52,9 @@
 
 <?php if ( is_front_page() ) : ?>
 <section class="hero">
-    <h1><?php echo esc_html( get_theme_mod( 'dante_hero_title', 'Calendar of Events 2026' ) ); ?></h1>
+    <h1><?php echo esc_html( get_theme_mod( 'dante_hero_title', 'Dante Society of Virginia' ) ); ?></h1>
     <div class="hero-separator"></div>
-    <p class="tagline"><?php echo esc_html( get_theme_mod( 'dante_hero_tagline', 'Join the Dante Society of Virginia for a year of celebration, learning, and community.' ) ); ?></p>
+    <p class="tagline"><?php echo esc_html( get_theme_mod( 'dante_hero_tagline', 'The Dante Society of Virginia was organized in 1998 by a group of Lynchburg residents with a love of Italy and an interest in forming a sister city program in Vicenza, Italy.' ) ); ?></p>
 </section>
 <?php elseif ( ! is_front_page() ) : ?>
 <section class="page-header">
