@@ -67,6 +67,22 @@ function dante_assistant_tools() {
                 'required'   => array( 'event_id' ),
             ),
         ),
+        array(
+            'name'        => 'compose_newsletter',
+            'description' => 'Compose an email newsletter as a DRAFT for the person to preview, test, schedule, or send. This does NOT send anything by itself — the person sends it with a button. Pick a type: "all_events" (all upcoming events), "single_event" (one event — first find it with find_events and pass its id), or "message" (a free-form written note — put the wording in "body").',
+            'input_schema' => array(
+                'type'       => 'object',
+                'properties' => array(
+                    'type'     => array( 'type' => 'string', 'enum' => array( 'all_events', 'single_event', 'message' ), 'description' => 'Which kind of newsletter.' ),
+                    'subject'  => array( 'type' => 'string', 'description' => 'The email subject line.' ),
+                    'headline' => array( 'type' => 'string', 'description' => 'A large heading at the top of the email. Optional.' ),
+                    'intro'    => array( 'type' => 'string', 'description' => 'A short intro paragraph (for the event types). Optional.' ),
+                    'event_id' => array( 'type' => 'integer', 'description' => 'For "single_event": the event id from find_events.' ),
+                    'body'     => array( 'type' => 'string', 'description' => 'For "message": the written content. Simple HTML (paragraphs, links, bold) is allowed.' ),
+                ),
+                'required'   => array( 'type', 'subject' ),
+            ),
+        ),
     );
 }
 
@@ -85,6 +101,8 @@ function dante_assistant_run_tool( $name, $input ) {
             return dante_tool_find_events( $input );
         case 'update_event':
             return dante_tool_update_event( $input );
+        case 'compose_newsletter':
+            return dante_tool_compose_newsletter( $input );
         default:
             return array( 'error' => 'Unknown tool: ' . $name );
     }

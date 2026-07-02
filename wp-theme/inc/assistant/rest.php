@@ -70,6 +70,28 @@ function dante_assistant_register_routes() {
         'callback'            => 'dante_assistant_rest_undo',
         'permission_callback' => $perm,
     ) );
+
+    // Newsletter actions (human-clicked; the model never sends).
+    register_rest_route( 'dante/v1', '/assistant/newsletter/test', array(
+        'methods'             => 'POST',
+        'callback'            => 'dante_assistant_rest_nl_test',
+        'permission_callback' => $perm,
+    ) );
+    register_rest_route( 'dante/v1', '/assistant/newsletter/schedule', array(
+        'methods'             => 'POST',
+        'callback'            => 'dante_assistant_rest_nl_schedule',
+        'permission_callback' => $perm,
+    ) );
+    register_rest_route( 'dante/v1', '/assistant/newsletter/send', array(
+        'methods'             => 'POST',
+        'callback'            => 'dante_assistant_rest_nl_send',
+        'permission_callback' => $perm,
+    ) );
+    register_rest_route( 'dante/v1', '/assistant/newsletter/cancel', array(
+        'methods'             => 'POST',
+        'callback'            => 'dante_assistant_rest_nl_cancel',
+        'permission_callback' => $perm,
+    ) );
 }
 add_action( 'rest_api_init', 'dante_assistant_register_routes' );
 
@@ -89,7 +111,9 @@ function dante_assistant_system_prompt() {
         "- Before adding an event, make sure you have at least a title and a specific date. If the date or time is unclear, ask a short follow-up question instead of guessing.\n" .
         "- To change an existing event, first use find_events to locate it, then update_event with only the fields that change.\n" .
         "- After you make a change, tell the person plainly what you did in one sentence and remind them they can review and publish it.\n" .
-        "- You can only work with events right now. If asked for something else (page text, newsletters), say that's coming soon.";
+        "- You can help with two things: events and email newsletters.\n" .
+        "- For a newsletter, use compose_newsletter to prepare it. Never offer to send it yourself — after composing, tell the person they can preview it, send themselves a test, schedule it, or send it to everyone using the buttons that appear. For a 'single_event' newsletter, find the event with find_events first.\n" .
+        "- If asked for something else (like editing page text), say that's coming soon.";
 }
 
 /**
@@ -114,6 +138,9 @@ function dante_assistant_rest_chat( WP_REST_Request $request ) {
     // or edits this turn (consumed once, inside the tool handler).
     $attachment_id = (int) $request->get_param( 'attachment_id' );
     $GLOBALS['dante_assistant_pending_image'] = $attachment_id > 0 ? $attachment_id : 0;
+
+    // Reset the "a newsletter was composed this turn" signal.
+    $GLOBALS['dante_assistant_last_newsletter'] = 0;
 
     // Rebuild the conversation as content-block messages.
     $messages = dante_assistant_build_messages( $request->get_param( 'history' ), $message );
@@ -157,11 +184,18 @@ function dante_assistant_rest_chat( WP_REST_Request $request ) {
         $messages[] = array( 'role' => 'user', 'content' => $tool_result_blocks );
     }
 
-    return new WP_REST_Response( array(
+    $payload = array(
         'reply'   => $reply ? $reply : "All set.",
         'actions' => $actions,
         'pending' => dante_assistant_pending_payload(),
-    ), 200 );
+    );
+
+    // If the assistant composed a newsletter this turn, include its card data.
+    if ( ! empty( $GLOBALS['dante_assistant_last_newsletter'] ) ) {
+        $payload['newsletter'] = dante_assistant_newsletter_payload( $GLOBALS['dante_assistant_last_newsletter'] );
+    }
+
+    return new WP_REST_Response( $payload, 200 );
 }
 
 /**
@@ -325,5 +359,107 @@ function dante_assistant_rest_undo( WP_REST_Request $request ) {
         'ok'      => true,
         'message' => 'That change was undone.',
         'history' => dante_changeset_history(),
+    ), 200 );
+}
+
+/**
+ * Validate that a request targets a real newsletter draft.
+ *
+ * @return int|WP_REST_Response The id, or an error response.
+ */
+function dante_assistant_nl_require_id( WP_REST_Request $request ) {
+    $id = (int) $request->get_param( 'id' );
+    if ( ! $id || 'dante_newsletter' !== get_post_type( $id ) ) {
+        return new WP_REST_Response( array( 'error' => 'That newsletter could not be found.' ), 200 );
+    }
+    return $id;
+}
+
+function dante_assistant_rest_nl_test( WP_REST_Request $request ) {
+    $id = dante_assistant_nl_require_id( $request );
+    if ( $id instanceof WP_REST_Response ) {
+        return $id;
+    }
+
+    $email = sanitize_email( (string) $request->get_param( 'email' ) );
+    if ( ! is_email( $email ) ) {
+        $email = wp_get_current_user()->user_email;
+    }
+
+    $data = dante_assistant_newsletter_data( $id );
+    $html = dante_assistant_newsletter_html( $id, home_url( '/' ) );
+    $ok   = dante_nl_send( $email, $data['subject'] ? $data['subject'] : 'Test', $html );
+
+    return new WP_REST_Response( array(
+        'ok'      => (bool) $ok,
+        'message' => $ok
+            ? sprintf( 'Test sent to %s. (On Local, real delivery needs SMTP set up.)', $email )
+            : 'The test email could not be sent.',
+    ), 200 );
+}
+
+function dante_assistant_rest_nl_schedule( WP_REST_Request $request ) {
+    $id = dante_assistant_nl_require_id( $request );
+    if ( $id instanceof WP_REST_Response ) {
+        return $id;
+    }
+
+    // Interpret the datetime-local value in the site's timezone.
+    $raw = sanitize_text_field( (string) $request->get_param( 'datetime' ) );
+    $dt  = $raw ? date_create( $raw, wp_timezone() ) : false;
+    if ( ! $dt ) {
+        return new WP_REST_Response( array( 'error' => 'Please choose a valid date and time.' ), 200 );
+    }
+    $timestamp = $dt->getTimestamp();
+    if ( $timestamp <= time() + 30 ) {
+        return new WP_REST_Response( array( 'error' => 'Please choose a time in the future.' ), 200 );
+    }
+
+    // Replace any prior schedule for this newsletter, then schedule.
+    wp_clear_scheduled_hook( 'dante_assistant_send_newsletter', array( $id ) );
+    wp_schedule_single_event( $timestamp, 'dante_assistant_send_newsletter', array( $id ) );
+
+    update_post_meta( $id, '_nl_state', 'scheduled' );
+    update_post_meta( $id, '_nl_send_time', $timestamp );
+
+    $count = count( dante_get_subscribers() );
+    return new WP_REST_Response( array(
+        'ok'         => true,
+        'message'    => sprintf( 'Scheduled to send to %d subscriber(s) on %s.', $count, date_i18n( 'F j, Y \a\t g:i a', $timestamp ) ),
+        'newsletter' => dante_assistant_newsletter_payload( $id ),
+    ), 200 );
+}
+
+function dante_assistant_rest_nl_send( WP_REST_Request $request ) {
+    $id = dante_assistant_nl_require_id( $request );
+    if ( $id instanceof WP_REST_Response ) {
+        return $id;
+    }
+
+    // Cancel any pending schedule so it doesn't send twice.
+    wp_clear_scheduled_hook( 'dante_assistant_send_newsletter', array( $id ) );
+    $count = dante_assistant_newsletter_send_all( $id );
+
+    return new WP_REST_Response( array(
+        'ok'         => true,
+        'message'    => sprintf( 'Newsletter sent to %d subscriber(s). (On Local, real delivery needs SMTP set up.)', $count ),
+        'newsletter' => dante_assistant_newsletter_payload( $id ),
+    ), 200 );
+}
+
+function dante_assistant_rest_nl_cancel( WP_REST_Request $request ) {
+    $id = dante_assistant_nl_require_id( $request );
+    if ( $id instanceof WP_REST_Response ) {
+        return $id;
+    }
+
+    wp_clear_scheduled_hook( 'dante_assistant_send_newsletter', array( $id ) );
+    update_post_meta( $id, '_nl_state', 'draft' );
+    delete_post_meta( $id, '_nl_send_time' );
+
+    return new WP_REST_Response( array(
+        'ok'         => true,
+        'message'    => 'The scheduled send was canceled.',
+        'newsletter' => dante_assistant_newsletter_payload( $id ),
     ), 200 );
 }

@@ -184,6 +184,75 @@
 	color: var(--dante-green);
 }
 
+/* Newsletter card */
+.dante-nl-card {
+	background: #fff;
+	border: 1px solid var(--dante-gold);
+	border-radius: 10px;
+	padding: 14px;
+	margin: 8px 0 8px 8px;
+}
+.dante-nl-card__title {
+	font-weight: 700;
+	color: var(--dante-green);
+	font-size: 16px;
+}
+.dante-nl-card__subject {
+	margin-top: 4px;
+	font-weight: 600;
+	color: #14281d;
+}
+.dante-nl-card__summary {
+	color: #555;
+	font-size: 14px;
+	margin-top: 2px;
+}
+.dante-nl-card__status {
+	margin-top: 8px;
+	padding: 8px 10px;
+	background: #f0f4f1;
+	border-radius: 8px;
+	font-weight: 600;
+	color: #14281d;
+}
+.dante-nl-card__actions {
+	margin-top: 10px;
+}
+.dante-nl-card__frame {
+	width: 100%;
+	height: 460px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	margin-top: 10px;
+	background: #fff;
+}
+.dante-nl-card__row {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 10px;
+}
+.dante-nl-card__label {
+	flex: 0 0 100%;
+	font-size: 13px;
+	font-weight: 600;
+	color: #6b7a70;
+}
+.dante-nl-card__email {
+	flex: 1 1 200px;
+	padding: 7px 10px;
+	border: 1px solid #c3cbc5;
+	border-radius: 8px;
+	font-size: 14px;
+}
+.dante-nl-card__when {
+	padding: 6px 8px;
+	border: 1px solid #c3cbc5;
+	border-radius: 8px;
+	font-size: 14px;
+}
+
 /* Suggestion chips */
 .dante-assistant__chips {
 	display: flex;

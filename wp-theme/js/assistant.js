@@ -198,6 +198,124 @@
 		} );
 	}
 
+	// --- newsletter card ---------------------------------------------------
+
+	function labeledRow( labelText ) {
+		var row = el( 'div', 'dante-nl-card__row' );
+		row.appendChild( el( 'label', 'dante-nl-card__label', labelText ) );
+		return row;
+	}
+
+	function showNewsletter( nl, existingEl ) {
+		var card = buildNewsletterCard( nl );
+		if ( existingEl && existingEl.parentNode ) {
+			existingEl.parentNode.replaceChild( card, existingEl );
+		} else {
+			logEl.appendChild( card );
+		}
+		logEl.scrollTop = logEl.scrollHeight;
+		return card;
+	}
+
+	function buildNewsletterCard( nl ) {
+		var card = el( 'div', 'dante-nl-card' );
+		card.appendChild( el( 'div', 'dante-nl-card__title', '✉️ Newsletter' ) );
+		card.appendChild( el( 'div', 'dante-nl-card__subject', 'Subject: ' + nl.subject ) );
+		card.appendChild( el( 'div', 'dante-nl-card__summary', nl.summary ) );
+
+		// Already sent — status only.
+		if ( 'sent' === nl.state ) {
+			card.appendChild( el( 'div', 'dante-nl-card__status', '✓ Sent to ' + nl.sent_count + ' subscriber' + ( 1 === nl.sent_count ? '' : 's' ) + '.' ) );
+			return card;
+		}
+		if ( 'scheduled' === nl.state ) {
+			card.appendChild( el( 'div', 'dante-nl-card__status', '🕒 Scheduled for ' + nl.send_time + '.' ) );
+		}
+
+		// Preview (inline iframe toggle).
+		var previewBtn = el( 'button', 'button', 'Preview' );
+		var frame = el( 'iframe', 'dante-nl-card__frame' );
+		frame.hidden = true;
+		frame.setAttribute( 'srcdoc', nl.preview_html );
+		previewBtn.addEventListener( 'click', function () {
+			frame.hidden = ! frame.hidden;
+			previewBtn.textContent = frame.hidden ? 'Preview' : 'Hide preview';
+		} );
+		var previewRow = el( 'div', 'dante-nl-card__actions' );
+		previewRow.appendChild( previewBtn );
+
+		// Send a test.
+		var testRow = labeledRow( 'Email a test to:' );
+		var testInput = el( 'input', 'dante-nl-card__email' );
+		testInput.type = 'email';
+		testInput.value = nl.default_test_email || '';
+		var testBtn = el( 'button', 'button', 'Send test' );
+		testBtn.addEventListener( 'click', function () {
+			testBtn.disabled = true;
+			testBtn.textContent = 'Sending…';
+			request( '/newsletter/test', { method: 'POST', data: { id: nl.id, email: testInput.value } } )
+				.then( function ( res ) {
+					testBtn.disabled = false;
+					testBtn.textContent = 'Send test';
+					bubble( 'bot', res.message || res.error || 'Done.' );
+				} );
+		} );
+		testRow.appendChild( testInput );
+		testRow.appendChild( testBtn );
+
+		// Schedule for later.
+		var schedRow = labeledRow( 'Send later on:' );
+		var schedInput = el( 'input', 'dante-nl-card__when' );
+		schedInput.type = 'datetime-local';
+		var schedBtn = el( 'button', 'button', 'scheduled' === nl.state ? 'Reschedule' : 'Schedule' );
+		schedBtn.addEventListener( 'click', function () {
+			if ( ! schedInput.value ) { window.alert( 'Pick a date and time first.' ); return; }
+			schedBtn.disabled = true;
+			request( '/newsletter/schedule', { method: 'POST', data: { id: nl.id, datetime: schedInput.value } } )
+				.then( function ( res ) {
+					if ( res.error ) { window.alert( res.error ); schedBtn.disabled = false; return; }
+					bubble( 'bot', res.message );
+					showNewsletter( res.newsletter, card );
+				} );
+		} );
+		schedRow.appendChild( schedInput );
+		schedRow.appendChild( schedBtn );
+
+		// Send to everyone now (+ cancel schedule if scheduled).
+		var sendRow = labeledRow( 'Or send now:' );
+		var sendBtn = el( 'button', 'button button-primary', 'Send to all (' + nl.subscriber_count + ')' );
+		sendBtn.addEventListener( 'click', function () {
+			if ( ! window.confirm( 'Send this newsletter to all ' + nl.subscriber_count + ' subscribers now?' ) ) { return; }
+			sendBtn.disabled = true;
+			sendBtn.textContent = 'Sending…';
+			request( '/newsletter/send', { method: 'POST', data: { id: nl.id } } )
+				.then( function ( res ) {
+					bubble( 'bot', res.message );
+					showNewsletter( res.newsletter, card );
+				} );
+		} );
+		sendRow.appendChild( sendBtn );
+		if ( 'scheduled' === nl.state ) {
+			var cancelBtn = el( 'button', 'button', 'Cancel schedule' );
+			cancelBtn.addEventListener( 'click', function () {
+				cancelBtn.disabled = true;
+				request( '/newsletter/cancel', { method: 'POST', data: { id: nl.id } } )
+					.then( function ( res ) {
+						bubble( 'bot', res.message );
+						showNewsletter( res.newsletter, card );
+					} );
+			} );
+			sendRow.appendChild( cancelBtn );
+		}
+
+		card.appendChild( previewRow );
+		card.appendChild( frame );
+		card.appendChild( testRow );
+		card.appendChild( schedRow );
+		card.appendChild( sendRow );
+		return card;
+	}
+
 	// --- sending -----------------------------------------------------------
 
 	function send( text ) {
@@ -235,6 +353,7 @@
 				history.push( { role: 'assistant', text: res.reply } );
 				( res.actions || [] ).forEach( actionCard );
 				renderReview( res.pending );
+				if ( res.newsletter ) { showNewsletter( res.newsletter ); }
 			} )
 			.catch( function () {
 				thinking.remove();
@@ -322,6 +441,9 @@
 			var label = chip.textContent.replace( /^[^A-Za-z]+/, '' ).trim();
 			if ( /coming up/i.test( label ) ) {
 				send( 'What events are coming up?' );
+			} else if ( /newsletter/i.test( label ) ) {
+				inputEl.value = 'Send a newsletter about ';
+				inputEl.focus();
 			} else {
 				inputEl.value = 'Add an event: ';
 				inputEl.focus();
