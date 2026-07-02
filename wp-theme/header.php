@@ -54,7 +54,14 @@
 <section class="hero">
     <h1><?php echo esc_html( get_theme_mod( 'dante_hero_title', 'Dante Society of Virginia' ) ); ?></h1>
     <div class="hero-separator"></div>
-    <p class="tagline"><?php echo esc_html( get_theme_mod( 'dante_hero_tagline', 'The Dante Society of Virginia was organized in 1998 by a group of Lynchburg residents with a love of Italy and an interest in forming a sister city program in Vicenza, Italy.' ) ); ?></p>
+    <p class="tagline"><?php echo esc_html( get_theme_mod( 'dante_hero_tagline', 'Celebrating Italian language, art, and culture in Central Virginia since 1998.' ) ); ?></p>
+    <?php
+    // Optional short "opening message" box. Editable in Appearance → Customize →
+    // Hero Section. Hidden entirely until it's filled in.
+    $dante_hero_message = trim( (string) get_theme_mod( 'dante_hero_message', '' ) );
+    if ( '' !== $dante_hero_message ) : ?>
+    <div class="hero-message"><?php echo wp_kses_post( wpautop( $dante_hero_message ) ); ?></div>
+    <?php endif; ?>
 </section>
 <?php elseif ( ! is_front_page() ) : ?>
 <section class="page-header">

@@ -190,6 +190,18 @@ function dante_customize_register( $wp_customize ) {
         'type'    => 'textarea',
     ) );
 
+    $wp_customize->add_setting( 'dante_hero_message', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post',
+    ) );
+
+    $wp_customize->add_control( 'dante_hero_message', array(
+        'label'       => __( 'Opening Message', 'dante-society' ),
+        'description' => __( 'A short welcome shown in a box beneath the tagline on the homepage. Leave empty to show a small "goes here" placeholder.', 'dante-society' ),
+        'section'     => 'dante_hero',
+        'type'        => 'textarea',
+    ) );
+
     // Layout & Mobile
     $wp_customize->add_section( 'dante_layout', array(
         'title'    => __( 'Layout & Mobile', 'dante-society' ),
@@ -257,7 +269,7 @@ function dante_background_css() {
 
     $hero = get_theme_mod( 'dante_hero_image' );
     if ( $hero ) {
-        $css .= '.hero{background:linear-gradient(rgba(27,67,50,0.85),rgba(13,43,31,0.9)),url(' . esc_url( $hero ) . ');background-size:cover;background-position:center;}';
+        $css .= '.hero{background:linear-gradient(rgba(27,67,50,0.5),rgba(13,43,31,0.62)),url(' . esc_url( $hero ) . ');background-size:cover;background-position:center;}';
     }
 
     if ( $css ) {
