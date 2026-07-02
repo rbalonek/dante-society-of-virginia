@@ -483,6 +483,9 @@
 			} else if ( /newsletter/i.test( label ) ) {
 				inputEl.value = 'Send a newsletter about ';
 				inputEl.focus();
+			} else if ( /page/i.test( label ) ) {
+				inputEl.value = 'On the cover page, change the intro text to: ';
+				inputEl.focus();
 			} else {
 				inputEl.value = 'Add an event: ';
 				inputEl.focus();

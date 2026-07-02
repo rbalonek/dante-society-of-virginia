@@ -80,6 +80,31 @@ function dante_changeset_current() {
 }
 
 /**
+ * Log a change that has ALREADY been applied to the live site (e.g. editing a
+ * published event or page). It goes straight into a one-op, "applied" change set
+ * so it shows in "Recent changes" and is immediately undoable — separate from
+ * the pending-approval flow used for freshly-created drafts.
+ *
+ * @param array $op Same shape as dante_changeset_record()'s $op.
+ * @return int Change-set post ID.
+ */
+function dante_changeset_log_applied( $op ) {
+    $id = wp_insert_post( array(
+        'post_type'   => 'dante_change',
+        'post_status' => 'draft',
+        'post_title'  => 'Change ' . current_time( 'Y-m-d H:i:s' ),
+        'post_author' => get_current_user_id(),
+    ) );
+
+    update_post_meta( $id, '_status', 'applied' );
+    update_post_meta( $id, '_applied_at', current_time( 'mysql' ) );
+    update_post_meta( $id, '_ops', wp_slash( wp_json_encode( array( $op ), JSON_UNESCAPED_UNICODE ) ) );
+
+    dante_changeset_prune();
+    return (int) $id;
+}
+
+/**
  * Append an operation (with its inverse) to a change set.
  *
  * @param int   $changeset_id Change-set post ID.

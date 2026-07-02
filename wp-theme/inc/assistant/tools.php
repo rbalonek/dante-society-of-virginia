@@ -68,6 +68,35 @@ function dante_assistant_tools() {
             ),
         ),
         array(
+            'name'        => 'list_pages',
+            'description' => 'List the website pages (id, title, slug, and which one is the front/cover page). Use this first when the person wants to change page wording, to find the right page. "Cover page", "home page", and "front page" mean the page where is_front is true.',
+            'input_schema' => array( 'type' => 'object', 'properties' => new stdClass() ),
+        ),
+        array(
+            'name'        => 'read_page',
+            'description' => 'Read a page\'s editable sections. Returns a numbered list of blocks (paragraphs, headings, lists) with their current text. Always call this before edit_page_block so you know each section\'s index and exact current wording.',
+            'input_schema' => array(
+                'type'       => 'object',
+                'properties' => array(
+                    'page_id' => array( 'type' => 'integer', 'description' => 'The page id from list_pages.' ),
+                ),
+                'required'   => array( 'page_id' ),
+            ),
+        ),
+        array(
+            'name'        => 'edit_page_block',
+            'description' => 'Replace the wording of ONE section of a page. Provide the section\'s index (from read_page) and new_text = the COMPLETE new wording for that whole section (not just the part that changed). Only paragraphs, headings, and lists can be edited this way; for a list, put each item on its own line. This takes effect on the live website right away and can be undone.',
+            'input_schema' => array(
+                'type'       => 'object',
+                'properties' => array(
+                    'page_id'     => array( 'type' => 'integer', 'description' => 'The page id from list_pages.' ),
+                    'block_index' => array( 'type' => 'integer', 'description' => 'The section number from read_page.' ),
+                    'new_text'    => array( 'type' => 'string', 'description' => 'The full replacement wording for that section. For lists, one item per line.' ),
+                ),
+                'required'   => array( 'page_id', 'block_index', 'new_text' ),
+            ),
+        ),
+        array(
             'name'        => 'compose_newsletter',
             'description' => 'Compose an email newsletter as a DRAFT for the person to preview, test, schedule, or send. This does NOT send anything by itself — the person sends it with a button. Pick a type: "all_events" (all upcoming events), "single_event" (one event — first find it with find_events and pass its id), or "message" (a free-form written note — put the wording in "body"). If the person attached a photo, it is added to the email automatically, so never say you cannot include an image. After composing, they can choose whether the photo appears at the top, in the middle of the text, or at the bottom using a "Photo position" control on the newsletter card — mention this if they ask where the image goes.',
             'input_schema' => array(
@@ -103,6 +132,12 @@ function dante_assistant_run_tool( $name, $input ) {
             return dante_tool_update_event( $input );
         case 'compose_newsletter':
             return dante_tool_compose_newsletter( $input );
+        case 'list_pages':
+            return dante_tool_list_pages( $input );
+        case 'read_page':
+            return dante_tool_read_page( $input );
+        case 'edit_page_block':
+            return dante_tool_edit_page_block( $input );
         default:
             return array( 'error' => 'Unknown tool: ' . $name );
     }
@@ -272,14 +307,17 @@ function dante_tool_update_event( $args ) {
         return array( 'error' => 'Nothing to change — no fields were provided.' );
     }
 
-    $changeset = dante_changeset_current();
-    update_post_meta( $post_id, '_dante_changeset', $changeset );
-    dante_changeset_record( $changeset, array(
-        'type'    => 'update',
-        'post_id' => $post_id,
-        'label'   => sprintf( 'Edited event "%s" (%s)', get_the_title( $post_id ), implode( ', ', $changed ) ),
-        'before'  => $before,
-    ) );
+    // A published event goes live immediately and is individually undoable. A
+    // still-draft event's edits ride along with that draft's pending approval
+    // (undoing its creation removes it), so no separate log entry is needed.
+    if ( 'publish' === get_post_status( $post_id ) ) {
+        dante_changeset_log_applied( array(
+            'type'    => 'update',
+            'post_id' => $post_id,
+            'label'   => sprintf( 'Edited event "%s" (%s)', get_the_title( $post_id ), implode( ', ', $changed ) ),
+            'before'  => $before,
+        ) );
+    }
 
     return array(
         'ok'       => true,

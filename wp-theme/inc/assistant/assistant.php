@@ -27,6 +27,7 @@ require_once __DIR__ . '/changelog.php';
 require_once __DIR__ . '/providers.php';
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/tools-newsletter.php';
+require_once __DIR__ . '/tools-pages.php';
 require_once __DIR__ . '/rest.php';
 require_once __DIR__ . '/settings.php';
 
@@ -86,6 +87,7 @@ function dante_assistant_widget_html() {
         <div class="dante-assistant__chips">
             <button type="button" class="dante-assistant__chip">➕ <?php esc_html_e( 'Add an event', 'dante-society' ); ?></button>
             <button type="button" class="dante-assistant__chip">✉️ <?php esc_html_e( 'Send a newsletter', 'dante-society' ); ?></button>
+            <button type="button" class="dante-assistant__chip">✏️ <?php esc_html_e( 'Edit a page', 'dante-society' ); ?></button>
             <button type="button" class="dante-assistant__chip">📅 <?php esc_html_e( "What's coming up?", 'dante-society' ); ?></button>
         </div>
 

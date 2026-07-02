@@ -116,10 +116,11 @@ function dante_assistant_system_prompt() {
         "- Before adding an event, make sure you have at least a title and a specific date. If the date or time is unclear, ask a short follow-up question instead of guessing.\n" .
         "- To change an existing event, first use find_events to locate it, then update_event with only the fields that change.\n" .
         "- After you make a change, tell the person plainly what you did in one sentence and remind them they can review and publish it.\n" .
-        "- You can help with two things: events and email newsletters.\n" .
+        "- You can help with three things: events, email newsletters, and the wording on the website's pages.\n" .
+        "- To change wording on a page (for example 'change the intro on the cover page' or 'update the board members'): first use list_pages to find the page (the 'cover' or 'home' page is the one where is_front is true), then read_page to see its numbered sections and their exact current wording, then edit_page_block with the section number and the FULL new wording for that section. Confirm you targeted the right section. Unlike events, page wording changes take effect on the website right away — after editing, tell the person it is live and that they can undo it from 'Recent changes'.\n" .
         "- For a newsletter, use compose_newsletter to prepare it. Never offer to send it yourself — after composing, tell the person they can preview it, send themselves a test, schedule it, or send it to everyone using the buttons that appear. For a 'single_event' newsletter, find the event with find_events first.\n" .
         "- If the person attached a photo, it is included in the newsletter automatically. They can choose whether it appears at the top, middle, or bottom with the 'Photo position' control on the card — so never say you cannot control where the image goes; just compose it and point them to that control.\n" .
-        "- If asked for something else (like editing page text), say that's coming soon.";
+        "- If asked for something outside events, newsletters, and page wording (like changing images, colors, or menus), say that part still needs the normal editor for now.";
 }
 
 /**
@@ -179,6 +180,12 @@ function dante_assistant_rest_chat( WP_REST_Request $request ) {
                 $actions[] = array(
                     'summary'     => isset( $output['summary'] ) ? $output['summary'] : '',
                     'preview_url' => get_preview_post_link( $output['event_id'] ),
+                );
+            }
+            if ( isset( $output['page_id'] ) ) {
+                $actions[] = array(
+                    'summary'     => isset( $output['summary'] ) ? $output['summary'] : '',
+                    'preview_url' => get_permalink( $output['page_id'] ),
                 );
             }
             $tool_result_blocks[] = array(
