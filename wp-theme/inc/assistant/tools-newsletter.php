@@ -73,6 +73,17 @@ function dante_tool_compose_newsletter( $args ) {
         'footer'   => dante_assistant_newsletter_default_footer(),
     );
 
+    // If the user attached a photo in the chat, place it near the top of the email.
+    $att = isset( $GLOBALS['dante_assistant_pending_image'] ) ? (int) $GLOBALS['dante_assistant_pending_image'] : 0;
+    if ( $att > 0 ) {
+        $GLOBALS['dante_assistant_pending_image'] = 0; // consume once.
+        $url = wp_get_attachment_image_url( $att, 'large' );
+        if ( $url ) {
+            $data['image_id']  = $att;
+            $data['image_url'] = $url;
+        }
+    }
+
     $id = wp_insert_post( array(
         'post_type'   => 'dante_newsletter',
         'post_status' => 'draft',
@@ -83,7 +94,9 @@ function dante_tool_compose_newsletter( $args ) {
         return array( 'error' => $id->get_error_message() );
     }
 
-    update_post_meta( $id, '_nl_data', wp_json_encode( $data ) );
+    // wp_slash so update_post_meta's internal wp_unslash doesn't strip the
+    // backslashes in the JSON (which would corrupt dashes, quotes, accents).
+    update_post_meta( $id, '_nl_data', wp_slash( wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) ) );
     update_post_meta( $id, '_nl_state', 'draft' );
 
     // Signal to the chat endpoint that a newsletter card should be shown.

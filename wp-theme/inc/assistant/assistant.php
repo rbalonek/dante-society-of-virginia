@@ -66,6 +66,8 @@ function dante_assistant_widget_html() {
     <div class="dante-assistant" data-greeting="<?php echo esc_attr( sprintf( __( 'Hi %s! What would you like to do?', 'dante-society' ), $name ) ); ?>">
         <div class="dante-assistant__log" aria-live="polite"></div>
 
+        <div class="dante-assistant__newsletter"></div>
+
         <div class="dante-assistant__review" hidden></div>
 
         <div class="dante-assistant__attach">

@@ -94,7 +94,9 @@ function dante_changeset_record( $changeset_id, $op ) {
     $ops   = json_decode( get_post_meta( $changeset_id, '_ops', true ), true );
     $ops   = is_array( $ops ) ? $ops : array();
     $ops[] = $op;
-    update_post_meta( $changeset_id, '_ops', wp_json_encode( $ops ) );
+    // wp_slash so update_post_meta's internal wp_unslash leaves the JSON intact
+    // (otherwise backslash escapes for dashes/quotes/accents get stripped).
+    update_post_meta( $changeset_id, '_ops', wp_slash( wp_json_encode( $ops, JSON_UNESCAPED_UNICODE ) ) );
 }
 
 /**

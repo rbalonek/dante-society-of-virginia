@@ -69,7 +69,7 @@ function dante_assistant_tools() {
         ),
         array(
             'name'        => 'compose_newsletter',
-            'description' => 'Compose an email newsletter as a DRAFT for the person to preview, test, schedule, or send. This does NOT send anything by itself — the person sends it with a button. Pick a type: "all_events" (all upcoming events), "single_event" (one event — first find it with find_events and pass its id), or "message" (a free-form written note — put the wording in "body").',
+            'description' => 'Compose an email newsletter as a DRAFT for the person to preview, test, schedule, or send. This does NOT send anything by itself — the person sends it with a button. Pick a type: "all_events" (all upcoming events), "single_event" (one event — first find it with find_events and pass its id), or "message" (a free-form written note — put the wording in "body"). If the person attached a photo, it is added to the email automatically, so never say you cannot include an image.',
             'input_schema' => array(
                 'type'       => 'object',
                 'properties' => array(

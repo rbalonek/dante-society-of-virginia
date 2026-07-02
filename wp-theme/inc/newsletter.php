@@ -341,6 +341,9 @@ function dante_nl_build_inner( $data ) {
     if ( $headline ) {
         $inner .= '<h1 style="color:#1B4332;font-size:26px;margin:0 0 16px;">' . esc_html( $headline ) . '</h1>';
     }
+    if ( ! empty( $data['image_url'] ) ) {
+        $inner .= '<img src="' . esc_url( $data['image_url'] ) . '" alt="" style="max-width:100%;border-radius:6px;margin:0 0 20px;display:block;" />';
+    }
     if ( $intro ) {
         $inner .= '<p style="margin:0 0 20px;">' . nl2br( esc_html( $intro ) ) . '</p>';
     }

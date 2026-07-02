@@ -19,7 +19,22 @@
 		api.use( api.createNonceMiddleware( cfg.nonce ) );
 	}
 
+	// Lift the widget out of the narrow dashboard column into its own full-width
+	// row, so previews and the chat have room to breathe.
+	( function makeFullWidth() {
+		var box = document.getElementById( 'dante_assistant_widget' );
+		var wrap = document.getElementById( 'dashboard-widgets-wrap' );
+		if ( ! box || ! wrap || box.closest( '.dante-assistant-fullrow' ) ) {
+			return;
+		}
+		var row = document.createElement( 'div' );
+		row.className = 'dante-assistant-fullrow';
+		wrap.insertBefore( row, wrap.firstChild );
+		row.appendChild( box );
+	}() );
+
 	var logEl = root.querySelector( '.dante-assistant__log' );
+	var newsletterEl = root.querySelector( '.dante-assistant__newsletter' );
 	var reviewEl = root.querySelector( '.dante-assistant__review' );
 	var historyEl = root.querySelector( '.dante-assistant__history' );
 	var formEl = root.querySelector( '.dante-assistant__form' );
@@ -211,9 +226,11 @@
 		if ( existingEl && existingEl.parentNode ) {
 			existingEl.parentNode.replaceChild( card, existingEl );
 		} else {
-			logEl.appendChild( card );
+			// One active newsletter at a time; replace any prior card.
+			newsletterEl.innerHTML = '';
+			newsletterEl.appendChild( card );
 		}
-		logEl.scrollTop = logEl.scrollHeight;
+		card.scrollIntoView( { block: 'nearest' } );
 		return card;
 	}
 
@@ -426,7 +443,7 @@
 					x.title = 'Remove photo';
 					x.addEventListener( 'click', clearPhoto );
 					thumbEl.appendChild( x );
-					thumbEl.appendChild( el( 'span', 'dante-assistant__thumb-note', 'will be added to your next event' ) );
+					thumbEl.appendChild( el( 'span', 'dante-assistant__thumb-note', 'will be added to your next event or newsletter' ) );
 				} )
 				.catch( function () {
 					photoBtn.disabled = false;

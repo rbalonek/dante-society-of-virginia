@@ -11,6 +11,25 @@
 	line-height: 1.5;
 }
 
+/* Full-width row (the widget is lifted here by assistant.js) */
+.dante-assistant-fullrow {
+	clear: both;
+	margin: 0 0 16px;
+}
+.dante-assistant-fullrow .postbox {
+	max-width: none;
+	width: 100%;
+}
+/* On a roomy screen, give the newsletter preview real height. */
+@media ( min-width: 1100px ) {
+	.dante-assistant-fullrow .dante-nl-card__frame {
+		height: 620px;
+	}
+	.dante-assistant-fullrow .dante-assistant__log {
+		max-height: 380px;
+	}
+}
+
 /* Conversation log */
 .dante-assistant__log {
 	max-height: 320px;
