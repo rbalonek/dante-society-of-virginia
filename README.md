@@ -48,9 +48,10 @@ CLAUDE.md            Deep technical guide + gotchas
   image resize handles, labeled image alignment, and Media & Text for
   image-beside-text.
 - **Events system** — add events from a form (title, date, time, location, image);
-  they render automatically as a list and in a **calendar** (month view, "This
-  Year's Events", "All Events"). The calendar is also a **popup** opened from the
-  "Calendar" menu item. Everything updates live as events are added/edited.
+  they render automatically as a **list of upcoming events (earliest first, past
+  ones drop off)** and in a **calendar** (month view, "This Year's Events", "All
+  Events"). The calendar is also a **popup** opened from the "Calendar" menu item.
+  Everything updates live as events are added/edited.
 - **Newsletter tool** — manage subscribers and compose/send newsletters (all
   upcoming events / a single event / a free message) with a live preview, test
   send, and a compliant unsubscribe footer. Sends via WP Mail SMTP.
@@ -73,7 +74,9 @@ CLAUDE.md            Deep technical guide + gotchas
   changes, use the editor's **Code Editor** (⋮ menu) to paste block markup.
 - **Events:** Events → Add Event. They appear on the site automatically.
 - **Newsletter:** Newsletter → Compose (and Subscribers to manage the list).
-- **Logo / hero / background / colors:** Appearance → Customize.
+- **Logo / hero / background / colors:** Appearance → Customize. The homepage
+  **Opening Message** box lives under **Customize → Hero Section** (it stays hidden
+  until you add text).
 - **Do content edits on the live site** — Local is a developer sandbox and its
   content does not sync to live.
 

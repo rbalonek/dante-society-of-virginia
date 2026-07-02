@@ -71,8 +71,11 @@ Classic PHP theme **plus `theme.json`** (settings only).
 - **Nav:** `header.php` uses `wp_nav_menu` with `dante_primary_menu_fallback`
   (works before a menu is assigned). A **"Calendar"** item is auto-injected into
   the primary menu via `dante_add_calendar_menu_item` (a filter) — it opens the
-  calendar popup (see Events). Hero title/tagline come from Customizer with
-  defaults in `header.php`.
+  calendar popup (see Events). Hero title/tagline **and an optional "Opening
+  Message" box** come from Customizer (**Hero Section**) with defaults in
+  `header.php` (the message is `dante_hero_message`). The message box is **hidden
+  until it's filled in** — no placeholder shows when empty. The hero uses smaller
+  type and a lighter image overlay so the background painting reads as a feature.
 - **Logo:** uploaded via Appearance → Customize → Site Identity. `.custom-logo`
   is constrained to `height: 64px` in `style.css` (without that rule the emblem
   renders huge).
@@ -94,11 +97,14 @@ Classic PHP theme **plus `theme.json`** (settings only).
   **static placeholder** — do NOT use `ServerSideRender`, it crashed the editor
   (floating-ui error). Attributes:
   - `display`: `both` / `list` / `calendar`
-  - `scope`: `all` / `year` (this calendar year) / `upcoming`
+  - `scope`: `all` / `year` (this calendar year) / `upcoming` — **default is
+    `upcoming`**, so past events drop off the list automatically.
   - `listStyle`: `cards` (image beside text) / `simple` (Programs-style date+title)
   - `clickBehavior`: `scroll` (jump to the event on the page) / `popup` (detail modal)
   The list is dynamic — it queries events live, so adding/editing events updates
-  every page that shows the block automatically.
+  every page that shows the block automatically. It is ordered **earliest date
+  first** (`dante_event_list_query`, `order => ASC`) for every scope. The
+  **calendar** still shows all events (past + future); only the *list* is filtered.
 - **Calendar:** FullCalendar bundled at `js/lib/fullcalendar.min.js`; `js/calendar.js`
   drives both the inline block calendar (`#dante-calendar`) and a **site-wide
   popup** (`#dante-calendar-popup`) opened by any nav link to `#calendar`. Views:
