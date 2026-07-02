@@ -379,7 +379,7 @@ function dante_event_list_query( $scope = 'all' ) {
         'posts_per_page' => -1,
         'meta_key'       => '_event_date',
         'orderby'        => 'meta_value',
-        'order'          => 'DESC',
+        'order'          => 'ASC', // earliest date first
     );
 
     if ( 'year' === $scope ) {
@@ -428,7 +428,7 @@ function dante_render_events_block( $attributes, $content ) {
     $preview = defined( 'REST_REQUEST' ) && REST_REQUEST;
     $click   = isset( $attributes['clickBehavior'] ) ? $attributes['clickBehavior'] : 'scroll';
     $display = isset( $attributes['display'] ) ? $attributes['display'] : 'both';
-    $scope   = isset( $attributes['scope'] ) ? $attributes['scope'] : 'all';
+    $scope   = isset( $attributes['scope'] ) ? $attributes['scope'] : 'upcoming';
     $style   = isset( $attributes['listStyle'] ) ? $attributes['listStyle'] : 'cards';
 
     // Only load the calendar library when a calendar is actually shown.
@@ -470,7 +470,7 @@ function dante_register_events_block() {
             ),
             'scope'         => array(
                 'type'    => 'string',
-                'default' => 'all',
+                'default' => 'upcoming',
             ),
             'listStyle'     => array(
                 'type'    => 'string',

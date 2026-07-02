@@ -30,7 +30,7 @@
 		attributes: {
 			clickBehavior: { type: 'string', default: 'scroll' },
 			display: { type: 'string', default: 'both' },
-			scope: { type: 'string', default: 'all' },
+			scope: { type: 'string', default: 'upcoming' },
 			listStyle: { type: 'string', default: 'cards' },
 		},
 
@@ -40,7 +40,7 @@
 			var blockProps = useBlockProps();
 
 			var summary = ( DISPLAY_LABEL[ a.display ] || DISPLAY_LABEL.both ) +
-				' — ' + ( SCOPE_LABEL[ a.scope ] || SCOPE_LABEL.all ) +
+				' — ' + ( SCOPE_LABEL[ a.scope ] || SCOPE_LABEL.upcoming ) +
 				( a.display !== 'calendar' ? ', ' + ( STYLE_LABEL[ a.listStyle ] || STYLE_LABEL.cards ) : '' );
 
 			var controls = [
@@ -58,7 +58,7 @@
 				el( SelectControl, {
 					key: 'scope',
 					label: 'Which events',
-					value: a.scope || 'all',
+					value: a.scope || 'upcoming',
 					options: [
 						{ label: 'All events', value: 'all' },
 						{ label: "This year's events", value: 'year' },
