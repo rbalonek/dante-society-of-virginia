@@ -1,0 +1,169 @@
+/**
+ * Dante Assistant — Dashboard widget styling.
+ * Large type, high contrast, generous spacing — friendly for non-technical and
+ * older board members. Uses the theme's green/gold accents.
+ */
+
+.dante-assistant {
+	--dante-green: #1b4332;
+	--dante-gold: #b08d57;
+	font-size: 15px;
+	line-height: 1.5;
+}
+
+/* Conversation log */
+.dante-assistant__log {
+	max-height: 320px;
+	overflow-y: auto;
+	padding: 4px 2px 10px;
+}
+
+.dante-msg {
+	display: flex;
+	margin: 8px 0;
+}
+.dante-msg--user {
+	justify-content: flex-end;
+}
+.dante-msg__text {
+	max-width: 85%;
+	padding: 10px 14px;
+	border-radius: 14px;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+.dante-msg--bot .dante-msg__text {
+	background: #f0f4f1;
+	color: #14281d;
+	border-bottom-left-radius: 4px;
+}
+.dante-msg--user .dante-msg__text {
+	background: var(--dante-green);
+	color: #fff;
+	border-bottom-right-radius: 4px;
+}
+.dante-msg--thinking .dante-msg__text {
+	color: #7a8a80;
+	letter-spacing: 2px;
+	animation: dante-pulse 1.1s ease-in-out infinite;
+}
+@keyframes dante-pulse {
+	0%, 100% { opacity: 0.35; }
+	50% { opacity: 1; }
+}
+
+/* Action card (what the assistant just did) */
+.dante-card {
+	background: #fbf7ef;
+	border: 1px solid var(--dante-gold);
+	border-radius: 10px;
+	padding: 12px 14px;
+	margin: 6px 0 6px 8px;
+}
+.dante-card__summary {
+	font-weight: 600;
+	color: #14281d;
+	margin-bottom: 6px;
+}
+.dante-card__link {
+	display: inline-block;
+	font-weight: 600;
+	text-decoration: none;
+	color: var(--dante-green);
+}
+
+/* Input area */
+.dante-assistant__form {
+	display: flex;
+	gap: 8px;
+	align-items: flex-end;
+	margin-top: 8px;
+}
+.dante-assistant__input {
+	flex: 1;
+	font-size: 15px;
+	padding: 10px 12px;
+	border-radius: 10px;
+	border: 1px solid #c3cbc5;
+	resize: vertical;
+	min-height: 44px;
+}
+.dante-assistant__input:focus {
+	border-color: var(--dante-green);
+	box-shadow: 0 0 0 1px var(--dante-green);
+	outline: none;
+}
+.dante-assistant__send {
+	height: 44px;
+	font-size: 15px !important;
+}
+
+/* Suggestion chips */
+.dante-assistant__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 10px;
+}
+.dante-assistant__chip {
+	background: #fff;
+	border: 1px solid #c3cbc5;
+	border-radius: 999px;
+	padding: 7px 14px;
+	font-size: 14px;
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s;
+}
+.dante-assistant__chip:hover {
+	background: #f0f4f1;
+	border-color: var(--dante-green);
+}
+
+/* Review panel (approve/discard all) */
+.dante-assistant__review {
+	background: #fbf7ef;
+	border: 1px solid var(--dante-gold);
+	border-radius: 10px;
+	padding: 12px 14px;
+	margin-top: 12px;
+}
+.dante-review__title,
+.dante-history__title {
+	margin: 0 0 8px;
+	font-size: 14px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #6b5a3e;
+}
+.dante-review__list {
+	margin: 0 0 10px;
+	padding-left: 18px;
+}
+.dante-review__list li {
+	margin: 3px 0;
+}
+.dante-review__actions {
+	display: flex;
+	gap: 8px;
+}
+
+/* Recent changes / undo */
+.dante-assistant__history {
+	margin-top: 14px;
+}
+.dante-history__row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 6px 0;
+	border-top: 1px solid #ececec;
+}
+.dante-history__label {
+	color: #444;
+	font-size: 14px;
+}
+.dante-history__undo {
+	color: #a12d2d !important;
+	flex: none;
+}

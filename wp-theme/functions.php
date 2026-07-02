@@ -31,6 +31,9 @@ require_once get_template_directory() . '/inc/seed-events.php';
 // Newsletter: subscribers + composer (send via wp_mail).
 require_once get_template_directory() . '/inc/newsletter.php';
 
+// Dante Assistant: chat-based site editing (dashboard widget + agent loop).
+require_once get_template_directory() . '/inc/assistant/assistant.php';
+
 /**
  * Theme Setup
  */
