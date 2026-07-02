@@ -92,6 +92,11 @@ function dante_assistant_register_routes() {
         'callback'            => 'dante_assistant_rest_nl_cancel',
         'permission_callback' => $perm,
     ) );
+    register_rest_route( 'dante/v1', '/assistant/newsletter/image-pos', array(
+        'methods'             => 'POST',
+        'callback'            => 'dante_assistant_rest_nl_image_pos',
+        'permission_callback' => $perm,
+    ) );
 }
 add_action( 'rest_api_init', 'dante_assistant_register_routes' );
 
@@ -113,6 +118,7 @@ function dante_assistant_system_prompt() {
         "- After you make a change, tell the person plainly what you did in one sentence and remind them they can review and publish it.\n" .
         "- You can help with two things: events and email newsletters.\n" .
         "- For a newsletter, use compose_newsletter to prepare it. Never offer to send it yourself — after composing, tell the person they can preview it, send themselves a test, schedule it, or send it to everyone using the buttons that appear. For a 'single_event' newsletter, find the event with find_events first.\n" .
+        "- If the person attached a photo, it is included in the newsletter automatically. They can choose whether it appears at the top, middle, or bottom with the 'Photo position' control on the card — so never say you cannot control where the image goes; just compose it and point them to that control.\n" .
         "- If asked for something else (like editing page text), say that's coming soon.";
 }
 
@@ -443,6 +449,26 @@ function dante_assistant_rest_nl_send( WP_REST_Request $request ) {
     return new WP_REST_Response( array(
         'ok'         => true,
         'message'    => sprintf( 'Newsletter sent to %d subscriber(s). (On Local, real delivery needs SMTP set up.)', $count ),
+        'newsletter' => dante_assistant_newsletter_payload( $id ),
+    ), 200 );
+}
+
+function dante_assistant_rest_nl_image_pos( WP_REST_Request $request ) {
+    $id = dante_assistant_nl_require_id( $request );
+    if ( $id instanceof WP_REST_Response ) {
+        return $id;
+    }
+    $pos = sanitize_text_field( (string) $request->get_param( 'pos' ) );
+    if ( ! in_array( $pos, array( 'top', 'middle', 'bottom' ), true ) ) {
+        return new WP_REST_Response( array( 'error' => 'Invalid position.' ), 200 );
+    }
+
+    $data              = dante_assistant_newsletter_data( $id );
+    $data['image_pos'] = $pos;
+    update_post_meta( $id, '_nl_data', wp_slash( wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) ) );
+
+    return new WP_REST_Response( array(
+        'ok'         => true,
         'newsletter' => dante_assistant_newsletter_payload( $id ),
     ), 200 );
 }

@@ -193,6 +193,8 @@ function dante_assistant_newsletter_payload( $id ) {
         'send_time'          => $time ? date_i18n( 'F j, Y \a\t g:i a', (int) $time ) : '',
         'sent_count'         => (int) get_post_meta( $id, '_nl_sent_count', true ),
         'subscriber_count'   => count( dante_get_subscribers() ),
+        'has_image'          => ! empty( $data['image_url'] ),
+        'image_pos'          => ! empty( $data['image_pos'] ) ? $data['image_pos'] : 'top',
         'preview_html'       => dante_assistant_newsletter_html( $id, home_url( '/' ) ),
         'default_test_email' => wp_get_current_user()->user_email,
     );

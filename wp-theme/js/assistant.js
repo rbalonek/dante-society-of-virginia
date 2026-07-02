@@ -221,8 +221,8 @@
 		return row;
 	}
 
-	function showNewsletter( nl, existingEl ) {
-		var card = buildNewsletterCard( nl );
+	function showNewsletter( nl, existingEl, openPreview ) {
+		var card = buildNewsletterCard( nl, openPreview );
 		if ( existingEl && existingEl.parentNode ) {
 			existingEl.parentNode.replaceChild( card, existingEl );
 		} else {
@@ -234,7 +234,7 @@
 		return card;
 	}
 
-	function buildNewsletterCard( nl ) {
+	function buildNewsletterCard( nl, openPreview ) {
 		var card = el( 'div', 'dante-nl-card' );
 		card.appendChild( el( 'div', 'dante-nl-card__title', '✉️ Newsletter' ) );
 		card.appendChild( el( 'div', 'dante-nl-card__subject', 'Subject: ' + nl.subject ) );
@@ -249,10 +249,32 @@
 			card.appendChild( el( 'div', 'dante-nl-card__status', '🕒 Scheduled for ' + nl.send_time + '.' ) );
 		}
 
+		// Photo position (only when there's a photo in the email).
+		if ( nl.has_image ) {
+			var posRow = labeledRow( 'Photo position:' );
+			var sel = el( 'select', 'dante-nl-card__pos' );
+			[ [ 'top', 'Top' ], [ 'middle', 'Middle of the text' ], [ 'bottom', 'Bottom (after the text)' ] ].forEach( function ( o ) {
+				var opt = el( 'option', null, o[1] );
+				opt.value = o[0];
+				if ( o[0] === nl.image_pos ) { opt.selected = true; }
+				sel.appendChild( opt );
+			} );
+			sel.addEventListener( 'change', function () {
+				sel.disabled = true;
+				request( '/newsletter/image-pos', { method: 'POST', data: { id: nl.id, pos: sel.value } } )
+					.then( function ( res ) {
+						if ( res.error ) { window.alert( res.error ); sel.disabled = false; return; }
+						showNewsletter( res.newsletter, card, true ); // keep preview open.
+					} );
+			} );
+			posRow.appendChild( sel );
+			card.appendChild( posRow );
+		}
+
 		// Preview (inline iframe toggle).
-		var previewBtn = el( 'button', 'button', 'Preview' );
+		var previewBtn = el( 'button', 'button', openPreview ? 'Hide preview' : 'Preview' );
 		var frame = el( 'iframe', 'dante-nl-card__frame' );
-		frame.hidden = true;
+		frame.hidden = ! openPreview;
 		frame.setAttribute( 'srcdoc', nl.preview_html );
 		previewBtn.addEventListener( 'click', function () {
 			frame.hidden = ! frame.hidden;

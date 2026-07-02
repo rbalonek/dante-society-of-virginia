@@ -336,36 +336,75 @@ function dante_nl_event_block( $post_id ) {
 function dante_nl_build_inner( $data ) {
     $headline = ! empty( $data['headline'] ) ? $data['headline'] : '';
     $intro    = ! empty( $data['intro'] ) ? $data['intro'] : '';
-    $inner    = '';
 
-    if ( $headline ) {
-        $inner .= '<h1 style="color:#1B4332;font-size:26px;margin:0 0 16px;">' . esc_html( $headline ) . '</h1>';
-    }
+    $image_html = '';
     if ( ! empty( $data['image_url'] ) ) {
-        $inner .= '<img src="' . esc_url( $data['image_url'] ) . '" alt="" style="max-width:100%;border-radius:6px;margin:0 0 20px;display:block;" />';
+        $image_html = '<img src="' . esc_url( $data['image_url'] ) . '" alt="" style="max-width:100%;border-radius:6px;margin:0 0 20px;display:block;" />';
     }
-    if ( $intro ) {
-        $inner .= '<p style="margin:0 0 20px;">' . nl2br( esc_html( $intro ) ) . '</p>';
-    }
+    $image_pos = ! empty( $data['image_pos'] ) ? $data['image_pos'] : 'top';
 
+    // Build the main body for the chosen template.
+    $body = '';
     if ( 'message' === $data['template'] ) {
-        $inner .= wp_kses_post( $data['body'] );
+        $body .= wp_kses_post( $data['body'] );
     } elseif ( 'single_event' === $data['template'] && ! empty( $data['event_id'] ) ) {
-        $inner .= dante_nl_event_block( (int) $data['event_id'] );
+        $body .= dante_nl_event_block( (int) $data['event_id'] );
     } elseif ( 'all_events' === $data['template'] ) {
         $q = dante_get_upcoming_events();
         if ( $q->have_posts() ) {
             foreach ( $q->posts as $p ) {
-                $inner .= dante_nl_event_block( $p->ID );
+                $body .= dante_nl_event_block( $p->ID );
             }
             wp_reset_postdata();
-            $inner .= '<p style="text-align:center;margin:8px 0 0;"><a href="' . esc_url( home_url( '/' ) ) . '" style="background:#C8963E;color:#1B4332;text-decoration:none;font-weight:bold;padding:12px 24px;border-radius:6px;display:inline-block;">See all events</a></p>';
+            $body .= '<p style="text-align:center;margin:8px 0 0;"><a href="' . esc_url( home_url( '/' ) ) . '" style="background:#C8963E;color:#1B4332;text-decoration:none;font-weight:bold;padding:12px 24px;border-radius:6px;display:inline-block;">See all events</a></p>';
         } else {
-            $inner .= '<p>No upcoming events at this time.</p>';
+            $body .= '<p>No upcoming events at this time.</p>';
         }
     }
 
+    // "Middle" places the image between paragraphs of the body text.
+    if ( $image_html && 'middle' === $image_pos ) {
+        $body = dante_nl_place_image_middle( $body, $image_html );
+    }
+
+    // Assemble: headline, [top image], intro, body, [bottom image].
+    $inner = '';
+    if ( $headline ) {
+        $inner .= '<h1 style="color:#1B4332;font-size:26px;margin:0 0 16px;">' . esc_html( $headline ) . '</h1>';
+    }
+    if ( $image_html && 'top' === $image_pos ) {
+        $inner .= $image_html;
+    }
+    if ( $intro ) {
+        $inner .= '<p style="margin:0 0 20px;">' . nl2br( esc_html( $intro ) ) . '</p>';
+    }
+    $inner .= $body;
+    if ( $image_html && 'bottom' === $image_pos ) {
+        $inner .= $image_html;
+    }
+
     return $inner;
+}
+
+/**
+ * Insert an image after the middle paragraph of some HTML body. Falls back to
+ * appending it if the body has fewer than two paragraphs to split between.
+ */
+function dante_nl_place_image_middle( $body, $image_html ) {
+    $count = substr_count( strtolower( $body ), '</p>' );
+    if ( $count < 2 ) {
+        return $body . $image_html;
+    }
+    $target = max( 1, (int) round( $count / 2 ) );
+    $n      = 0;
+    return preg_replace_callback(
+        '/<\/p>/i',
+        function ( $m ) use ( &$n, $target, $image_html ) {
+            $n++;
+            return ( $n === $target ) ? '</p>' . $image_html : $m[0];
+        },
+        $body
+    );
 }
 
 /* ===========================================================================
