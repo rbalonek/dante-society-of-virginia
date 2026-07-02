@@ -45,6 +45,16 @@ function dante_assistant_register_routes() {
         'callback'            => 'dante_assistant_rest_approve',
         'permission_callback' => $perm,
     ) );
+    register_rest_route( 'dante/v1', '/assistant/publish-item', array(
+        'methods'             => 'POST',
+        'callback'            => 'dante_assistant_rest_publish_item',
+        'permission_callback' => $perm,
+    ) );
+    register_rest_route( 'dante/v1', '/assistant/upload', array(
+        'methods'             => 'POST',
+        'callback'            => 'dante_assistant_rest_upload',
+        'permission_callback' => function () { return current_user_can( 'upload_files' ); },
+    ) );
     register_rest_route( 'dante/v1', '/assistant/discard', array(
         'methods'             => 'POST',
         'callback'            => 'dante_assistant_rest_discard',
@@ -100,6 +110,11 @@ function dante_assistant_rest_chat( WP_REST_Request $request ) {
         return new WP_REST_Response( array( 'error' => 'Please type a message.' ), 200 );
     }
 
+    // A photo the user attached in the chat; applied to the event a tool creates
+    // or edits this turn (consumed once, inside the tool handler).
+    $attachment_id = (int) $request->get_param( 'attachment_id' );
+    $GLOBALS['dante_assistant_pending_image'] = $attachment_id > 0 ? $attachment_id : 0;
+
     // Rebuild the conversation as content-block messages.
     $messages = dante_assistant_build_messages( $request->get_param( 'history' ), $message );
     $tools    = dante_assistant_tools();
@@ -129,8 +144,8 @@ function dante_assistant_rest_chat( WP_REST_Request $request ) {
             $output = dante_assistant_run_tool( $call['name'], $call['input'] );
             if ( isset( $output['event_id'] ) ) {
                 $actions[] = array(
-                    'summary'  => isset( $output['summary'] ) ? $output['summary'] : '',
-                    'edit_url' => get_edit_post_link( $output['event_id'], 'raw' ),
+                    'summary'     => isset( $output['summary'] ) ? $output['summary'] : '',
+                    'preview_url' => get_preview_post_link( $output['event_id'] ),
                 );
             }
             $tool_result_blocks[] = array(
@@ -191,10 +206,32 @@ function dante_assistant_pending_payload() {
     if ( empty( $open ) ) {
         return array( 'changeset_id' => 0, 'items' => array() );
     }
-    $id = (int) $open[0];
+    $id    = (int) $open[0];
+    $items = array_map( 'dante_assistant_event_preview', dante_changeset_pending_posts( $id ) );
     return array(
         'changeset_id' => $id,
-        'items'        => dante_changeset_pending_summary( $id ),
+        'items'        => $items,
+    );
+}
+
+/**
+ * A rich, renderable preview of one pending event — everything the dashboard
+ * needs to show it and offer Publish / See preview without opening the editor.
+ */
+function dante_assistant_event_preview( $post_id ) {
+    $date = get_post_meta( $post_id, '_event_date', true );
+    $desc = wp_strip_all_tags( get_post_field( 'post_content', $post_id ) );
+    return array(
+        'post_id'     => (int) $post_id,
+        'title'       => get_the_title( $post_id ),
+        'date'        => $date,
+        'date_label'  => $date ? date_i18n( 'l, F j, Y', strtotime( $date ) ) : '',
+        'time'        => get_post_meta( $post_id, '_event_time', true ),
+        'location'    => get_post_meta( $post_id, '_event_location', true ),
+        'excerpt'     => wp_trim_words( $desc, 40 ),
+        'thumb'       => get_the_post_thumbnail_url( $post_id, 'medium' ) ?: '',
+        'edit_url'    => get_edit_post_link( $post_id, 'raw' ),
+        'preview_url' => get_preview_post_link( $post_id ),
     );
 }
 
@@ -213,6 +250,51 @@ function dante_assistant_rest_approve( WP_REST_Request $request ) {
         'message' => sprintf( _n( 'Published %d change.', 'Published %d changes.', $count, 'dante-society' ), $count ),
         'pending' => dante_assistant_pending_payload(),
         'history' => dante_changeset_history(),
+    ), 200 );
+}
+
+function dante_assistant_rest_publish_item( WP_REST_Request $request ) {
+    $changeset_id = (int) $request->get_param( 'changeset_id' );
+    $post_id      = (int) $request->get_param( 'post_id' );
+    if ( ! $changeset_id || ! $post_id || 'event' !== get_post_type( $post_id ) ) {
+        return new WP_REST_Response( array( 'error' => 'Nothing to publish.' ), 200 );
+    }
+    $result = dante_changeset_publish_one( $changeset_id, $post_id );
+    if ( isset( $result['error'] ) ) {
+        return new WP_REST_Response( $result, 200 );
+    }
+    return new WP_REST_Response( array(
+        'ok'      => true,
+        'message' => sprintf( '"%s" is now live on the website.', get_the_title( $post_id ) ),
+        'pending' => dante_assistant_pending_payload(),
+        'history' => dante_changeset_history(),
+    ), 200 );
+}
+
+/**
+ * POST assistant/upload — receive a photo from the chat and add it to the media
+ * library. Returns the attachment id, which the next chat message attaches to
+ * the event it creates/edits.
+ */
+function dante_assistant_rest_upload( WP_REST_Request $request ) {
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+
+    $files = $request->get_file_params();
+    if ( empty( $files['file'] ) ) {
+        return new WP_REST_Response( array( 'error' => 'No photo was received.' ), 200 );
+    }
+
+    $attachment_id = media_handle_upload( 'file', 0 );
+    if ( is_wp_error( $attachment_id ) ) {
+        return new WP_REST_Response( array( 'error' => $attachment_id->get_error_message() ), 200 );
+    }
+
+    return new WP_REST_Response( array(
+        'ok'            => true,
+        'attachment_id' => $attachment_id,
+        'thumb'         => wp_get_attachment_image_url( $attachment_id, 'thumbnail' ),
     ), 200 );
 }
 

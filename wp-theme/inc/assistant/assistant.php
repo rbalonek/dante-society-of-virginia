@@ -67,6 +67,12 @@ function dante_assistant_widget_html() {
 
         <div class="dante-assistant__review" hidden></div>
 
+        <div class="dante-assistant__attach">
+            <input type="file" class="dante-assistant__file" accept="image/*" hidden />
+            <button type="button" class="button dante-assistant__photo">📷 <?php esc_html_e( 'Add a photo', 'dante-society' ); ?></button>
+            <span class="dante-assistant__thumb" hidden></span>
+        </div>
+
         <form class="dante-assistant__form">
             <label class="screen-reader-text" for="dante-assistant-input"><?php esc_html_e( 'Ask the assistant', 'dante-society' ); ?></label>
             <textarea id="dante-assistant-input" class="dante-assistant__input" rows="2"

@@ -125,6 +125,9 @@ function dante_tool_create_event( $args ) {
         update_post_meta( $post_id, '_event_location', sanitize_text_field( $args['location'] ) );
     }
 
+    // Attach a photo the user added in the chat, so the draft is fully ready.
+    dante_assistant_apply_pending_image( $post_id );
+
     $changeset = dante_changeset_current();
     update_post_meta( $post_id, '_dante_changeset', $changeset );
     dante_changeset_record( $changeset, array(
@@ -206,6 +209,7 @@ function dante_tool_update_event( $args ) {
             '_event_date'     => get_post_meta( $post_id, '_event_date', true ),
             '_event_time'     => get_post_meta( $post_id, '_event_time', true ),
             '_event_location' => get_post_meta( $post_id, '_event_location', true ),
+            '_thumbnail_id'   => get_post_meta( $post_id, '_thumbnail_id', true ),
         ),
     );
 
@@ -241,6 +245,11 @@ function dante_tool_update_event( $args ) {
         $changed[] = 'location';
     }
 
+    // Attach a photo the user added in the chat, if any.
+    if ( dante_assistant_apply_pending_image( $post_id ) ) {
+        $changed[] = 'photo';
+    }
+
     if ( empty( $changed ) ) {
         return array( 'error' => 'Nothing to change — no fields were provided.' );
     }
@@ -273,4 +282,27 @@ function dante_assistant_normalize_date( $raw ) {
     }
     $ts = strtotime( $raw );
     return $ts ? gmdate( 'Y-m-d', $ts ) : '';
+}
+
+/**
+ * If the current chat turn carried an uploaded photo (stashed by the chat
+ * endpoint), set it as the event's featured image and consume it so it's only
+ * applied once. Returns true if a photo was applied.
+ *
+ * @param int $post_id Event post ID.
+ * @return bool
+ */
+function dante_assistant_apply_pending_image( $post_id ) {
+    $att = isset( $GLOBALS['dante_assistant_pending_image'] ) ? (int) $GLOBALS['dante_assistant_pending_image'] : 0;
+    if ( $att <= 0 ) {
+        return false;
+    }
+    $GLOBALS['dante_assistant_pending_image'] = 0; // consume once, whatever happens.
+
+    $att_post = get_post( $att );
+    if ( ! $att_post || 'attachment' !== $att_post->post_type ) {
+        return false;
+    }
+    set_post_thumbnail( $post_id, $att );
+    return true;
 }

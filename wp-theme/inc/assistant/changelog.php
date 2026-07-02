@@ -132,6 +132,29 @@ function dante_changeset_approve( $changeset_id ) {
 }
 
 /**
+ * Publish a single pending item. If it was the last one waiting, the change set
+ * is marked applied (so it enters the undo history). Lets the user approve
+ * events one at a time from the dashboard instead of all at once.
+ *
+ * @return array ['ok'=>bool, 'applied'=>bool] or ['error'=>string]
+ */
+function dante_changeset_publish_one( $changeset_id, $post_id ) {
+    if ( (int) get_post_meta( $post_id, '_dante_changeset', true ) !== (int) $changeset_id ) {
+        return array( 'error' => 'That item is not part of this change set.' );
+    }
+    wp_update_post( array( 'ID' => $post_id, 'post_status' => 'publish' ) );
+
+    // If nothing else is waiting, close the change set into history.
+    if ( empty( dante_changeset_pending_posts( $changeset_id ) ) ) {
+        update_post_meta( $changeset_id, '_status', 'applied' );
+        update_post_meta( $changeset_id, '_applied_at', current_time( 'mysql' ) );
+        dante_changeset_prune();
+        return array( 'ok' => true, 'applied' => true );
+    }
+    return array( 'ok' => true, 'applied' => false );
+}
+
+/**
  * Discard everything in a pending change set (trash the drafts, drop the set).
  *
  * @return int Number of items discarded.

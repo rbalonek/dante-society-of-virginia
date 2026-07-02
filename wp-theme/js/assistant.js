@@ -25,9 +25,14 @@
 	var formEl = root.querySelector( '.dante-assistant__form' );
 	var inputEl = root.querySelector( '.dante-assistant__input' );
 	var chips = root.querySelectorAll( '.dante-assistant__chip' );
+	var photoBtn = root.querySelector( '.dante-assistant__photo' );
+	var fileEl = root.querySelector( '.dante-assistant__file' );
+	var thumbEl = root.querySelector( '.dante-assistant__thumb' );
 
 	// Visible conversation turns sent back to the server for context.
 	var history = [];
+	// A photo the user attached, applied to the next event they create/edit.
+	var attachmentId = 0;
 
 	// --- helpers -----------------------------------------------------------
 
@@ -62,9 +67,9 @@
 	function actionCard( action ) {
 		var card = el( 'div', 'dante-card' );
 		card.appendChild( el( 'div', 'dante-card__summary', '✓ ' + ( action.summary || 'Done' ) ) );
-		if ( action.edit_url ) {
-			var a = el( 'a', 'dante-card__link', 'Review →' );
-			a.href = action.edit_url;
+		if ( action.preview_url ) {
+			var a = el( 'a', 'dante-card__link', 'See preview →' );
+			a.href = action.preview_url;
 			a.target = '_blank';
 			card.appendChild( a );
 		}
@@ -73,6 +78,53 @@
 	}
 
 	// --- review panel (approve/discard all) --------------------------------
+
+	// A rich, in-dashboard preview of one pending event with its own Publish and
+	// See-preview controls — so the editor is never required.
+	function previewCard( item, changesetId ) {
+		var card = el( 'div', 'dante-preview' );
+
+		if ( item.thumb ) {
+			var img = el( 'img', 'dante-preview__img' );
+			img.src = item.thumb;
+			img.alt = '';
+			card.appendChild( img );
+		}
+
+		var body = el( 'div', 'dante-preview__body' );
+		body.appendChild( el( 'div', 'dante-preview__title', item.title ) );
+
+		var meta = [ item.date_label, item.time ].filter( Boolean ).join( '  ·  ' );
+		if ( meta ) { body.appendChild( el( 'div', 'dante-preview__meta', meta ) ); }
+		if ( item.location ) { body.appendChild( el( 'div', 'dante-preview__loc', '📍 ' + item.location ) ); }
+		if ( item.excerpt ) { body.appendChild( el( 'div', 'dante-preview__desc', item.excerpt ) ); }
+
+		var actions = el( 'div', 'dante-preview__actions' );
+		var publish = el( 'button', 'button button-primary button-small', 'Publish' );
+		actions.appendChild( publish );
+		if ( item.preview_url ) {
+			var see = el( 'a', 'dante-preview__see', 'See preview →' );
+			see.href = item.preview_url;
+			see.target = '_blank';
+			actions.appendChild( see );
+		}
+		body.appendChild( actions );
+		card.appendChild( body );
+
+		publish.addEventListener( 'click', function () {
+			publish.disabled = true;
+			publish.textContent = 'Publishing…';
+			request( '/publish-item', { method: 'POST', data: { changeset_id: changesetId, post_id: item.post_id } } )
+				.then( function ( res ) {
+					if ( res.error ) { window.alert( res.error ); publish.disabled = false; publish.textContent = 'Publish'; return; }
+					bubble( 'bot', res.message || 'Published.' );
+					renderReview( res.pending );
+					renderHistory( res.history );
+				} );
+		} );
+
+		return card;
+	}
 
 	function renderReview( pending ) {
 		reviewEl.innerHTML = '';
@@ -84,24 +136,16 @@
 
 		reviewEl.appendChild( el( 'h4', 'dante-review__title', 'Waiting for your approval' ) );
 
-		var list = el( 'ul', 'dante-review__list' );
 		pending.items.forEach( function ( item ) {
-			var li = el( 'li' );
-			if ( item.edit_url ) {
-				var a = el( 'a', null, item.label );
-				a.href = item.edit_url;
-				a.target = '_blank';
-				li.appendChild( a );
-			} else {
-				li.textContent = item.label;
-			}
-			list.appendChild( li );
+			reviewEl.appendChild( previewCard( item, pending.changeset_id ) );
 		} );
-		reviewEl.appendChild( list );
 
 		var actions = el( 'div', 'dante-review__actions' );
-		var approve = el( 'button', 'button button-primary', 'Approve & publish all' );
+		var approve = el( 'button', 'button button-primary', 'Publish all' );
 		var discard = el( 'button', 'button', 'Discard all' );
+		if ( pending.items.length < 2 ) {
+			approve.hidden = true; // one item already has its own Publish button.
+		}
 		actions.appendChild( approve );
 		actions.appendChild( discard );
 		reviewEl.appendChild( actions );
@@ -176,13 +220,17 @@
 		var thinking = bubble( 'bot', '…' );
 		thinking.classList.add( 'dante-msg--thinking' );
 
-		request( '/chat', { method: 'POST', data: { message: text, history: history.slice( 0, -1 ) } } )
+		var payload = { message: text, history: history.slice( 0, -1 ) };
+		if ( attachmentId ) { payload.attachment_id = attachmentId; }
+
+		request( '/chat', { method: 'POST', data: payload } )
 			.then( function ( res ) {
 				thinking.remove();
 				if ( res.error ) {
 					bubble( 'bot', res.error );
 					return;
 				}
+				clearPhoto(); // the photo has been attached to the event now.
 				bubble( 'bot', res.reply );
 				history.push( { role: 'assistant', text: res.reply } );
 				( res.actions || [] ).forEach( actionCard );
@@ -207,6 +255,67 @@
 			send( inputEl.value );
 		}
 	} );
+
+	// --- photo upload ------------------------------------------------------
+
+	function clearPhoto() {
+		attachmentId = 0;
+		thumbEl.hidden = true;
+		thumbEl.innerHTML = '';
+		fileEl.value = '';
+	}
+
+	if ( photoBtn && fileEl ) {
+		photoBtn.addEventListener( 'click', function () {
+			if ( ! cfg.configured ) {
+				bubble( 'bot', 'Add an API key first (Settings → Dante Assistant) to use photos.' );
+				return;
+			}
+			fileEl.click();
+		} );
+
+		fileEl.addEventListener( 'change', function () {
+			var file = fileEl.files && fileEl.files[0];
+			if ( ! file ) { return; }
+
+			photoBtn.disabled = true;
+			photoBtn.textContent = 'Uploading…';
+
+			var form = new FormData();
+			form.append( 'file', file );
+
+			var headers = { 'X-WP-Nonce': cfg.nonce };
+			fetch( cfg.root + '/upload', { method: 'POST', headers: headers, body: form } )
+				.then( function ( r ) { return r.json(); } )
+				.then( function ( res ) {
+					photoBtn.disabled = false;
+					photoBtn.textContent = '📷 Add a photo';
+					if ( res.error || ! res.attachment_id ) {
+						bubble( 'bot', res.error || 'That photo could not be added.' );
+						return;
+					}
+					attachmentId = res.attachment_id;
+					thumbEl.hidden = false;
+					thumbEl.innerHTML = '';
+					if ( res.thumb ) {
+						var img = el( 'img' );
+						img.src = res.thumb;
+						img.alt = '';
+						thumbEl.appendChild( img );
+					}
+					var x = el( 'button', 'dante-assistant__thumb-x', '✕' );
+					x.title = 'Remove photo';
+					x.addEventListener( 'click', clearPhoto );
+					thumbEl.appendChild( x );
+					thumbEl.appendChild( el( 'span', 'dante-assistant__thumb-note', 'will be added to your next event' ) );
+				} )
+				.catch( function () {
+					photoBtn.disabled = false;
+					photoBtn.textContent = '📷 Add a photo';
+					bubble( 'bot', 'That photo could not be uploaded.' );
+				} );
+		} );
+	}
 
 	chips.forEach( function ( chip ) {
 		chip.addEventListener( 'click', function () {

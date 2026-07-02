@@ -98,6 +98,92 @@
 	font-size: 15px !important;
 }
 
+/* Photo attach */
+.dante-assistant__attach {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 10px;
+	flex-wrap: wrap;
+}
+.dante-assistant__thumb {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	background: #f0f4f1;
+	border-radius: 8px;
+	padding: 4px 8px 4px 4px;
+}
+.dante-assistant__thumb img {
+	width: 34px;
+	height: 34px;
+	object-fit: cover;
+	border-radius: 6px;
+	display: block;
+}
+.dante-assistant__thumb-note {
+	font-size: 12px;
+	color: #6b7a70;
+}
+.dante-assistant__thumb-x {
+	border: none;
+	background: none;
+	cursor: pointer;
+	color: #a12d2d;
+	font-size: 13px;
+	line-height: 1;
+	padding: 2px;
+}
+
+/* Preview cards inside the review panel */
+.dante-preview {
+	display: flex;
+	gap: 12px;
+	background: #fff;
+	border: 1px solid #e4dcc9;
+	border-radius: 10px;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+.dante-preview__img {
+	width: 84px;
+	height: 84px;
+	object-fit: cover;
+	border-radius: 8px;
+	flex: none;
+}
+.dante-preview__body {
+	flex: 1;
+	min-width: 0;
+}
+.dante-preview__title {
+	font-weight: 700;
+	font-size: 16px;
+	color: #14281d;
+}
+.dante-preview__meta {
+	color: var(--dante-green);
+	font-weight: 600;
+	margin-top: 2px;
+}
+.dante-preview__loc,
+.dante-preview__desc {
+	color: #555;
+	font-size: 14px;
+	margin-top: 3px;
+}
+.dante-preview__actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 8px;
+}
+.dante-preview__see {
+	font-weight: 600;
+	text-decoration: none;
+	color: var(--dante-green);
+}
+
 /* Suggestion chips */
 .dante-assistant__chips {
 	display: flex;
