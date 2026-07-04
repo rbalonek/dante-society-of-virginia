@@ -31,6 +31,9 @@ require_once get_template_directory() . '/inc/seed-events.php';
 // Newsletter: subscribers + composer (send via wp_mail).
 require_once get_template_directory() . '/inc/newsletter.php';
 
+// Full Screen Hero block (configurable splash hero).
+require_once get_template_directory() . '/inc/hero-block.php';
+
 /**
  * Theme Setup
  */
@@ -271,10 +274,24 @@ function dante_background_css() {
     if ( $hero ) {
         $css .= '.hero{background:linear-gradient(rgba(27,67,50,0.5),rgba(13,43,31,0.62)),url(' . esc_url( $hero ) . ');background-size:cover;background-position:center;}';
     }
+    // The Full Screen Hero block sets its own background inline (see
+    // dante_render_hero_block), so no template-specific rule is needed here.
 
     if ( $css ) {
         wp_add_inline_style( 'dante-custom', $css );
     }
+}
+
+/**
+ * Default splash-hero background image for the Home Page template. Uses the
+ * bundled portrait (images/hero-portrait.jpg) once it is added to the theme;
+ * falls back to the existing hero painting until then. Overridable via
+ * Customize → Background Images → "Homepage hero background".
+ */
+function dante_home_hero_default_url() {
+    $dir = get_template_directory();
+    $rel = file_exists( $dir . '/images/hero-portrait.jpg' ) ? 'hero-portrait.jpg' : 'background1.jpg';
+    return get_template_directory_uri() . '/images/' . $rel;
 }
 add_action( 'wp_enqueue_scripts', 'dante_background_css', 25 );
 
@@ -347,6 +364,7 @@ function dante_allowed_blocks( $allowed_blocks, $context ) {
         'core/spacer',
         'core/shortcode', // allows [dante_subscribe] signup form
         'dante/events', // calendar + auto event list
+        'dante/hero', // full screen hero banner
     );
 }
 add_filter( 'allowed_block_types_all', 'dante_allowed_blocks', 10, 2 );
@@ -466,11 +484,11 @@ add_action( 'wp_footer', 'dante_calendar_popup_markup' );
  */
 function dante_primary_menu_fallback() {
     $links = array(
-        home_url( '/' )                => 'Events',
+        home_url( '/' )                => 'Home',
         '#calendar'                    => 'Calendar',
         home_url( '/about' )           => 'About',
         home_url( '/board' )           => 'Board',
-        home_url( '/programs' )        => 'Programs',
+        home_url( '/programs' )        => 'Events',
         home_url( '/membership' )      => 'Membership',
         home_url( '/italian-culture' ) => 'Italian Culture',
         home_url( '/contact' )         => 'Contact',

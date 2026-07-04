@@ -2,48 +2,38 @@
 /**
  * Template Name: Home Page
  *
- * A deliberately minimal, image-forward front page, per Gail's notes:
- *   - the hero banner stays, but with smaller, less "in your face" type
- *     (scoped in style.css under .page-template-template-home);
- *   - the heavier body text lives on the interior pages via the menu, so this
- *     template intentionally does NOT render the page's blocks;
- *   - the Domenico di Michelino painting is featured on its own, with just a
- *     short opening message beneath it.
+ * A full-bleed canvas for the front page: the header is overlaid (transparent)
+ * and the page content runs edge-to-edge, so a "Full Screen Hero" block fills
+ * the viewport with the logo + nav floating on top.
+ *
+ * Add a Full Screen Hero block to the page to configure the title, line, text,
+ * button, colours, and button link. If the page has no hero block yet, the
+ * default hero is shown so the homepage is never empty. The background image is
+ * set in Customize → Background Images → "Homepage hero background".
  *
  * NOTE: this file is deliberately NOT named page-home.php — WordPress would
  * auto-apply a page-{slug}.php file to the "home"-slug page regardless of the
  * selected template. As template-home.php it only applies when chosen.
  *
- * The opening message is editable in Appearance → Customize → Hero Section
- * (the "Opening Message" field). Until it's filled in, a clearly-marked dummy
- * is shown so it's obvious where to add — or remove — it.
- *
  * @package Dante_Society
  */
 
 get_header();
-
-$home_message   = trim( (string) get_theme_mod( 'dante_hero_message', '' ) );
-$is_placeholder = ( '' === $home_message );
-if ( $is_placeholder ) {
-    $home_message = 'Opening Message — please replace or delete.';
-}
 ?>
 
-<main class="main-content">
-    <div class="content-card home-card">
+<main class="main-content main-content--flush">
+    <?php
+    while ( have_posts() ) :
+        the_post();
 
-        <figure class="home-painting">
-            <img src="<?php echo esc_url( get_template_directory_uri() . '/images/background2.jpg' ); ?>"
-                 alt="<?php esc_attr_e( 'Dante and the Divine Comedy — Domenico di Michelino, 1465', 'dante-society' ); ?>" />
-            <figcaption><?php esc_html_e( 'Dante and the Divine Comedy — Domenico di Michelino, 1465', 'dante-society' ); ?></figcaption>
-        </figure>
-
-        <div class="home-message<?php echo $is_placeholder ? ' is-placeholder' : ''; ?>">
-            <?php echo wp_kses_post( wpautop( $home_message ) ); ?>
-        </div>
-
-    </div>
+        if ( has_block( 'dante/hero', get_post() ) ) {
+            the_content();
+        } else {
+            // No hero block yet — show the default splash so it's never blank.
+            echo dante_render_hero_block(); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped within.
+        }
+    endwhile;
+    ?>
 </main>
 
 <?php get_footer(); ?>
