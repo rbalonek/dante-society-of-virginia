@@ -266,7 +266,10 @@ body {
 
 @media (max-width: 700px) {
   .dante-hero {
-    padding: 110px 18px 70px;
+    /* A shorter hero on phones means the background is scaled up less,
+       so it looks sharper on tall retina screens. */
+    min-height: 78vh;
+    padding: 100px 18px 60px;
   }
   .dante-hero__title {
     font-size: 2rem;

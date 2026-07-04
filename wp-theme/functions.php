@@ -409,6 +409,8 @@ function dante_responsive_css() {
     $bp = dante_get_mobile_breakpoint();
 
     $css = "@media (max-width:{$bp}px){"
+        // iOS renders fixed backgrounds blurry/pixelated; use scroll on mobile.
+        . 'body{background-attachment:scroll}'
         . '.header-inner{height:64px}'
         . '.logo-name{font-size:1rem}'
         . '.logo-subtitle{display:none}'
@@ -424,11 +426,12 @@ function dante_responsive_css() {
         . '.newsletter-form{flex-direction:column}'
         . '.photo-gallery{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}'
         . '.nav-toggle{display:block}'
-        . '.main-nav{display:none;position:absolute;top:64px;left:0;right:0;background:var(--dark-green);flex-direction:column;padding:12px;gap:2px;border-bottom:3px solid var(--gold)}'
+        . '.main-nav{display:none;position:absolute;top:64px;left:0;right:0;background:var(--dark-green);flex-direction:column;padding:16px;gap:2px;border-bottom:3px solid var(--gold)}'
         . '.main-nav.open{display:flex}'
-        . '.main-nav a{padding:12px 16px;width:100%;border-radius:4px}'
-        . '.main-nav ul{flex-direction:column;width:100%;gap:2px}'
-        . '.main-nav li{width:100%}'
+        // Two centered columns of larger links so the menu fits cleanly.
+        . '.main-nav ul{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:8px;list-style:none;margin:0;padding:0}'
+        . '.main-nav li{width:100%;margin:0}'
+        . '.main-nav a{display:block;padding:16px 12px;width:100%;border-radius:6px;text-align:center;font-size:1.15rem}'
         . '.event-card{flex-direction:column}'
         . '.event-card-image{width:100%;min-width:100%;height:200px}'
         // Stack "image beside text" (Media & Text) into one column on small screens.
