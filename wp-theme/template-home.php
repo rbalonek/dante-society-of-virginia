@@ -4,11 +4,15 @@
  *
  * A deliberately minimal, image-forward front page, per Gail's notes:
  *   - the hero banner stays, but with smaller, less "in your face" type
- *     (scoped in style.css under .page-template-page-home);
+ *     (scoped in style.css under .page-template-template-home);
  *   - the heavier body text lives on the interior pages via the menu, so this
  *     template intentionally does NOT render the page's blocks;
  *   - the Domenico di Michelino painting is featured on its own, with just a
  *     short opening message beneath it.
+ *
+ * NOTE: this file is deliberately NOT named page-home.php — WordPress would
+ * auto-apply a page-{slug}.php file to the "home"-slug page regardless of the
+ * selected template. As template-home.php it only applies when chosen.
  *
  * The opening message is editable in Appearance → Customize → Hero Section
  * (the "Opening Message" field). Until it's filled in, a clearly-marked dummy

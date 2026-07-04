@@ -192,13 +192,13 @@ body {
 /* ===== Home Page template (minimal, image-forward front page) =====
    Per Gail's notes: smaller hero type, and the painting featured on its own
    with a short opening message. Scoped to the Home Page template only. */
-.page-template-page-home .hero {
+.page-template-template-home .hero {
   padding: 48px 20px;
 }
-.page-template-page-home .hero h1 {
+.page-template-template-home .hero h1 {
   font-size: 1.8rem;
 }
-.page-template-page-home .hero .tagline {
+.page-template-template-home .hero .tagline {
   font-size: 0.98rem;
 }
 

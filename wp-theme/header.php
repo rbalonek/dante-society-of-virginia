@@ -61,7 +61,7 @@
     // template the message is rendered in the body (beneath the painting)
     // instead, so it's suppressed here to avoid showing it twice.
     $dante_hero_message = trim( (string) get_theme_mod( 'dante_hero_message', '' ) );
-    if ( '' !== $dante_hero_message && ! is_page_template( 'page-home.php' ) ) : ?>
+    if ( '' !== $dante_hero_message && ! is_page_template( 'template-home.php' ) ) : ?>
     <div class="hero-message"><?php echo wp_kses_post( wpautop( $dante_hero_message ) ); ?></div>
     <?php endif; ?>
 </section>
