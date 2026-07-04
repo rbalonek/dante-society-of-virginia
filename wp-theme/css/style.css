@@ -189,6 +189,51 @@ body {
 .hero-message p { margin: 0 0 10px; }
 .hero-message p:last-child { margin-bottom: 0; }
 
+/* ===== Home Page template (minimal, image-forward front page) =====
+   Per Gail's notes: smaller hero type, and the painting featured on its own
+   with a short opening message. Scoped to the Home Page template only. */
+.page-template-page-home .hero {
+  padding: 48px 20px;
+}
+.page-template-page-home .hero h1 {
+  font-size: 1.8rem;
+}
+.page-template-page-home .hero .tagline {
+  font-size: 0.98rem;
+}
+
+.home-card {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+.home-painting {
+  margin: 0 0 26px;
+}
+.home-painting img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 3px solid var(--gold);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+  display: block;
+}
+.home-painting figcaption {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text-light);
+}
+.home-message {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--text-dark);
+}
+.home-message.is-placeholder {
+  font-style: italic;
+  color: var(--text-light);
+}
+
 /* ===== Page Header (inner pages) ===== */
 .page-header {
   background: linear-gradient(rgba(27,67,50,0.9), rgba(13,43,31,0.95));

@@ -57,9 +57,11 @@
     <p class="tagline"><?php echo esc_html( get_theme_mod( 'dante_hero_tagline', 'Celebrating Italian language, art, and culture in Central Virginia since 1998.' ) ); ?></p>
     <?php
     // Optional short "opening message" box. Editable in Appearance → Customize →
-    // Hero Section. Hidden entirely until it's filled in.
+    // Hero Section. Hidden entirely until it's filled in. On the Home Page
+    // template the message is rendered in the body (beneath the painting)
+    // instead, so it's suppressed here to avoid showing it twice.
     $dante_hero_message = trim( (string) get_theme_mod( 'dante_hero_message', '' ) );
-    if ( '' !== $dante_hero_message ) : ?>
+    if ( '' !== $dante_hero_message && ! is_page_template( 'page-home.php' ) ) : ?>
     <div class="hero-message"><?php echo wp_kses_post( wpautop( $dante_hero_message ) ); ?></div>
     <?php endif; ?>
 </section>
