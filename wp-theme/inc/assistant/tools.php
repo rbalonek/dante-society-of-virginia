@@ -112,6 +112,7 @@ function dante_assistant_tools() {
                 'required'   => array( 'type', 'subject' ),
             ),
         ),
+        dante_assistant_photo_tool(),
     );
 }
 
@@ -138,6 +139,8 @@ function dante_assistant_run_tool( $name, $input ) {
             return dante_tool_read_page( $input );
         case 'edit_page_block':
             return dante_tool_edit_page_block( $input );
+        case 'add_photo':
+            return dante_tool_add_photo( $input );
         default:
             return array( 'error' => 'Unknown tool: ' . $name );
     }

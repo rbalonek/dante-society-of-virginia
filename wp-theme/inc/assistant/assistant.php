@@ -28,6 +28,7 @@ require_once __DIR__ . '/providers.php';
 require_once __DIR__ . '/tools.php';
 require_once __DIR__ . '/tools-newsletter.php';
 require_once __DIR__ . '/tools-pages.php';
+require_once __DIR__ . '/tools-photos.php';
 require_once __DIR__ . '/rest.php';
 require_once __DIR__ . '/settings.php';
 

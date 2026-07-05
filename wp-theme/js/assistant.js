@@ -392,6 +392,7 @@
 				history.push( { role: 'assistant', text: res.reply } );
 				( res.actions || [] ).forEach( actionCard );
 				renderReview( res.pending );
+				if ( res.history ) { renderHistory( res.history ); }
 				if ( res.newsletter ) { showNewsletter( res.newsletter ); }
 			} )
 			.catch( function () {
