@@ -34,6 +34,9 @@ require_once get_template_directory() . '/inc/newsletter.php';
 // Full Screen Hero block (configurable splash hero).
 require_once get_template_directory() . '/inc/hero-block.php';
 
+// Photos: custom post type + collage block.
+require_once get_template_directory() . '/inc/photos.php';
+
 /**
  * Theme Setup
  */
@@ -365,6 +368,7 @@ function dante_allowed_blocks( $allowed_blocks, $context ) {
         'core/shortcode', // allows [dante_subscribe] signup form
         'dante/events', // calendar + auto event list
         'dante/hero', // full screen hero banner
+        'dante/photos', // photo collage
     );
 }
 add_filter( 'allowed_block_types_all', 'dante_allowed_blocks', 10, 2 );
