@@ -4,6 +4,12 @@
  * Description: Editable intro + a calendar + the auto-generated list of events
  *              (managed under the "Events" menu in wp-admin).
  *
+ * NOTE: this file is deliberately NOT named page-events.php — WordPress would
+ * auto-apply a page-{slug}.php file to the "events"-slug page regardless of the
+ * selected template, forcing the calendar/list on with no block to edit. As
+ * template-events.php it only applies when explicitly chosen. Prefer the
+ * "Events (calendar + list)" block on a Default-template page instead.
+ *
  * @package Dante_Society
  */
 

@@ -50,14 +50,15 @@
     </div>
 </header>
 
-<?php if ( is_front_page() ) : ?>
+<?php if ( is_front_page() && ! is_page_template( 'template-home.php' ) ) : ?>
 <section class="hero">
     <h1><?php echo esc_html( get_theme_mod( 'dante_hero_title', 'Dante Society of Virginia' ) ); ?></h1>
     <div class="hero-separator"></div>
     <p class="tagline"><?php echo esc_html( get_theme_mod( 'dante_hero_tagline', 'Celebrating Italian language, art, and culture in Central Virginia since 1998.' ) ); ?></p>
     <?php
     // Optional short "opening message" box. Editable in Appearance → Customize →
-    // Hero Section. Hidden entirely until it's filled in.
+    // Hero Section. Hidden entirely until it's filled in. (The Home Page splash
+    // template renders its own hero, so this default one is skipped there.)
     $dante_hero_message = trim( (string) get_theme_mod( 'dante_hero_message', '' ) );
     if ( '' !== $dante_hero_message ) : ?>
     <div class="hero-message"><?php echo wp_kses_post( wpautop( $dante_hero_message ) ); ?></div>

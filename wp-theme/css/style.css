@@ -189,6 +189,96 @@ body {
 .hero-message p { margin: 0 0 10px; }
 .hero-message p:last-child { margin-bottom: 0; }
 
+/* ===== Home Page template + Full Screen Hero block =====
+   The Home Page template is a full-bleed canvas with the header overlaid on top;
+   the Full Screen Hero block fills the viewport. Colours/text/button are set on
+   the block; the background image comes from the Customizer hero setting. */
+
+/* Full-bleed canvas: remove the normal content max-width/padding.
+   Uses a doubled class so it beats the later `.main-content` rule. */
+.main-content.main-content--flush {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header floats over the hero instead of sitting above it. */
+.page-template-template-home .site-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(13, 43, 31, 0.55);
+  border-bottom: 1px solid rgba(200, 150, 62, 0.35);
+  box-shadow: none;
+}
+.admin-bar.page-template-template-home .site-header {
+  top: 32px;
+}
+
+/* The hero section itself (background set inline by the block/render). */
+.dante-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 140px 20px 100px; /* top padding clears the overlaid header */
+  color: var(--cream);
+}
+.dante-hero__title {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.55);
+}
+.dante-hero__line {
+  width: 80px;
+  height: 3px;
+  margin: 18px auto;
+}
+.dante-hero__subtitle {
+  font-size: 1.2rem;
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.7;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+.dante-hero__button {
+  display: inline-block;
+  margin-top: 34px;
+  padding: 16px 34px;
+  color: var(--dark-green);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+.dante-hero__button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+@media (max-width: 700px) {
+  .dante-hero {
+    /* A shorter hero on phones means the background is scaled up less,
+       so it looks sharper on tall retina screens. */
+    min-height: 78vh;
+    padding: 100px 18px 60px;
+  }
+  .dante-hero__title {
+    font-size: 2rem;
+  }
+  .dante-hero__subtitle {
+    font-size: 1.05rem;
+  }
+}
+
 /* ===== Page Header (inner pages) ===== */
 .page-header {
   background: linear-gradient(rgba(27,67,50,0.9), rgba(13,43,31,0.95));
@@ -599,6 +689,41 @@ body {
 .photo-gallery img:hover {
   transform: scale(1.03);
   box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+/* ===== Photo Collage block (dante/photos) =====
+   Masonry: pictures keep their natural shape and flow into as many columns as
+   fit, wrapping down as needed. Column width sets the "size". */
+.dante-photos {
+  column-gap: 14px;
+  margin: 8px 0;
+}
+.dante-photos--small  { columns: 180px; }
+.dante-photos--medium { columns: 240px; }
+.dante-photos--large  { columns: 320px; }
+
+.dante-photo {
+  break-inside: avoid;
+  margin: 0 0 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+.dante-photo a { display: block; }
+.dante-photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.dante-photo:hover img {
+  transform: scale(1.03);
+}
+.dante-photo figcaption {
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  color: var(--text-dark);
 }
 
 /* ===== Footer ===== */
