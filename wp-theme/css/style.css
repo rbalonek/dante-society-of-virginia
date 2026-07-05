@@ -1068,7 +1068,10 @@ figure.aligncenter,
   background: rgba(255, 255, 255, 0.55);
   border-radius: 10px;
   padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
+.dante-cal-item:hover { background: #fff; }
 .dante-cal-badge {
   flex: none;
   width: 48px;

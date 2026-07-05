@@ -47,21 +47,26 @@
 		return overlay;
 	}
 
-	function showDetail( info ) {
-		var p = info.event.extendedProps || {};
+	// Open the detail modal from a plain event (title, ISO date, extendedProps).
+	function showEventDetail( title, startISO, props ) {
+		props = props || {};
 		var img = detailOverlay.querySelector( '.dante-modal-img' );
-		if ( p.image ) { img.src = p.image; img.removeAttribute( 'hidden' ); }
+		if ( props.image ) { img.src = props.image; img.removeAttribute( 'hidden' ); }
 		else { img.setAttribute( 'hidden', '' ); }
 
-		detailOverlay.querySelector( '#dante-modal-title' ).textContent = info.event.title;
+		detailOverlay.querySelector( '#dante-modal-title' ).textContent = title || '';
 
 		var bits = [];
-		if ( info.event.startStr ) { bits.push( fmtDate( info.event.startStr ) ); }
-		if ( p.time ) { bits.push( p.time ); }
-		if ( p.location ) { bits.push( p.location ); }
+		if ( startISO ) { bits.push( fmtDate( startISO ) ); }
+		if ( props.time ) { bits.push( props.time ); }
+		if ( props.location ) { bits.push( props.location ); }
 		detailOverlay.querySelector( '.dante-modal-meta' ).textContent = bits.join( '  ·  ' );
-		detailOverlay.querySelector( '.dante-modal-desc' ).textContent = p.description || '';
+		detailOverlay.querySelector( '.dante-modal-desc' ).textContent = props.description || '';
 		detailOverlay.removeAttribute( 'hidden' );
+	}
+
+	function showDetail( info ) {
+		showEventDetail( info.event.title, info.event.startStr, info.event.extendedProps );
 	}
 
 	// --- Helpers for the popup --------------------------------------------
@@ -84,6 +89,12 @@
 		var listEl = document.getElementById( 'dante-cal-monthlist' );
 		if ( ! listEl ) { return; }
 		var start = info.view.currentStart, end = info.view.currentEnd;
+		var monthName = start.toLocaleDateString( undefined, { month: 'long', year: 'numeric' } );
+
+		// Heading shows the viewed month (e.g. "September 2026").
+		var titleEl = document.getElementById( 'dante-cal-monthtitle' );
+		if ( titleEl ) { titleEl.textContent = monthName; }
+
 		var events = ( window.danteEvents || [] ).filter( function ( e ) {
 			if ( ! e.start ) { return false; }
 			var d = new Date( e.start + 'T00:00:00' );
@@ -91,7 +102,6 @@
 		} ).sort( function ( a, b ) { return a.start < b.start ? -1 : 1; } );
 
 		if ( ! events.length ) {
-			var monthName = start.toLocaleDateString( undefined, { month: 'long', year: 'numeric' } );
 			listEl.innerHTML = '<p class="dante-cal-empty">No events scheduled for ' + escapeHtml( monthName ) + '.</p>';
 			return;
 		}
@@ -109,6 +119,18 @@
 				( meta ? '<div class="dante-cal-item-meta">' + escapeHtml( meta ) + '</div>' : '' ) +
 				'</div></div>';
 		} ).join( '' );
+
+		// Make each card clickable — same detail popup as clicking the date.
+		Array.prototype.forEach.call( listEl.querySelectorAll( '.dante-cal-item' ), function ( node, i ) {
+			var e = events[ i ];
+			node.setAttribute( 'role', 'button' );
+			node.setAttribute( 'tabindex', '0' );
+			function open() { showEventDetail( e.title, e.start, e.extendedProps ); }
+			node.addEventListener( 'click', open );
+			node.addEventListener( 'keydown', function ( ev ) {
+				if ( 'Enter' === ev.key || ' ' === ev.key ) { ev.preventDefault(); open(); }
+			} );
+		} );
 	}
 
 	// --- Calendar factory (inline + popup) --------------------------------

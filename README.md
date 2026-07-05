@@ -30,14 +30,19 @@ wp-theme/            The WordPress theme — THIS is what deploys
   inc/
     events.php       "Event" post type + the dante/events block + FullCalendar + popup
     newsletter.php   Subscribers + a newsletter composer that sends via wp_mail
+    photos.php       "Photo" post type + Bulk Add + the dante/photos collage block
+    hero-block.php   The dante/hero full-screen splash block
     seed-events.php  One-time starter-events seeder (safe to delete after it runs)
-  page-events.php    "Events Page" template (renders calendar via PHP — see notes)
-  page-membership.php / page-checkout.php   Membership + a Stripe-style checkout MOCKUP
+    assistant/       The Dante Assistant chatbot (see docs/ASSISTANT.md)
+  template-*.php     Page templates: Home (splash), Events, Membership, Photos
+                     (named template-* to avoid the page-{slug}.php auto-apply trap)
+  page-checkout.php  A Stripe-style checkout MOCKUP (no real payment)
 images/              Source images (also symlinked to the Local webroot as /images)
 wordpress-import.xml One-time seed of the 8 pages + Primary Menu (WXR)
 SETUP-LOCAL.md       Stand the site up in Local
 DEPLOY.md            GitHub → live server deploy details
 CLAUDE.md            Deep technical guide + gotchas
+docs/ASSISTANT.md    Guide to the Dante Assistant (board + developer)
 *.html, server.js    The original static mockup (not used by WordPress)
 ```
 
@@ -52,9 +57,19 @@ CLAUDE.md            Deep technical guide + gotchas
   ones drop off)** and in a **calendar** (month view, "This Year's Events", "All
   Events"). The calendar is also a **popup** opened from the "Calendar" menu item.
   Everything updates live as events are added/edited.
+  The **popup calendar** (from the "Calendar" menu item) has a "This month" list,
+  a "Next Event" jump button, and clickable events that open a poster-friendly
+  detail card.
 - **Newsletter tool** — manage subscribers and compose/send newsletters (all
   upcoming events / a single event / a free message) with a live preview, test
-  send, and a compliant unsubscribe footer. Sends via WP Mail SMTP.
+  send, scheduling, and a compliant unsubscribe footer. Sends via WP Mail SMTP.
+- **Photos** — a Photos post type with **Bulk Add** (multi-select from the media
+  library) and a **Photo Collage** block; a dark **Photos Page** gallery template.
+- **Full-screen home** — a "Home Page" template + a configurable **Full Screen
+  Hero** block (title, subtitle, button, colors, background from the Customizer).
+- **Dante Assistant** — a Dashboard chatbot for adding events, composing
+  newsletters, editing page wording, and adding photos in plain English
+  (draft-and-approve / undoable). See **[docs/ASSISTANT.md](docs/ASSISTANT.md)**.
 - **Membership + demo checkout** — a Stripe-style checkout *mockup* (no real
   payment) previewing the online-dues flow.
 - **Adjustable mobile breakpoint** and **editable background images** via the

@@ -40,9 +40,14 @@ Corollaries that caused real confusion during the build:
 
 ## Repo layout
 - `wp-theme/` — the theme; this is what deploys.
+  - `inc/` — `events.php`, `newsletter.php`, `photos.php`, `hero-block.php`,
+    `seed-events.php`, and `assistant/` (the Dante Assistant chatbot).
+  - `template-*.php` — page templates (Home/Events/Membership/Photos). **Named
+    `template-*` on purpose — see the slug-collision rule below.**
 - `images/` — source images; symlinked to the Local webroot (`/images/...`).
   Background images are **also** bundled inside the theme (`wp-theme/images/`) so
   they deploy — see the background note below.
+- `docs/ASSISTANT.md` — guide to the Dante Assistant (board + developer).
 - `wordpress-import.xml` — one-time WXR seed of the 8 pages + Primary Menu.
 - `SETUP-LOCAL.md`, `DEPLOY.md` — setup + deploy docs.
 - Static `*.html` / `server.js` — the original static mockup (not used by WP).
@@ -56,7 +61,8 @@ Classic PHP theme **plus `theme.json`** (settings only).
 - **`theme.json`** locks the editor to the brand palette, named font sizes (with
   a custom slider), and hides clutter. `dante_allowed_blocks` limits the inserter
   to a friendly set (paragraph, heading, image, media-text, gallery, list, button,
-  quote, separator, spacer, shortcode, and `dante/events`).
+  quote, separator, spacer, shortcode, and the custom blocks `dante/events`,
+  `dante/hero`, `dante/photos`).
 - **Editor UX for non-technical board members:** `css/editor.css` (WYSIWYG canvas,
   large resize handles, visible Spacer, labeled image alignment styles
   `is-style-align-*`), `css/editor-chrome.css` (bigger toolbar), `js/editor.js`
@@ -89,6 +95,65 @@ Classic PHP theme **plus `theme.json`** (settings only).
 
 ---
 
+## Page templates & the slug-collision rule ⚠️
+
+WordPress's template hierarchy **auto-applies a theme file named
+`page-{slug}.php` to the page with that slug — outranking the Template dropdown.**
+So a `page-events.php` file rendered the "events"-slug page even when it was set
+to "Default template," injecting content nobody could find/edit. This bit us on
+Home, Events, and Membership.
+
+**Rule: name custom page templates `template-*.php`, never `page-{slug}.php`.**
+The `Template Name:` header still makes them appear in the Template dropdown; the
+filename just avoids the automatic slug match. Current templates:
+- `template-home.php` — **Home Page** (full-screen splash, below).
+- `template-events.php` — **Events Page** (PHP calendar+list; legacy — prefer the
+  `dante/events` block on a Default-template page).
+- `template-membership.php` — **Membership Page** (renders the page's blocks).
+- `template-photos.php` — **Photos Page** (dark gallery, below).
+- `page-checkout.php` — the **only** intentional `page-*` file left; it's a pure
+  PHP mockup with no block fallback and is referenced by name in `functions.php`
+  to enqueue `js/checkout.js`. Its page slug isn't "checkout," so no collision.
+
+## Home page (splash) + Full Screen Hero block
+
+- **`template-home.php`** — a full-bleed canvas: the header is overlaid
+  (transparent) via the `page-template-template-home` body class, and it renders
+  the page's blocks edge-to-edge. If the page has no hero block it falls back to
+  `dante_render_hero_block()` so it's never empty.
+- **Block `dante/hero`** (`inc/hero-block.php`, `js/hero-block.js`) — the
+  configurable splash hero: show/hide title, line, subtitle, button; edit the
+  button text/link and button/line colors. Server-rendered, no build step. The
+  **background image** comes from Customizer → Background Images → "Homepage hero
+  background" (falling back to the bundled portrait), so the picture lives in one
+  obvious place and everything else is on the block.
+
+## Photos system (`inc/photos.php`)
+
+- **`dante_photo` CPT** — one picture per entry (Featured Image = the photo, title
+  = optional caption). Managed under the **Photos** admin menu.
+- **Bulk Add** (Photos → Bulk Add) — a `wp.media` multi-select that creates a
+  Photo per image via AJAX (`dante_bulk_add_photos`), with dedup + image-only
+  guards.
+- **Block `dante/photos`** ("Photo Collage") — server-rendered masonry (CSS
+  columns) of all photos; a `size` attribute sets the column width. The assistant
+  can also add photos (`add_photo` tool).
+- **`template-photos.php`** — the "Photos Page" gallery design: solid dark-green
+  background, a centered `GALLERY / <title> / rule / intro` header (the page's own
+  content is the intro line), and the collage restyled with no cards (clean images
+  + italic serif captions over a gold rule). Scoped via `page-template-template-photos`.
+
+## Dante Assistant (`inc/assistant/`)
+
+Chat-based site editing on the **Dashboard** (a widget). Board members type plain
+English to add events, compose/schedule newsletters, edit page wording, and add
+photos — draft-and-approve or one-click-undo throughout. Server-side **agent
+loop** with tools; the AI API key is set per-site in **Settings → Dante
+Assistant** (stored in the DB, so Local and live are configured separately).
+**Full guide: `docs/ASSISTANT.md`.**
+
+---
+
 ## Events system (`inc/events.php`)
 
 - `event` custom post type: title, editor (description), featured image; a side
@@ -106,21 +171,29 @@ Classic PHP theme **plus `theme.json`** (settings only).
   first** (`dante_event_list_query`, `order => ASC`) for every scope. The
   **calendar** still shows all events (past + future); only the *list* is filtered.
 - **Calendar:** FullCalendar bundled at `js/lib/fullcalendar.min.js`; `js/calendar.js`
-  drives both the inline block calendar (`#dante-calendar`) and a **site-wide
-  popup** (`#dante-calendar-popup`) opened by any nav link to `#calendar`. Views:
-  month + "This Year's Events" (listYear) + "All Events" (list). Opens on the next
-  upcoming event. Data via `dante_get_calendar_events()` (HTML entities decoded).
-  Assets load site-wide (`dante_events_assets`) so the popup works everywhere; the
-  popup markup is printed in `wp_footer` (`dante_calendar_popup_markup`).
+  drives both the **inline** block calendar (`#dante-calendar`) and the **site-wide
+  popup** (`#dante-calendar-popup`) opened by any nav link to `#calendar`.
+  - The **inline** calendar keeps the view switcher: month + "This Year's Events"
+    (listYear) + "All Events" (list).
+  - The **popup** is a redesigned cream modal (`dante_calendar_popup_markup` in
+    `wp_footer`): a title + society subtitle + round close, a **"This month" list
+    above the toolbar** (green date badge + title + time/location, or "No events
+    scheduled for {Month Year}"), then the month grid. Toolbar is
+    `prev,next today nextEvent` — **"Next Event"** jumps to the next upcoming
+    event's month. Clicking a **month-list card OR a calendar event** opens the
+    event-detail modal; its image scales to fit (max-height 60vh, no crop) so tall
+    posters aren't cut off.
+  - Opens on the next upcoming event. Data via `dante_get_calendar_events()` (HTML
+    entities decoded). Assets load site-wide (`dante_events_assets`).
 - `inc/seed-events.php` — one-time seeder that creates the 5 starter events from
   `/images/`. Guarded by the `dante_events_seeded` option. **Safe to delete** (the
   file + its `require` in `functions.php`) once it has run. Note: it runs once on
   every environment (incl. live) unless removed.
-- `page-events.php` — a "Events Page" template that prints `dante_events_markup()`
-  (calendar+list) via **PHP, ignoring the page's blocks**. ⚠️ If a page shows a
-  calendar you "can't find in the editor," it's using this template — switch the
-  page's Template to **Default** to render only its blocks. The **Events block is
-  the recommended way**; the template predates it.
+- `template-events.php` — a legacy "Events Page" template that prints
+  `dante_events_markup()` (calendar+list) via **PHP, ignoring the page's blocks**.
+  The **`dante/events` block on a Default-template page is the recommended way**;
+  the template predates it. (Renamed from `page-events.php` — see the
+  slug-collision rule above.)
 
 ## Newsletter system (`inc/newsletter.php`)
 
@@ -141,11 +214,11 @@ Custom, sends via `wp_mail`. Admin menu **Newsletter** → Compose + Subscribers
   handoff. Settings live in the DB and are changeable per environment.
 
 ## Membership checkout demo (added later)
-- `page-membership.php` (Template: "Membership Page") and `page-checkout.php`
-  (Template: "Membership Checkout (Demo)") + `js/checkout.js`. A **Stripe-style
-  mockup only** — no payment is processed, nothing is sent. Individual $35 /
-  Family $60. Replace `checkout.js` with real Stripe.js / a Checkout Session when
-  a Stripe account is connected.
+- `template-membership.php` (Template: "Membership Page", renders the page's own
+  blocks) and `page-checkout.php` (Template: "Membership Checkout (Demo)") +
+  `js/checkout.js`. A **Stripe-style mockup only** — no payment is processed,
+  nothing is sent. Individual $35 / Family $60. Replace `checkout.js` with real
+  Stripe.js / a Checkout Session when a Stripe account is connected.
 
 ---
 
@@ -182,12 +255,21 @@ client works. Pattern used to edit page content programmatically on Local:
 
 ## Gotchas (quick list)
 - **No JS build step.** Editor/block/calendar scripts use global `wp.*`.
+- **Slug-collision rule:** a `page-{slug}.php` file auto-renders that page
+  regardless of the Template dropdown. Name custom templates `template-*.php`. See
+  the dedicated section above — this caused several "can't edit / can't remove
+  this content" bugs.
 - **`theme.json` is cached** unless `WP_DEBUG` is on — toggle it in Local to see
   editor-control changes.
 - **Content vs code / Local vs live** — see the top of this file. This is the
   source of ~every "why didn't my change show up" question.
-- **Events Page template** renders the calendar via PHP regardless of blocks — set
-  a page's template to **Default** if you want block-only content.
+- **Meta stored as JSON** (assistant change-log `_ops`, newsletter `_nl_data`)
+  must be `wp_slash()`ed before `update_post_meta` (it `wp_unslash`es internally),
+  or `\uXXXX` escapes get corrupted (dashes/accents turn into `u2013` etc.).
+- **`background-attachment: fixed`** is switched to `scroll` on mobile in
+  `dante_responsive_css` — iOS renders fixed backgrounds blurry/upscaled.
 - **Custom logo** needs the `.custom-logo { height: 64px }` rule or it's huge.
 - **Email** needs WP Mail SMTP (Other SMTP + Gmail app password / Brevo).
+- **Dante Assistant** needs an API key per site (**Settings → Dante Assistant**);
+  without it the widget shows "not set up yet."
 - **Seeder** (`inc/seed-events.php`) runs once per environment; delete it when done.

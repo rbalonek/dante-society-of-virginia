@@ -484,7 +484,7 @@ function dante_calendar_popup_markup() {
             </div>
             <div class="dante-cal-body">
                 <aside class="dante-cal-side">
-                    <h3 class="dante-cal-side-title"><?php esc_html_e( 'This month', 'dante-society' ); ?></h3>
+                    <h3 class="dante-cal-side-title" id="dante-cal-monthtitle"><?php esc_html_e( 'This month', 'dante-society' ); ?></h3>
                     <div id="dante-cal-monthlist" class="dante-cal-monthlist"></div>
                 </aside>
                 <div id="dante-calendar-popup"></div>
