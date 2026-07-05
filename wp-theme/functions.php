@@ -475,9 +475,20 @@ function dante_calendar_popup_markup() {
     ?>
     <div class="dante-cal-overlay" id="dante-cal-overlay" hidden>
         <div class="dante-cal-modal">
-            <button class="dante-cal-close" aria-label="Close">&times;</button>
-            <h2 class="dante-cal-title">Events Calendar</h2>
-            <div id="dante-calendar-popup"></div>
+            <div class="dante-cal-head">
+                <div>
+                    <h2 class="dante-cal-title"><?php esc_html_e( 'Events Calendar', 'dante-society' ); ?></h2>
+                    <p class="dante-cal-subtitle"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></p>
+                </div>
+                <button class="dante-cal-close" aria-label="<?php esc_attr_e( 'Close', 'dante-society' ); ?>">&times;</button>
+            </div>
+            <div class="dante-cal-body">
+                <div id="dante-calendar-popup"></div>
+                <aside class="dante-cal-side">
+                    <h3 class="dante-cal-side-title"><?php esc_html_e( 'This month', 'dante-society' ); ?></h3>
+                    <div id="dante-cal-monthlist" class="dante-cal-monthlist"></div>
+                </aside>
+            </div>
         </div>
     </div>
     <?php

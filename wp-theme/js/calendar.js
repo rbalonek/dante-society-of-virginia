@@ -1,7 +1,7 @@
 /**
  * Dante Society — Events calendar.
- * Drives both the inline calendar (Events block, #dante-calendar) and the
- * site-wide "Calendar" popup opened from the nav (#dante-calendar-popup).
+ * Drives the inline calendar (Events block, #dante-calendar) and the site-wide
+ * "Calendar" popup (#dante-calendar-popup) opened from any #calendar link.
  * Data comes from window.danteEvents (localized in functions.php).
  */
 ( function () {
@@ -16,6 +16,12 @@
 		} catch ( e ) {
 			return iso;
 		}
+	}
+
+	function escapeHtml( s ) {
+		return String( s == null ? '' : s )
+			.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' )
+			.replace( /"/g, '&quot;' );
 	}
 
 	// --- Event-detail modal (shared) --------------------------------------
@@ -58,37 +64,65 @@
 		detailOverlay.removeAttribute( 'hidden' );
 	}
 
-	// --- Calendar factory (used by inline + popup) ------------------------
-	function makeCalendar( el, clickMode ) {
+	// --- Helpers for the popup --------------------------------------------
+	function sortedEventDates() {
+		return ( window.danteEvents || [] ).map( function ( e ) { return e.start; } ).filter( Boolean ).sort();
+	}
+
+	function nextEventDate() {
+		var today = new Date();
+		today.setHours( 0, 0, 0, 0 );
+		var dates = sortedEventDates();
+		for ( var i = 0; i < dates.length; i++ ) {
+			if ( new Date( dates[ i ] + 'T00:00:00' ) >= today ) { return dates[ i ]; }
+		}
+		return dates.length ? dates[ dates.length - 1 ] : null; // else most recent
+	}
+
+	// Fill the "This month" sidebar with the visible month's events.
+	function renderMonthList( info ) {
+		var listEl = document.getElementById( 'dante-cal-monthlist' );
+		if ( ! listEl ) { return; }
+		var start = info.view.currentStart, end = info.view.currentEnd;
+		var events = ( window.danteEvents || [] ).filter( function ( e ) {
+			if ( ! e.start ) { return false; }
+			var d = new Date( e.start + 'T00:00:00' );
+			return d >= start && d < end;
+		} ).sort( function ( a, b ) { return a.start < b.start ? -1 : 1; } );
+
+		if ( ! events.length ) {
+			listEl.innerHTML = '<p class="dante-cal-empty">No events this month.</p>';
+			return;
+		}
+		listEl.innerHTML = events.map( function ( e ) {
+			var d = new Date( e.start + 'T00:00:00' );
+			var mon = d.toLocaleDateString( undefined, { month: 'short' } ).toUpperCase();
+			var day = d.getDate();
+			var p = e.extendedProps || {};
+			var meta = [ p.time, p.location ].filter( Boolean ).join( '  ·  ' );
+			return '<div class="dante-cal-item">' +
+				'<div class="dante-cal-badge"><span class="dante-cal-badge-mon">' + escapeHtml( mon ) + '</span>' +
+				'<span class="dante-cal-badge-day">' + day + '</span></div>' +
+				'<div class="dante-cal-item-body">' +
+				'<div class="dante-cal-item-title">' + escapeHtml( e.title ) + '</div>' +
+				( meta ? '<div class="dante-cal-item-meta">' + escapeHtml( meta ) + '</div>' : '' ) +
+				'</div></div>';
+		} ).join( '' );
+	}
+
+	// --- Calendar factory (inline + popup) --------------------------------
+	function makeCalendar( el, clickMode, isPopup ) {
 		var cfg = window.danteCalendarConfig || {};
-		var dates = ( window.danteEvents || [] ).map( function ( e ) { return e.start; } ).filter( Boolean ).sort();
-		function plusOneDay( iso ) {
-			var d = new Date( iso + 'T00:00:00' );
-			d.setDate( d.getDate() + 1 );
-			return d.toISOString().slice( 0, 10 );
-		}
-		var listAllView = { type: 'list', buttonText: 'All Events' };
-		if ( dates.length ) {
-			listAllView.visibleRange = { start: dates[ 0 ], end: plusOneDay( dates[ dates.length - 1 ] ) };
-		} else {
-			listAllView.duration = { years: 1 };
-		}
+		var calInstance;
 
 		var options = {
 			initialView: 'dayGridMonth',
 			height: 'auto',
-			headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listYear,listAll' },
 			buttonText: { today: 'Today' },
-			views: {
-				dayGridMonth: { buttonText: 'Calendar' },
-				listYear: { buttonText: "This Year's Events" },
-				listAll: listAllView,
-			},
 			events: window.danteEvents || [],
 			eventDisplay: 'block',
 			eventClick: function ( info ) {
 				info.jsEvent.preventDefault();
-
 				if ( clickMode === 'scroll' ) {
 					var target = info.event.id ? document.getElementById( 'event-' + info.event.id ) : null;
 					if ( target ) {
@@ -101,9 +135,46 @@
 				showDetail( info );
 			},
 		};
+
+		if ( isPopup ) {
+			// Month grid + a "This month" sidebar + a "Next Event" jump button.
+			options.headerToolbar = { left: 'prev,next today nextEvent', center: '', right: 'title' };
+			options.customButtons = {
+				nextEvent: {
+					text: 'Next Event',
+					click: function () {
+						var target = nextEventDate();
+						if ( target && calInstance ) { calInstance.gotoDate( target ); }
+					},
+				},
+			};
+			options.datesSet = function ( info ) { renderMonthList( info ); };
+		} else {
+			// Inline (Events block): month + list views with a switcher.
+			var dates = sortedEventDates();
+			function plusOneDay( iso ) {
+				var d = new Date( iso + 'T00:00:00' );
+				d.setDate( d.getDate() + 1 );
+				return d.toISOString().slice( 0, 10 );
+			}
+			var listAllView = { type: 'list', buttonText: 'All Events' };
+			if ( dates.length ) {
+				listAllView.visibleRange = { start: dates[ 0 ], end: plusOneDay( dates[ dates.length - 1 ] ) };
+			} else {
+				listAllView.duration = { years: 1 };
+			}
+			options.headerToolbar = { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listYear,listAll' };
+			options.views = {
+				dayGridMonth: { buttonText: 'Calendar' },
+				listYear: { buttonText: "This Year's Events" },
+				listAll: listAllView,
+			};
+		}
+
 		if ( cfg.initialDate ) { options.initialDate = cfg.initialDate; }
 
-		return new FullCalendar.Calendar( el, options );
+		calInstance = new FullCalendar.Calendar( el, options );
+		return calInstance;
 	}
 
 	// --- Init -------------------------------------------------------------
@@ -114,10 +185,10 @@
 		// Inline calendar (Events block on a page).
 		var inlineEl = document.getElementById( 'dante-calendar' );
 		if ( inlineEl ) {
-			makeCalendar( inlineEl, inlineEl.getAttribute( 'data-click' ) || 'scroll' ).render();
+			makeCalendar( inlineEl, inlineEl.getAttribute( 'data-click' ) || 'scroll', false ).render();
 		}
 
-		// Site-wide popup calendar, opened from a nav "Calendar" link.
+		// Site-wide popup calendar.
 		var overlay = document.getElementById( 'dante-cal-overlay' );
 		var popupEl = document.getElementById( 'dante-calendar-popup' );
 		var popupCal = null;
@@ -127,7 +198,7 @@
 			if ( ! overlay ) { return; }
 			overlay.removeAttribute( 'hidden' );
 			if ( ! popupCal && popupEl ) {
-				popupCal = makeCalendar( popupEl, 'popup' );
+				popupCal = makeCalendar( popupEl, 'popup', true );
 				popupCal.render();
 			} else if ( popupCal ) {
 				popupCal.updateSize();
@@ -135,7 +206,6 @@
 		}
 		function closePopup() { if ( overlay ) { overlay.setAttribute( 'hidden', '' ); } }
 
-		// Any link pointing at #calendar (or with the toggle class) opens it.
 		document.querySelectorAll( 'a[href$="#calendar"], .dante-calendar-toggle' ).forEach( function ( a ) {
 			a.addEventListener( 'click', openPopup );
 		} );
@@ -147,4 +217,4 @@
 		}
 		document.addEventListener( 'keydown', function ( e ) { if ( e.key === 'Escape' ) { closePopup(); } } );
 	} );
-} )();
+}() );

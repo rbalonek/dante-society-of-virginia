@@ -982,11 +982,11 @@ figure.aligncenter,
   .fc .fc-daygrid-more-link { font-size: 0.68rem; }
 }
 
-/* ===== Calendar popup (from the nav) ===== */
+/* ===== Calendar popup (from the nav) — cream modal, month + "this month" ===== */
 .dante-cal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(13, 43, 31, 0.6);
+  background: rgba(13, 43, 31, 0.62);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -996,27 +996,123 @@ figure.aligncenter,
 }
 .dante-cal-overlay[hidden] { display: none; }
 .dante-cal-modal {
-  background: #fff;
-  border-radius: 10px;
-  max-width: 780px;
+  background: var(--cream);
+  border-radius: 14px;
+  max-width: 1000px;
   width: 100%;
   margin: auto;
-  padding: 28px;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* Header */
+.dante-cal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 26px;
+  border-bottom: 1px solid rgba(13, 43, 31, 0.12);
+}
+.dante-cal-title { font-family: var(--font-heading); color: var(--green); font-size: 1.6rem; margin: 0; }
+.dante-cal-subtitle {
+  margin: 4px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.72rem;
+  color: var(--text-light);
 }
 .dante-cal-close {
-  position: absolute;
-  top: 8px;
-  right: 16px;
-  background: none;
-  border: none;
-  font-size: 30px;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(13, 43, 31, 0.22);
+  background: transparent;
+  color: var(--green);
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
-  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.dante-cal-title { font-family: var(--font-heading); color: var(--green); margin-bottom: 16px; }
+.dante-cal-close:hover { background: rgba(13, 43, 31, 0.07); }
+
+/* Two-column body */
+.dante-cal-body {
+  display: flex;
+  gap: 26px;
+  align-items: flex-start;
+  padding: 22px 26px 26px;
+}
+#dante-calendar-popup { flex: 1 1 auto; min-width: 0; }
+.dante-cal-side { flex: 0 0 278px; }
+.dante-cal-side-title {
+  font-family: var(--font-heading);
+  color: var(--green);
+  font-size: 1.05rem;
+  margin: 4px 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(13, 43, 31, 0.12);
+}
+.dante-cal-monthlist { display: flex; flex-direction: column; gap: 12px; }
+.dante-cal-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.dante-cal-badge {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 9px;
+  background: var(--green);
+  color: var(--gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  line-height: 1;
+}
+.dante-cal-badge-mon { font-size: 0.58rem; letter-spacing: 1px; margin-bottom: 3px; }
+.dante-cal-badge-day { font-size: 1.15rem; }
+.dante-cal-item-title { font-family: var(--font-heading); color: var(--green); font-size: 1rem; }
+.dante-cal-item-meta { font-size: 0.82rem; color: var(--text-light); margin-top: 2px; }
+.dante-cal-empty { color: var(--text-light); font-size: 0.9rem; }
+
+/* FullCalendar theming inside the popup (light/cream, bordered buttons) */
+.dante-cal-modal .fc-button {
+  background: #fff !important;
+  border: 1px solid rgba(13, 43, 31, 0.22) !important;
+  color: var(--green) !important;
+  font-weight: 600;
+  text-transform: none;
+  border-radius: 8px;
+  box-shadow: none !important;
+}
+.dante-cal-modal .fc-button:hover { background: rgba(13, 43, 31, 0.07) !important; }
+.dante-cal-modal .fc-button-primary:not(:disabled).fc-button-active { background: var(--green) !important; color: var(--cream) !important; }
+.dante-cal-modal .fc-toolbar-title { font-size: 1.3rem; }
+.dante-cal-modal .fc-col-header-cell-cushion {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-light);
+}
+.dante-cal-modal .fc-daygrid-day-frame { min-height: 64px; }
+.dante-cal-modal .fc-daygrid-day.fc-day-other { background: rgba(13, 43, 31, 0.03); }
+
+@media (max-width: 820px) {
+  .dante-cal-body { flex-direction: column; }
+  .dante-cal-side { flex-basis: auto; width: 100%; }
+}
 
 /* ===== Event popup modal ===== */
 .dante-modal-overlay {
