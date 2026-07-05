@@ -91,7 +91,8 @@
 		} ).sort( function ( a, b ) { return a.start < b.start ? -1 : 1; } );
 
 		if ( ! events.length ) {
-			listEl.innerHTML = '<p class="dante-cal-empty">No events this month.</p>';
+			var monthName = start.toLocaleDateString( undefined, { month: 'long', year: 'numeric' } );
+			listEl.innerHTML = '<p class="dante-cal-empty">No events scheduled for ' + escapeHtml( monthName ) + '.</p>';
 			return;
 		}
 		listEl.innerHTML = events.map( function ( e ) {

@@ -1042,26 +1042,29 @@ figure.aligncenter,
 
 /* Two-column body */
 .dante-cal-body {
-  display: flex;
-  gap: 26px;
-  align-items: flex-start;
-  padding: 22px 26px 26px;
+  padding: 20px 26px 26px;
 }
-#dante-calendar-popup { flex: 1 1 auto; min-width: 0; }
-.dante-cal-side { flex: 0 0 278px; }
+#dante-calendar-popup { min-width: 0; }
+
+/* "This month" band — sits above the calendar toolbar. */
+.dante-cal-side {
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(13, 43, 31, 0.12);
+}
 .dante-cal-side-title {
   font-family: var(--font-heading);
   color: var(--green);
-  font-size: 1.05rem;
-  margin: 4px 0 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(13, 43, 31, 0.12);
+  font-size: 1.1rem;
+  margin: 0 0 12px;
 }
-.dante-cal-monthlist { display: flex; flex-direction: column; gap: 12px; }
+.dante-cal-monthlist { display: flex; flex-wrap: wrap; gap: 12px; }
 .dante-cal-item {
   display: flex;
   gap: 12px;
   align-items: center;
+  flex: 1 1 240px;
+  max-width: 360px;
   background: rgba(255, 255, 255, 0.55);
   border-radius: 10px;
   padding: 10px 12px;
@@ -1110,8 +1113,7 @@ figure.aligncenter,
 .dante-cal-modal .fc-daygrid-day.fc-day-other { background: rgba(13, 43, 31, 0.03); }
 
 @media (max-width: 820px) {
-  .dante-cal-body { flex-direction: column; }
-  .dante-cal-side { flex-basis: auto; width: 100%; }
+  .dante-cal-item { flex-basis: 100%; max-width: none; }
 }
 
 /* ===== Event popup modal ===== */
@@ -1149,11 +1151,13 @@ figure.aligncenter,
   color: var(--green);
 }
 .dante-modal-img {
-  width: 100%;
-  max-height: 280px;
-  object-fit: cover;
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+  width: auto;
+  height: auto;
+  margin: 0 auto 16px;
   border-radius: 8px;
-  margin-bottom: 16px;
 }
 .dante-modal h3 { font-family: var(--font-heading); color: var(--green); margin-bottom: 8px; }
 .dante-modal-meta { color: var(--gold); font-weight: 600; margin-bottom: 12px; }

@@ -483,11 +483,11 @@ function dante_calendar_popup_markup() {
                 <button class="dante-cal-close" aria-label="<?php esc_attr_e( 'Close', 'dante-society' ); ?>">&times;</button>
             </div>
             <div class="dante-cal-body">
-                <div id="dante-calendar-popup"></div>
                 <aside class="dante-cal-side">
                     <h3 class="dante-cal-side-title"><?php esc_html_e( 'This month', 'dante-society' ); ?></h3>
                     <div id="dante-cal-monthlist" class="dante-cal-monthlist"></div>
                 </aside>
+                <div id="dante-calendar-popup"></div>
             </div>
         </div>
     </div>
