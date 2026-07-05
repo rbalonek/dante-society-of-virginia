@@ -726,6 +726,82 @@ body {
   color: var(--text-dark);
 }
 
+/* ===== Photos Page template (dark gallery, per the Lovable design) ===== */
+body.page-template-template-photos {
+  background: var(--dark-green);
+}
+
+.photos-header {
+  text-align: center;
+  padding: 60px 20px 6px;
+  color: var(--cream);
+}
+.photos-eyebrow {
+  margin: 0;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 0.8rem;
+}
+.photos-title {
+  font-family: var(--font-heading);
+  font-size: 2.6rem;
+  color: var(--cream);
+  margin: 8px 0 0;
+}
+.photos-sep {
+  width: 60px;
+  height: 2px;
+  background: var(--gold);
+  margin: 16px auto;
+}
+.photos-intro {
+  max-width: 560px;
+  margin: 0 auto;
+  color: rgba(250, 243, 224, 0.82);
+  line-height: 1.7;
+}
+
+.photos-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 72px;
+}
+
+/* Clean images with italic serif captions + a small gold rule — no cards. */
+.page-template-template-photos .dante-photos {
+  columns: 320px;
+  column-gap: 28px;
+}
+.page-template-template-photos .dante-photo {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0 0 34px;
+}
+.page-template-template-photos .dante-photo img {
+  border-radius: 3px;
+}
+.page-template-template-photos .dante-photo:hover img {
+  transform: scale(1.02);
+}
+.page-template-template-photos .dante-photo figcaption {
+  padding: 14px 6px 0;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.02rem;
+  color: var(--cream);
+}
+.page-template-template-photos .dante-photo figcaption::before {
+  content: "";
+  display: block;
+  width: 26px;
+  height: 2px;
+  background: var(--gold);
+  margin: 0 auto 12px;
+}
+
 /* ===== Footer ===== */
 .site-footer {
   background: linear-gradient(135deg, var(--dark-green) 0%, var(--green) 100%);

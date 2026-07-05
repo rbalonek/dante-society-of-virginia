@@ -64,7 +64,7 @@
     <div class="hero-message"><?php echo wp_kses_post( wpautop( $dante_hero_message ) ); ?></div>
     <?php endif; ?>
 </section>
-<?php elseif ( ! is_front_page() ) : ?>
+<?php elseif ( ! is_front_page() && ! is_page_template( 'template-photos.php' ) ) : ?>
 <section class="page-header">
     <h1><?php wp_title( '' ); ?></h1>
 </section>
