@@ -59,6 +59,7 @@ function dante_setup() {
     // Register navigation menus
     register_nav_menus( array(
         'primary' => __( 'Primary Menu', 'dante-society' ),
+        'footer'  => __( 'Footer Links', 'dante-society' ),
     ) );
 
     // Set content width
@@ -262,6 +263,24 @@ function dante_customize_register( $wp_customize ) {
         'description' => __( 'Background behind the homepage title area. Leave empty for the default.', 'dante-society' ),
         'section'     => 'dante_backgrounds',
     ) ) );
+
+    // Footer
+    $wp_customize->add_section( 'dante_footer', array(
+        'title'    => __( 'Footer', 'dante-society' ),
+        'priority' => 37,
+    ) );
+
+    $wp_customize->add_setting( 'dante_footer_about', array(
+        'default'           => 'Promoting Italian culture, arts, literature, and community in Virginia since 1998.',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ) );
+
+    $wp_customize->add_control( 'dante_footer_about', array(
+        'label'       => __( 'Footer "about" text', 'dante-society' ),
+        'description' => __( 'The short blurb in the last footer column (under the society name).', 'dante-society' ),
+        'section'     => 'dante_footer',
+        'type'        => 'textarea',
+    ) );
 }
 add_action( 'customize_register', 'dante_customize_register' );
 
@@ -516,6 +535,31 @@ function dante_primary_menu_fallback() {
     );
 
     echo '<ul id="menu-primary" class="menu">';
+    foreach ( $links as $url => $label ) {
+        printf(
+            '<li class="menu-item"><a href="%s">%s</a></li>',
+            esc_url( $url ),
+            esc_html( $label )
+        );
+    }
+    echo '</ul>';
+}
+
+/**
+ * Footer "Quick Links" fallback — used until a menu is assigned to the "Footer
+ * Links" location (Appearance → Menus). Once one is assigned, that takes over.
+ */
+function dante_footer_menu_fallback() {
+    $links = array(
+        home_url( '/' )           => 'Home',
+        home_url( '/programs' )   => 'Events',
+        home_url( '/about' )      => 'About Us',
+        home_url( '/board' )      => 'Board of Directors',
+        home_url( '/membership' ) => 'Membership',
+        home_url( '/contact' )    => 'Contact',
+    );
+
+    echo '<ul class="footer-menu">';
     foreach ( $links as $url => $label ) {
         printf(
             '<li class="menu-item"><a href="%s">%s</a></li>',

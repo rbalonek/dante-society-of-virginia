@@ -839,6 +839,16 @@ body.page-template-template-photos {
   color: var(--light-gold);
 }
 
+/* Footer "Quick Links" menu (wp_nav_menu output) — plain stacked links. */
+.footer-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.footer-menu li {
+  margin: 0 0 6px;
+}
+
 .footer-bottom {
   max-width: 1100px;
   margin: 20px auto 0;

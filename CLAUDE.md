@@ -85,8 +85,10 @@ Classic PHP theme **plus `theme.json`** (settings only).
 - **Logo:** uploaded via Appearance → Customize → Site Identity. `.custom-logo`
   is constrained to `height: 64px` in `style.css` (without that rule the emblem
   renders huge).
-- **Footer:** hardcoded columns (Contact, Quick Links, About). The footer widget
-  areas are no longer output.
+- **Footer:** three columns. **Contact** is hardcoded (P.O. Box). **Quick Links**
+  is a `wp_nav_menu` on the **"Footer Links"** location (Appearance → Menus), with
+  `dante_footer_menu_fallback` until one is assigned. **About** blurb is Customizer
+  → **Footer** (`dante_footer_about`). Old footer widget areas are not output.
 - **Backgrounds:** default page + hero backgrounds are bundled in
   `wp-theme/images/` and referenced **relative** (`../images/...`) so they deploy
   with the theme. Overridable via Customizer → **Background Images**
