@@ -1102,8 +1102,9 @@ figure.aligncenter,
 .dante-cal-item-meta { font-size: 0.82rem; color: var(--text-light); margin-top: 2px; }
 .dante-cal-empty { color: var(--text-light); font-size: 0.9rem; }
 
-/* Month-only ("date TBA") events: italic notice instead of a date, everywhere. */
-.event-tba-note { color: var(--gold); font-weight: 600; font-style: italic; }
+/* Month-only ("date TBA") events: month/year shows as the date, with an italic
+   secondary note beneath it. */
+.event-tba-note { color: var(--text-light); font-style: italic; margin-top: 2px; }
 .dante-cal-item--tba { align-items: flex-start; }
 .dante-cal-badge--tba { background: var(--gold); color: var(--green); }
 .dante-cal-badge-tba { font-size: 0.6rem; letter-spacing: 1px; }

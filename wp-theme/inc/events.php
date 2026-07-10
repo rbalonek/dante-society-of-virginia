@@ -398,6 +398,9 @@ function dante_events_markup( $preview = false, $click_behavior = 'scroll', $dis
                     $time     = get_post_meta( get_the_ID(), '_event_time', true );
                     $location = get_post_meta( get_the_ID(), '_event_location', true );
                     $is_tba   = dante_event_is_month_only( get_the_ID() );
+                    $tba_month = $is_tba
+                        ? date_i18n( 'F Y', strtotime( get_post_meta( get_the_ID(), '_event_month', true ) . '-01' ) )
+                        : '';
 
                     $meta_bits = array();
                     if ( $date ) {
@@ -410,7 +413,8 @@ function dante_events_markup( $preview = false, $click_behavior = 'scroll', $dis
                     <?php if ( 'simple' === $list_style ) : ?>
                     <div class="program-item" id="event-<?php echo esc_attr( get_the_ID() ); ?>">
                         <?php if ( $is_tba ) : ?>
-                            <div class="program-date event-tba-note"><em><?php echo esc_html( dante_event_tba_notice() ); ?></em></div>
+                            <div class="program-date"><?php echo esc_html( $tba_month ); ?></div>
+                            <div class="event-tba-note"><em><?php echo esc_html( dante_event_tba_notice() ); ?></em></div>
                         <?php elseif ( $meta_bits ) : ?>
                             <div class="program-date"><?php echo esc_html( implode( '  ·  ', $meta_bits ) ); ?></div>
                         <?php endif; ?>
@@ -425,7 +429,8 @@ function dante_events_markup( $preview = false, $click_behavior = 'scroll', $dis
                         <div class="event-listing-text">
                             <h3 class="event-listing-title"><?php the_title(); ?></h3>
                             <?php if ( $is_tba ) : ?>
-                                <p class="event-listing-date event-tba-note"><em><?php echo esc_html( dante_event_tba_notice() ); ?></em></p>
+                                <p class="event-listing-date"><?php echo esc_html( $tba_month ); ?></p>
+                                <p class="event-tba-note"><em><?php echo esc_html( dante_event_tba_notice() ); ?></em></p>
                             <?php elseif ( $meta_bits ) : ?>
                                 <p class="event-listing-date"><?php echo esc_html( implode( '  ·  ', $meta_bits ) ); ?></p>
                             <?php endif; ?>

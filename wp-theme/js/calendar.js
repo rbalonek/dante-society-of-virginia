@@ -58,8 +58,14 @@
 
 		var metaEl = detailOverlay.querySelector( '.dante-modal-meta' );
 		if ( props.monthOnly ) {
-			// No set day yet — show the italic notice in place of the date.
-			metaEl.innerHTML = '<em>' + escapeHtml( props.notice || 'Watch for more details to this special event.' ) + '</em>' +
+			// No set day yet — show the month & year, then the italic notice.
+			var monthLabel = '';
+			try {
+				monthLabel = new Date( startISO + 'T00:00:00' )
+					.toLocaleDateString( undefined, { month: 'long', year: 'numeric' } );
+			} catch ( e ) {}
+			metaEl.innerHTML = ( monthLabel ? escapeHtml( monthLabel ) + '<br>' : '' ) +
+				'<em>' + escapeHtml( props.notice || 'Watch for more details to this special event.' ) + '</em>' +
 				( props.location ? '  ·  ' + escapeHtml( props.location ) : '' );
 		} else {
 			var bits = [];
