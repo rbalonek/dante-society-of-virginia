@@ -56,11 +56,18 @@
 
 		detailOverlay.querySelector( '#dante-modal-title' ).textContent = title || '';
 
-		var bits = [];
-		if ( startISO ) { bits.push( fmtDate( startISO ) ); }
-		if ( props.time ) { bits.push( props.time ); }
-		if ( props.location ) { bits.push( props.location ); }
-		detailOverlay.querySelector( '.dante-modal-meta' ).textContent = bits.join( '  ·  ' );
+		var metaEl = detailOverlay.querySelector( '.dante-modal-meta' );
+		if ( props.monthOnly ) {
+			// No set day yet — show the italic notice in place of the date.
+			metaEl.innerHTML = '<em>' + escapeHtml( props.notice || 'Watch for more details to this special event.' ) + '</em>' +
+				( props.location ? '  ·  ' + escapeHtml( props.location ) : '' );
+		} else {
+			var bits = [];
+			if ( startISO ) { bits.push( fmtDate( startISO ) ); }
+			if ( props.time ) { bits.push( props.time ); }
+			if ( props.location ) { bits.push( props.location ); }
+			metaEl.textContent = bits.join( '  ·  ' );
+		}
 		detailOverlay.querySelector( '.dante-modal-desc' ).textContent = props.description || '';
 		detailOverlay.removeAttribute( 'hidden' );
 	}
@@ -108,8 +115,23 @@
 		listEl.innerHTML = events.map( function ( e ) {
 			var d = new Date( e.start + 'T00:00:00' );
 			var mon = d.toLocaleDateString( undefined, { month: 'short' } ).toUpperCase();
-			var day = d.getDate();
 			var p = e.extendedProps || {};
+
+			// Month-only ("date TBA") event: no day badge; the italic notice sits
+			// above the description, under the month.
+			if ( p.monthOnly ) {
+				var notice = p.notice || 'Watch for more details to this special event.';
+				return '<div class="dante-cal-item dante-cal-item--tba">' +
+					'<div class="dante-cal-badge dante-cal-badge--tba"><span class="dante-cal-badge-mon">' + escapeHtml( mon ) + '</span>' +
+					'<span class="dante-cal-badge-tba">TBA</span></div>' +
+					'<div class="dante-cal-item-body">' +
+					'<div class="dante-cal-item-title">' + escapeHtml( e.title ) + '</div>' +
+					'<div class="dante-cal-item-notice"><em>' + escapeHtml( notice ) + '</em></div>' +
+					( p.description ? '<div class="dante-cal-item-desc">' + escapeHtml( p.description ) + '</div>' : '' ) +
+					'</div></div>';
+			}
+
+			var day = d.getDate();
 			var meta = [ p.time, p.location ].filter( Boolean ).join( '  ·  ' );
 			return '<div class="dante-cal-item">' +
 				'<div class="dante-cal-badge"><span class="dante-cal-badge-mon">' + escapeHtml( mon ) + '</span>' +

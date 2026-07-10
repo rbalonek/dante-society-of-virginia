@@ -66,6 +66,7 @@ function dante_event_meta_box_html( $post ) {
     wp_nonce_field( 'dante_save_event', 'dante_event_nonce' );
 
     $date     = get_post_meta( $post->ID, '_event_date', true );
+    $month    = get_post_meta( $post->ID, '_event_month', true );
     $time     = get_post_meta( $post->ID, '_event_time', true );
     $location = get_post_meta( $post->ID, '_event_location', true );
     ?>
@@ -75,6 +76,16 @@ function dante_event_meta_box_html( $post ) {
         </label>
         <input type="date" id="dante_event_date" name="dante_event_date"
                value="<?php echo esc_attr( $date ); ?>" style="width:100%;" />
+    </p>
+    <p>
+        <label for="dante_event_month" style="display:block;font-weight:600;margin-bottom:4px;">
+            <?php esc_html_e( 'Month only (no date set yet)', 'dante-society' ); ?>
+        </label>
+        <input type="month" id="dante_event_month" name="dante_event_month"
+               value="<?php echo esc_attr( $month ); ?>" style="width:100%;" />
+        <span style="display:block;color:#666;font-size:12px;margin-top:4px;">
+            <?php esc_html_e( 'Leave the Date blank and pick a month to list this as a special event with a "Watch for more details…" note until the day is set. Ignored once a Date is chosen.', 'dante-society' ); ?>
+        </span>
     </p>
     <p>
         <label for="dante_event_time" style="display:block;font-weight:600;margin-bottom:4px;">
@@ -118,6 +129,11 @@ function dante_save_event_meta( $post_id ) {
     if ( isset( $_POST['dante_event_date'] ) ) {
         update_post_meta( $post_id, '_event_date', sanitize_text_field( wp_unslash( $_POST['dante_event_date'] ) ) );
     }
+    if ( isset( $_POST['dante_event_month'] ) ) {
+        // Keep only a valid YYYY-MM; anything else clears it.
+        $raw = sanitize_text_field( wp_unslash( $_POST['dante_event_month'] ) );
+        update_post_meta( $post_id, '_event_month', preg_match( '/^\d{4}-\d{2}$/', $raw ) ? $raw : '' );
+    }
     if ( isset( $_POST['dante_event_time'] ) ) {
         update_post_meta( $post_id, '_event_time', sanitize_text_field( wp_unslash( $_POST['dante_event_time'] ) ) );
     }
@@ -145,10 +161,60 @@ add_filter( 'manage_event_posts_columns', 'dante_event_columns' );
 function dante_event_columns_content( $column, $post_id ) {
     if ( 'event_date' === $column ) {
         $date = get_post_meta( $post_id, '_event_date', true );
-        echo $date ? esc_html( date_i18n( 'M j, Y', strtotime( $date ) ) ) : '&mdash;';
+        if ( $date ) {
+            echo esc_html( date_i18n( 'M j, Y', strtotime( $date ) ) );
+        } elseif ( dante_event_is_month_only( $post_id ) ) {
+            $month = get_post_meta( $post_id, '_event_month', true );
+            /* translators: %s: month and year, e.g. "May 2027". */
+            echo esc_html( sprintf( __( '%s (date TBA)', 'dante-society' ), date_i18n( 'F Y', strtotime( $month . '-01' ) ) ) );
+        } else {
+            echo '&mdash;';
+        }
     }
 }
 add_action( 'manage_event_posts_custom_column', 'dante_event_columns_content', 10, 2 );
+
+/**
+ * The italic notice shown for a month-only ("date TBA") event, everywhere it
+ * appears (list, calendar sidebar, detail modal).
+ */
+function dante_event_tba_notice() {
+    return __( 'Watch for more details to this special event.', 'dante-society' );
+}
+
+/**
+ * True when an event has no specific date but a valid month is set — i.e. it
+ * should show in that month with the "date TBA" notice instead of a date.
+ *
+ * @param int $post_id Event ID.
+ * @return bool
+ */
+function dante_event_is_month_only( $post_id ) {
+    $date  = get_post_meta( $post_id, '_event_date', true );
+    if ( $date ) {
+        return false;
+    }
+    $month = get_post_meta( $post_id, '_event_month', true );
+    return (bool) ( $month && preg_match( '/^\d{4}-\d{2}$/', $month ) );
+}
+
+/**
+ * The date an event should sort/place by: its real date, or the first of its
+ * month for a month-only event. Empty string if it has neither.
+ *
+ * @param int $post_id Event ID.
+ * @return string YYYY-MM-DD or ''.
+ */
+function dante_event_effective_date( $post_id ) {
+    $date = get_post_meta( $post_id, '_event_date', true );
+    if ( $date ) {
+        return $date;
+    }
+    if ( dante_event_is_month_only( $post_id ) ) {
+        return get_post_meta( $post_id, '_event_month', true ) . '-01';
+    }
+    return '';
+}
 
 /**
  * Query helper: upcoming events (today onward), soonest first.
@@ -198,18 +264,29 @@ function dante_get_upcoming_events( $limit = -1 ) {
 function dante_get_calendar_events() {
     $events = array();
 
+    // No meta_key join here: we want events that have only a month (or neither)
+    // in the result set too, and decide per-post below.
     $query = new WP_Query( array(
         'post_type'      => 'event',
         'posts_per_page' => -1,
-        'meta_key'       => '_event_date',
-        'orderby'        => 'meta_value',
+        'orderby'        => 'title',
         'order'          => 'ASC',
     ) );
 
     foreach ( $query->posts as $post ) {
-        $date = get_post_meta( $post->ID, '_event_date', true );
+        $date       = get_post_meta( $post->ID, '_event_date', true );
+        $month_only = false;
+
         if ( ! $date ) {
-            continue;
+            // A month-only event is placed on the first of its month so the
+            // calendar and its list views can show it; the notice replaces the
+            // date in the UI (see calendar.js).
+            if ( dante_event_is_month_only( $post->ID ) ) {
+                $date       = get_post_meta( $post->ID, '_event_month', true ) . '-01';
+                $month_only = true;
+            } else {
+                continue; // no date and no month — nothing to place.
+            }
         }
 
         $thumb = get_the_post_thumbnail_url( $post->ID, 'medium' );
@@ -221,11 +298,14 @@ function dante_get_calendar_events() {
             'title'         => html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ),
             'start'         => $date,
             'allDay'        => true,
+            'classNames'    => $month_only ? array( 'dante-event-tba' ) : array(),
             'extendedProps' => array(
                 'time'        => get_post_meta( $post->ID, '_event_time', true ),
                 'location'    => get_post_meta( $post->ID, '_event_location', true ),
                 'image'       => $thumb ? $thumb : '',
                 'description' => html_entity_decode( wp_trim_words( wp_strip_all_tags( $post->post_content ), 60 ), ENT_QUOTES, 'UTF-8' ),
+                'monthOnly'   => $month_only,
+                'notice'      => $month_only ? dante_event_tba_notice() : '',
             ),
         );
     }
@@ -317,6 +397,7 @@ function dante_events_markup( $preview = false, $click_behavior = 'scroll', $dis
                     $date     = get_post_meta( get_the_ID(), '_event_date', true );
                     $time     = get_post_meta( get_the_ID(), '_event_time', true );
                     $location = get_post_meta( get_the_ID(), '_event_location', true );
+                    $is_tba   = dante_event_is_month_only( get_the_ID() );
 
                     $meta_bits = array();
                     if ( $date ) {
@@ -328,7 +409,9 @@ function dante_events_markup( $preview = false, $click_behavior = 'scroll', $dis
                     ?>
                     <?php if ( 'simple' === $list_style ) : ?>
                     <div class="program-item" id="event-<?php echo esc_attr( get_the_ID() ); ?>">
-                        <?php if ( $meta_bits ) : ?>
+                        <?php if ( $is_tba ) : ?>
+                            <div class="program-date event-tba-note"><em><?php echo esc_html( dante_event_tba_notice() ); ?></em></div>
+                        <?php elseif ( $meta_bits ) : ?>
                             <div class="program-date"><?php echo esc_html( implode( '  ·  ', $meta_bits ) ); ?></div>
                         <?php endif; ?>
                         <h3><?php the_title(); ?></h3>
@@ -341,7 +424,9 @@ function dante_events_markup( $preview = false, $click_behavior = 'scroll', $dis
                     <article class="event-listing" id="event-<?php echo esc_attr( get_the_ID() ); ?>">
                         <div class="event-listing-text">
                             <h3 class="event-listing-title"><?php the_title(); ?></h3>
-                            <?php if ( $meta_bits ) : ?>
+                            <?php if ( $is_tba ) : ?>
+                                <p class="event-listing-date event-tba-note"><em><?php echo esc_html( dante_event_tba_notice() ); ?></em></p>
+                            <?php elseif ( $meta_bits ) : ?>
                                 <p class="event-listing-date"><?php echo esc_html( implode( '  ·  ', $meta_bits ) ); ?></p>
                             <?php endif; ?>
                             <?php if ( $location ) : ?>
@@ -372,40 +457,66 @@ function dante_events_markup( $preview = false, $click_behavior = 'scroll', $dis
 
 /**
  * Build the event-list query for a given scope: all | year | upcoming.
+ *
+ * Month-only ("date TBA") events are included and sorted by the first of their
+ * month. Because WordPress can't order or range-filter a mix of exact dates and
+ * month-only values in one meta query, we resolve each event's effective date in
+ * PHP, filter/sort here, then return a query ordered by that result.
  */
 function dante_event_list_query( $scope = 'all' ) {
-    $args = array(
+    $all = get_posts( array(
         'post_type'      => 'event',
         'posts_per_page' => -1,
-        'meta_key'       => '_event_date',
-        'orderby'        => 'meta_value',
-        'order'          => 'ASC', // earliest date first
-    );
+        'orderby'        => 'title',
+        'order'          => 'ASC',
+    ) );
 
-    if ( 'year' === $scope ) {
-        $year          = current_time( 'Y' );
-        $args['order'] = 'ASC';
-        $args['meta_query'] = array(
-            array(
-                'key'     => '_event_date',
-                'value'   => array( $year . '-01-01', $year . '-12-31' ),
-                'compare' => 'BETWEEN',
-                'type'    => 'DATE',
-            ),
-        );
-    } elseif ( 'upcoming' === $scope ) {
-        $args['order'] = 'ASC';
-        $args['meta_query'] = array(
-            array(
-                'key'     => '_event_date',
-                'value'   => current_time( 'Y-m-d' ),
-                'compare' => '>=',
-                'type'    => 'DATE',
-            ),
-        );
+    $today    = current_time( 'Y-m-d' );
+    $this_ym  = current_time( 'Y-m' );
+    $this_year = current_time( 'Y' );
+
+    $rows = array();
+    foreach ( $all as $post ) {
+        $date  = get_post_meta( $post->ID, '_event_date', true );
+        $is_mo = dante_event_is_month_only( $post->ID );
+
+        if ( $date ) {
+            $eff = $date;
+            $ym  = substr( $date, 0, 7 );
+        } elseif ( $is_mo ) {
+            $ym  = get_post_meta( $post->ID, '_event_month', true );
+            $eff = $ym . '-01';
+        } else {
+            continue; // no date and no month — not listable.
+        }
+
+        if ( 'upcoming' === $scope ) {
+            // Dated: today or later. Month-only: this month or a later month.
+            $keep = $date ? ( $date >= $today ) : ( $ym >= $this_ym );
+            if ( ! $keep ) {
+                continue;
+            }
+        } elseif ( 'year' === $scope ) {
+            if ( substr( $ym, 0, 4 ) !== (string) $this_year ) {
+                continue;
+            }
+        }
+
+        $rows[] = array( 'id' => (int) $post->ID, 'eff' => $eff );
     }
 
-    return new WP_Query( $args );
+    usort( $rows, function ( $a, $b ) {
+        return strcmp( $a['eff'], $b['eff'] ); // earliest effective date first
+    } );
+
+    $ids = wp_list_pluck( $rows, 'id' );
+
+    return new WP_Query( array(
+        'post_type'      => 'event',
+        'posts_per_page' => -1,
+        'post__in'       => $ids ? $ids : array( 0 ), // array(0) = force empty
+        'orderby'        => 'post__in',
+    ) );
 }
 
 /**

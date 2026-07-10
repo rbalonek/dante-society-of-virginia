@@ -1102,6 +1102,21 @@ figure.aligncenter,
 .dante-cal-item-meta { font-size: 0.82rem; color: var(--text-light); margin-top: 2px; }
 .dante-cal-empty { color: var(--text-light); font-size: 0.9rem; }
 
+/* Month-only ("date TBA") events: italic notice instead of a date, everywhere. */
+.event-tba-note { color: var(--gold); font-weight: 600; font-style: italic; }
+.dante-cal-item--tba { align-items: flex-start; }
+.dante-cal-badge--tba { background: var(--gold); color: var(--green); }
+.dante-cal-badge-tba { font-size: 0.6rem; letter-spacing: 1px; }
+.dante-cal-item-notice { font-size: 0.85rem; color: var(--gold); font-weight: 600; font-style: italic; margin-top: 2px; }
+.dante-cal-item-desc { font-size: 0.82rem; color: var(--text-light); margin-top: 4px; }
+/* On the calendar grid, a month-only event reads as tentative, not fixed to the 1st. */
+.fc-event.dante-event-tba {
+  background: transparent !important;
+  border: 1px dashed var(--gold) !important;
+  color: var(--green) !important;
+  font-style: italic;
+}
+
 /* FullCalendar theming inside the popup (light/cream, bordered buttons) */
 .dante-cal-modal .fc-button {
   background: #fff !important;
