@@ -27,17 +27,18 @@ function dante_assistant_tools() {
     return array(
         array(
             'name'        => 'create_event',
-            'description' => 'Create a NEW event as a draft. Use when the user wants to add an event to the calendar. If the date or time is unclear, ask the user before calling this. Never invent details.',
+            'description' => 'Create a NEW event as a draft. Use when the user wants to add an event to the calendar. Provide EITHER a specific date, OR a month (when only the month is known, e.g. "sometime in May 2027"). Never invent details.',
             'input_schema' => array(
                 'type'       => 'object',
                 'properties' => array(
                     'title'       => array( 'type' => 'string', 'description' => 'Event name.' ),
-                    'date'        => array( 'type' => 'string', 'description' => 'Event date as YYYY-MM-DD.' ),
+                    'date'        => array( 'type' => 'string', 'description' => 'Event date as YYYY-MM-DD, when a specific day is known.' ),
+                    'month'       => array( 'type' => 'string', 'description' => 'Month only, as YYYY-MM, when there is no specific day yet (e.g. "January 2027" → "2027-01"). Use INSTEAD of date; the event is listed in that month with a "Watch for more details…" note until a day is set. Do not send both date and month.' ),
                     'time'        => array( 'type' => 'string', 'description' => 'Human-readable time, e.g. "5:30 - 7:00 PM". Optional.' ),
                     'location'    => array( 'type' => 'string', 'description' => 'Where it happens. Optional.' ),
                     'description' => array( 'type' => 'string', 'description' => 'A short paragraph describing the event. Optional.' ),
                 ),
-                'required'   => array( 'title', 'date' ),
+                'required'   => array( 'title' ),
             ),
         ),
         array(
@@ -59,7 +60,8 @@ function dante_assistant_tools() {
                 'properties' => array(
                     'event_id'    => array( 'type' => 'integer', 'description' => 'The id from find_events.' ),
                     'title'       => array( 'type' => 'string' ),
-                    'date'        => array( 'type' => 'string', 'description' => 'YYYY-MM-DD' ),
+                    'date'        => array( 'type' => 'string', 'description' => 'YYYY-MM-DD. Setting this on a month-only event pins it to a real day (and clears the "date TBA" note).' ),
+                    'month'       => array( 'type' => 'string', 'description' => 'YYYY-MM. Sets the event to a month with no specific day yet ("date TBA"). Do not send both date and month.' ),
                     'time'        => array( 'type' => 'string' ),
                     'location'    => array( 'type' => 'string' ),
                     'description' => array( 'type' => 'string' ),
@@ -153,14 +155,25 @@ function dante_tool_create_event( $args ) {
     if ( ! current_user_can( 'edit_posts' ) ) {
         return array( 'error' => 'You do not have permission to add events.' );
     }
-    if ( empty( $args['title'] ) || empty( $args['date'] ) ) {
-        return array( 'error' => 'A title and a date are required.' );
+    if ( empty( $args['title'] ) ) {
+        return array( 'error' => 'A title is required.' );
     }
 
-    $date = dante_assistant_normalize_date( $args['date'] );
-    if ( ! $date ) {
-        return array( 'error' => 'The date was not understood. Ask the user for a specific date.' );
+    $date  = ! empty( $args['date'] )  ? dante_assistant_normalize_date( $args['date'] )   : '';
+    $month = ! empty( $args['month'] ) ? dante_assistant_normalize_month( $args['month'] ) : '';
+
+    if ( '' === $date && '' === $month ) {
+        return array( 'error' => 'Provide a specific date (YYYY-MM-DD), or a month (YYYY-MM) if only the month is known.' );
     }
+    // A real date always wins; a month-only event carries no date.
+    if ( '' !== $date ) {
+        $month = '';
+    }
+
+    // A friendly "when" for the summary/label.
+    $when = $date
+        ? $date
+        : date_i18n( 'F Y', strtotime( $month . '-01' ) ) . ' (date TBA)';
 
     $post_id = wp_insert_post( array(
         'post_type'    => 'event',
@@ -173,7 +186,10 @@ function dante_tool_create_event( $args ) {
         return array( 'error' => $post_id->get_error_message() );
     }
 
-    update_post_meta( $post_id, '_event_date', $date );
+    update_post_meta( $post_id, '_event_date', $date );  // '' for a month-only event
+    if ( '' !== $month ) {
+        update_post_meta( $post_id, '_event_month', $month );
+    }
     if ( ! empty( $args['time'] ) ) {
         update_post_meta( $post_id, '_event_time', sanitize_text_field( $args['time'] ) );
     }
@@ -189,14 +205,14 @@ function dante_tool_create_event( $args ) {
     dante_changeset_record( $changeset, array(
         'type'    => 'create',
         'post_id' => $post_id,
-        'label'   => sprintf( 'Added event "%s" (%s)', $args['title'], $date ),
+        'label'   => sprintf( 'Added event "%s" (%s)', $args['title'], $when ),
     ) );
 
     return array(
         'ok'       => true,
         'event_id' => $post_id,
         'status'   => 'draft',
-        'summary'  => sprintf( 'Draft event "%s" created for %s.', $args['title'], $date ),
+        'summary'  => sprintf( 'Draft event "%s" created for %s.', $args['title'], $when ),
     );
 }
 
@@ -263,6 +279,7 @@ function dante_tool_update_event( $args ) {
         'post_content' => $post->post_content,
         'meta'         => array(
             '_event_date'     => get_post_meta( $post_id, '_event_date', true ),
+            '_event_month'    => get_post_meta( $post_id, '_event_month', true ),
             '_event_time'     => get_post_meta( $post_id, '_event_time', true ),
             '_event_location' => get_post_meta( $post_id, '_event_location', true ),
             '_thumbnail_id'   => get_post_meta( $post_id, '_thumbnail_id', true ),
@@ -290,7 +307,16 @@ function dante_tool_update_event( $args ) {
             return array( 'error' => 'The date was not understood.' );
         }
         update_post_meta( $post_id, '_event_date', $date );
+        delete_post_meta( $post_id, '_event_month' ); // a real day supersedes month-only.
         $changed[] = 'date';
+    } elseif ( isset( $args['month'] ) && '' !== $args['month'] ) {
+        $month = dante_assistant_normalize_month( $args['month'] );
+        if ( ! $month ) {
+            return array( 'error' => 'The month was not understood.' );
+        }
+        update_post_meta( $post_id, '_event_month', $month );
+        update_post_meta( $post_id, '_event_date', '' ); // month-only: no specific day.
+        $changed[] = 'month';
     }
     if ( isset( $args['time'] ) && '' !== $args['time'] ) {
         update_post_meta( $post_id, '_event_time', sanitize_text_field( $args['time'] ) );
@@ -341,6 +367,26 @@ function dante_assistant_normalize_date( $raw ) {
     }
     $ts = strtotime( $raw );
     return $ts ? gmdate( 'Y-m-d', $ts ) : '';
+}
+
+/**
+ * Normalize a month to YYYY-MM. Accepts "2027-05" or "May 2027" (anchored to the
+ * first of the month to avoid day-overflow, e.g. "February" on the 30th).
+ * Returns '' if it can't parse.
+ */
+function dante_assistant_normalize_month( $raw ) {
+    $raw = trim( (string) $raw );
+    if ( '' === $raw ) {
+        return '';
+    }
+    if ( preg_match( '/^(\d{4})-(\d{2})$/', $raw, $m ) ) {
+        return $m[1] . '-' . $m[2];
+    }
+    $ts = strtotime( 'first day of ' . $raw );
+    if ( ! $ts ) {
+        $ts = strtotime( $raw );
+    }
+    return $ts ? gmdate( 'Y-m', $ts ) : '';
 }
 
 /**
