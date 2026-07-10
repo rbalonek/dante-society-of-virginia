@@ -387,7 +387,9 @@
 					bubble( 'bot', res.error );
 					return;
 				}
-				clearPhoto(); // the photo has been attached to the event now.
+				if ( res.image_used ) {
+					clearPhoto(); // only drop it once a tool actually applied it.
+				}
 				bubble( 'bot', res.reply );
 				history.push( { role: 'assistant', text: res.reply } );
 				( res.actions || [] ).forEach( actionCard );

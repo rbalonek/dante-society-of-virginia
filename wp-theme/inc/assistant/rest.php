@@ -155,6 +155,13 @@ function dante_assistant_rest_chat( WP_REST_Request $request ) {
     $tools    = dante_assistant_tools();
     $system   = dante_assistant_system_prompt();
 
+    // The model can't see the uploaded photo — it only knows the text. When one
+    // is attached this turn, tell it so, and how to use it, or it will wrongly
+    // insist it "can't see an image."
+    if ( $attachment_id > 0 ) {
+        $system .= "\n\nThe person has attached a photo to this message. To put it on an event, first find the event with find_events, then call update_event with that event's id — the attached photo is applied to the event automatically, so you do not need any image data or a photo URL. To add it to the photo gallery instead, use add_photo. If they are composing a newsletter, it is included automatically. Never tell them you cannot see or find the attached photo — it is attached and ready to use.";
+    }
+
     $actions   = array();
     $reply     = '';
     $max_turns = 6; // safety bound on tool round-trips.
@@ -198,11 +205,17 @@ function dante_assistant_rest_chat( WP_REST_Request $request ) {
         $messages[] = array( 'role' => 'user', 'content' => $tool_result_blocks );
     }
 
+    // A tool that uses the attached photo zeroes the pending-image global. If it
+    // is still set, the photo went unused this turn — tell the UI so it keeps the
+    // thumbnail instead of dropping it after a mere clarifying reply.
+    $image_used = ( $attachment_id > 0 && 0 === (int) $GLOBALS['dante_assistant_pending_image'] );
+
     $payload = array(
-        'reply'   => $reply ? $reply : "All set.",
-        'actions' => $actions,
-        'pending' => dante_assistant_pending_payload(),
-        'history' => dante_changeset_history(), // so immediate edits (photos, page/event edits) show in "Recent changes"
+        'reply'      => $reply ? $reply : "All set.",
+        'actions'    => $actions,
+        'image_used' => $image_used,
+        'pending'    => dante_assistant_pending_payload(),
+        'history'    => dante_changeset_history(), // so immediate edits (photos, page/event edits) show in "Recent changes"
     );
 
     // If the assistant composed a newsletter this turn, include its card data.
