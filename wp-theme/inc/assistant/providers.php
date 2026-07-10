@@ -108,14 +108,29 @@ class Dante_AI_Anthropic implements Dante_AI_Provider {
         $text       = '';
         $tool_calls = array();
 
-        foreach ( $content as $block ) {
+        foreach ( $content as $idx => $block ) {
+            if ( ! isset( $block['type'] ) ) {
+                continue;
+            }
             if ( 'text' === $block['type'] ) {
                 $text .= $block['text'];
             } elseif ( 'tool_use' === $block['type'] ) {
+                $input = isset( $block['input'] ) ? $block['input'] : array();
+
+                // A tool called with no arguments arrives as `{}`, which
+                // json_decode turns into an empty PHP array(). Left alone, that
+                // re-encodes as a JSON array [] when this turn is sent back on
+                // the next round-trip, and the API rejects it with
+                // "tool_use.input: Input should be an object". Force empty
+                // inputs back to an object so the conversation stays valid.
+                if ( is_array( $input ) && empty( $input ) ) {
+                    $content[ $idx ]['input'] = new stdClass();
+                }
+
                 $tool_calls[] = array(
                     'id'    => $block['id'],
                     'name'  => $block['name'],
-                    'input' => isset( $block['input'] ) ? $block['input'] : array(),
+                    'input' => is_array( $input ) ? $input : (array) $input,
                 );
             }
         }
