@@ -20,6 +20,41 @@
 	max-width: none;
 	width: 100%;
 }
+
+/* Make the widget read as its own branded panel — distinct from the plain gray
+   dashboard boxes — so board members recognize it instantly. Cream body, green
+   title bar, gold accent, roomy padding, and a soft lift off the page. */
+#dante_assistant_widget.postbox {
+	background: #fbf7ef;
+	border: 1px solid #b08d57;
+	border-radius: 12px;
+	box-shadow: 0 3px 14px rgba( 27, 67, 50, 0.14 );
+	overflow: hidden; /* let the header colour reach the rounded corners */
+}
+#dante_assistant_widget .postbox-header {
+	background: #1b4332;
+	border-bottom: 3px solid #b08d57;
+}
+#dante_assistant_widget .postbox-header .hndle {
+	color: #fff;
+	font-size: 17px;
+	padding: 14px 18px;
+}
+/* This isn't a box they should collapse or drag around — hide those controls. */
+#dante_assistant_widget .handle-actions {
+	display: none;
+}
+#dante_assistant_widget .inside {
+	margin: 0;
+	padding: 20px 20px 22px;
+}
+/* Give the conversation its own clean surface against the cream panel. */
+#dante_assistant_widget .dante-assistant__log {
+	background: #fff;
+	border: 1px solid #ece3d0;
+	border-radius: 10px;
+	padding: 12px 14px;
+}
 /* On a roomy screen, give the newsletter preview real height. */
 @media ( min-width: 1100px ) {
 	.dante-assistant-fullrow .dante-nl-card__frame {
