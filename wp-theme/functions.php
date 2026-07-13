@@ -120,6 +120,58 @@ function dante_enqueue_assets() {
 add_action( 'wp_enqueue_scripts', 'dante_enqueue_assets' );
 
 /**
+ * Zeffy membership payments.
+ *
+ * Zeffy hosts the membership/dues form. Its embed script turns any element that
+ * carries a `zeffy-form-link` attribute into a click-to-open modal. Use the
+ * [dante_membership_button] shortcode to place a styled "Join / Renew" button
+ * anywhere (a Shortcode block on the Membership page, the footer, etc.); the
+ * third-party script is only loaded on pages that actually output a button.
+ *
+ * To change the form, update DANTE_ZEFFY_FORM_URL (or pass url="…" to the
+ * shortcode). Keep `?modal=true` on the URL so it opens as a popup.
+ */
+define( 'DANTE_ZEFFY_FORM_URL', 'https://www.zeffy.com/embed/ticketing/dante-society-of-virginias-memberships?modal=true' );
+
+function dante_register_zeffy_script() {
+    wp_register_script(
+        'dante-zeffy',
+        'https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js',
+        array(),
+        null,
+        true
+    );
+}
+add_action( 'wp_enqueue_scripts', 'dante_register_zeffy_script' );
+
+/**
+ * [dante_membership_button text="Join / Renew Membership"]
+ * Renders a themed button that opens the Zeffy membership form in a modal.
+ */
+function dante_membership_button_shortcode( $atts ) {
+    $atts = shortcode_atts(
+        array(
+            'text'  => 'Join / Renew Membership',
+            'url'   => DANTE_ZEFFY_FORM_URL,
+            'class' => 'btn btn-primary',
+        ),
+        $atts,
+        'dante_membership_button'
+    );
+
+    // Only pull in the Zeffy embed script on pages that show the button.
+    wp_enqueue_script( 'dante-zeffy' );
+
+    return sprintf(
+        '<button type="button" class="%1$s dante-zeffy-button" zeffy-form-link="%2$s">%3$s</button>',
+        esc_attr( $atts['class'] ),
+        esc_url( $atts['url'] ),
+        esc_html( $atts['text'] )
+    );
+}
+add_shortcode( 'dante_membership_button', 'dante_membership_button_shortcode' );
+
+/**
  * The site logo (emblem) displays at 64px in the header, but WordPress emits a
  * "100vw" sizes attribute that makes browsers fetch a much larger source than
  * needed. Constrain it so a small, appropriately sized variant is served.
