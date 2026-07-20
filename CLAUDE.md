@@ -33,10 +33,13 @@ Corollaries that caused real confusion during the build:
   `…/Local Sites/dante/app/public/wp-content/themes/dante-society` → this repo's
   `wp-theme/`. So editing `wp-theme/` shows on `dante.local` immediately (no copy).
   `/images` is symlinked too.
-- **Live demo:** `http://146.235.210.188/` — a WordPress install on an **Oracle
-  Cloud VM** (test/demo box; the client moves to permanent hosting if they
-  approve). Theme arrives via the deploy pipeline; content was seeded once with
-  All-in-One WP Migration and is now edited directly in its wp-admin.
+- **Live demo:** now `http://167.234.212.48/` — a **rebuilt** WordPress install on
+  a fresh **Oracle Cloud VM** (test/demo box; the client moves to permanent hosting
+  if they approve). Theme arrives via the deploy pipeline; content was rebuilt by
+  hand after a compromise and is edited directly in its wp-admin. **⚠️ The old box
+  `146.235.210.188` was hacked (July 2026) and is decommissioned — see "Security
+  incident & server rebuild" below.** Currently firewalled to the admin's IP only
+  (not yet public).
 
 ## Repo layout
 - `wp-theme/` — the theme; this is what deploys.
@@ -241,6 +244,73 @@ Custom, sends via `wp_mail`. Admin menu **Newsletter** → Compose + Subscribers
   on live can overwrite the good git-deployed theme with a stale copy. After any
   AIO content migration, **re-run the deploy** to restore the correct theme.
 
+## Security incident & server rebuild (July 2026)
+
+The **old live box (`146.235.210.188`, "dante-demo", Ubuntu) was compromised** on
+2026-07-12. We contained it, did offline forensics, then **rebuilt on a clean VM**
+rather than disinfect. The Git repo and deploy pipeline were **never** affected —
+the compromise lived only on that server's DB + filesystem.
+
+### What happened (fully scoped from forensics)
+- **Entry:** attacker (`64.227.190.95`) enumerated the admin username via
+  `/wp-json/wp/v2/users` + the user sitemap, brute-forced `xmlrpc.php`/`wp-login.php`,
+  and logged into wp-admin with a **weak/default "admin" password**.
+- **Payload:** uploaded a fake `chajian` plugin ("My Custom Plugin / Does amazing
+  things") containing China-Chopper webshells (`@eval` of an XOR+base64 POST body),
+  dropped a second webshell at `wp-content/languages/luest.php`, created 2 rogue
+  admin users, and installed a **UPX-packed ELF miner/bot** at
+  `/var/cache/apache2/mod_cache_disk/d20PU1` run every minute via a `www-data` cron.
+- **Scope:** **web-layer only** — no attacker SSH keys, no root cron, core files +
+  the git-deployed theme were clean. (The earlier "my SSH key is rejected" was NOT
+  tampering — the box used a different RSA key that lived in the GitHub deploy secret.)
+
+### The new box
+- **`167.234.212.48`** — Oracle **Ubuntu 22.04**, user `ubuntu`.
+- SSH key: **`~/.ssh/dante-oracle-2026`** (passphraseless; also the intended deploy key).
+- Stack: **Apache + PHP 8.1 + MariaDB 10.11**, WordPress at **`/var/www/html`**.
+- DB `dante` / user `dante` — password in **`/root/.dante-db-pass`** (root-only).
+- WP admin user **`bbalonek`** — password in **`/root/.dante-admin-pass`** (root-only).
+  Do NOT use "admin" and do NOT commit these anywhere.
+
+### OCI/server-specific config (gotchas that bit us — keep them)
+- **OCI Ubuntu ships iptables allowing only SSH.** Opening a port in the OCI
+  Security List is **not enough** — you must also `iptables -I INPUT ... --dport 80
+  -j ACCEPT` on the box and `netfilter-persistent save`. (Same for 443 at launch.)
+- **Loopback DNAT:** the box can't reach its own public IP (Security List only
+  allows the admin IP), which made every wp-admin request that does an internal
+  HTTP call hang ~15s. Fixed with nat `OUTPUT` DNAT of `167.234.212.48:80/443 →
+  127.0.0.1` (persisted). Also `DISABLE_WP_CRON=true` + a system cron running
+  `wp cron event run` (keeps cron off the loopback).
+- **AllowOverride:** Apache's default `AllowOverride None` makes WP ignore
+  `.htaccess`, which **404s the REST API (`/wp-json/`) and all pretty permalinks**
+  (symptom: editor says "Could not retrieve the featured image data"). Fixed via
+  `/etc/apache2/conf-available/wp-htaccess.conf` (`AllowOverride All` for
+  `/var/www/html`) + `wp rewrite flush --hard`.
+
+### Hardening applied (closes the exact holes used)
+- **Limit Login Attempts Reloaded** plugin (brute-force lockout) — keep it active.
+- Server-side must-use plugin **`wp-content/mu-plugins/dante-hardening.php`**:
+  disables XML-RPC, blocks `?author=N` + REST `/users` enumeration.
+  **⚠️ This file lives on the server, NOT in Git** — a fresh rebuild/redeploy won't
+  include it; recreate it (or promote it into the theme) if the box is rebuilt again.
+- `DISALLOW_FILE_EDIT` = true (no dashboard code editor).
+
+### Content (rebuilt by hand — zero bytes imported from the compromised DB)
+The DB was never restored. Page text + event data were **extracted from a read-only
+forensic clone**, scanned for injection, and recreated on the clean box via wp-cli:
+9 pages + 13 events (10 with posters reattached as featured images), Primary + Footer
+menus, front page = Home. Media was re-imported clean (46 MB, 26 attachments; the
+`.pages` source file was skipped — the PDF is the usable one). There were **no real
+newsletter subscribers** to preserve.
+
+### Still outstanding (as of the rebuild)
+- Update GitHub deploy secrets **`SSH_HOST` → 167.234.212.48** and
+  **`SSH_PRIVATE_KEY`** → the new key (they still point at the dead box).
+- Add HTTPS (Let's Encrypt), open **80/443 to the world** in the Security List, and
+  point DNS — then the site is truly public.
+- Terminate the old compromised instance (keep the forensic boot-volume clone a
+  while as evidence).
+
 ## Editing Local content directly (technique)
 
 Local's MySQL isn't reachable by the host `wp` (socket mismatch), but the bundled
@@ -265,6 +335,10 @@ client works. Pattern used to edit page content programmatically on Local:
   editor-control changes.
 - **Content vs code / Local vs live** — see the top of this file. This is the
   source of ~every "why didn't my change show up" question.
+- **Live box was rebuilt (July 2026)** after a hack — new IP `167.234.212.48`, new
+  SSH key, OCI-specific firewall/DNAT/AllowOverride config, and a server-side
+  hardening mu-plugin that is **not in Git**. Deploy secrets still point at the dead
+  old box until updated. See "Security incident & server rebuild" above.
 - **Meta stored as JSON** (assistant change-log `_ops`, newsletter `_nl_data`)
   must be `wp_slash()`ed before `update_post_meta` (it `wp_unslash`es internally),
   or `\uXXXX` escapes get corrupted (dashes/accents turn into `u2013` etc.).
