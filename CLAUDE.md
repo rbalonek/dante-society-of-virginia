@@ -295,6 +295,31 @@ the compromise lived only on that server's DB + filesystem.
   include it; recreate it (or promote it into the theme) if the box is rebuilt again.
 - `DISALLOW_FILE_EDIT` = true (no dashboard code editor).
 
+### HTTPS (Cloudflare Tunnel — interim demo TLS, added 2026-07-23)
+The box has **no TLS cert and 443 isn't public** (firewalled to admin IP), so phones
+that auto-upgrade to `https://167.234.212.48` **hang**. Fixed for demos with a
+**Cloudflare quick tunnel** — instant HTTPS, no domain, no DNS/GoDaddy work.
+- **`cloudflared`** (installed via the amd64 `.deb`) runs as **systemd service
+  `dante-tunnel.service`** (`cloudflared tunnel --no-autoupdate --url http://localhost:80`;
+  enabled, `Restart=on-failure`, survives reboot). **Lives on the server, NOT in Git**
+  — like `dante-hardening.php`, a rebuild won't recreate it.
+- **The public URL is random** (`https://<words>.trycloudflare.com`) and **changes on
+  every service restart / reboot** — quick tunnels aren't stable. Get the current one:
+  `ssh -i ~/.ssh/dante-oracle-2026 ubuntu@167.234.212.48 'dante-tunnel-url'`
+  (helper script `/usr/local/bin/dante-tunnel-url` greps it from the journal).
+- **WordPress gotcha (the actual fix):** stored siteurl/home is `http://167.234.212.48`,
+  so WP was **301-redirecting every tunnel visitor back to the raw http IP** (= the phone
+  hang) and emitting mixed content. A block in **`wp-config.php`** (backed up to
+  `wp-config.php.bak-*`) makes WP protocol/host-aware: trusts `X-Forwarded-Proto: https`
+  and defines `WP_HOME`/`WP_SITEURL` dynamically from `$_SERVER['HTTP_HOST']`. It's
+  host-agnostic **on purpose** so it keeps working as the tunnel URL changes; the raw IP
+  still resolves to `http://167.234.212.48` for admin. cloudflared forwards `HTTP_HOST` =
+  the tunnel hostname (verified). **Also server-side, NOT in Git.**
+- Manage: `sudo systemctl {status,restart,stop} dante-tunnel.service`.
+- **Upgrade path for a *stable* URL:** a **named tunnel** on the GoDaddy domain once it's
+  on Cloudflare (permanent `demo.<domain>` hostname), or the Let's Encrypt route below.
+  Waiting on the client granting domain access before switching over.
+
 ### Content (rebuilt by hand — zero bytes imported from the compromised DB)
 The DB was never restored. Page text + event data were **extracted from a read-only
 forensic clone**, scanned for injection, and recreated on the clean box via wp-cli:
@@ -306,8 +331,10 @@ newsletter subscribers** to preserve.
 ### Still outstanding (as of the rebuild)
 - Update GitHub deploy secrets **`SSH_HOST` → 167.234.212.48** and
   **`SSH_PRIVATE_KEY`** → the new key (they still point at the dead box).
-- Add HTTPS (Let's Encrypt), open **80/443 to the world** in the Security List, and
-  point DNS — then the site is truly public.
+- HTTPS: **interim TLS is live via a Cloudflare quick tunnel** (see "HTTPS" above) so
+  demos work on phones today, but the URL is random and unstable. Still to do for a
+  **truly public, stable** site: a named tunnel on the domain **or** Let's Encrypt +
+  open **80/443 to the world** in the Security List + point DNS.
 - Terminate the old compromised instance (keep the forensic boot-volume clone a
   while as evidence).
 
