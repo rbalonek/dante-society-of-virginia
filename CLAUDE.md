@@ -225,6 +225,32 @@ Custom, sends via `wp_mail`. Admin menu **Newsletter** → Compose + Subscribers
   nothing is sent. Individual $35 / Family $60. Replace `checkout.js` with real
   Stripe.js / a Checkout Session when a Stripe account is connected.
 
+## Subscription / hosting-billing portal (`inc/subscription.php`)
+
+**This is the developer billing the *client* for hosting — NOT the Society billing
+its members** (that's the membership mockup above; don't conflate them). It's a
+client-facing **"Subscription"** admin menu (money icon, `manage_options`) + a
+**Dashboard widget**, plus a **Settings** subpage. **Single-client, intentionally
+hardcoded** — "a better solution comes after launch."
+
+- **Everything is hardcoded** in `define()`s at the top of the file:
+  `DANTE_SUB_PAYMENT_LINK` (`https://buy.stripe.com/eVq3cudL22vO8KBaZj3AY00`),
+  `DANTE_SUB_PLAN_NAME` (*"Dante Society of Virginia Wordpress Site"*, Stripe product
+  `prod_Ux8AwC3oZAUPlx`), `DANTE_SUB_PLAN_DESC`. Nothing about the plan is editable in
+  wp-admin. No Stripe key / API / secret on the box.
+- **Billing screen = the Payment Link in an `<iframe>`** (embedded checkout, same
+  window). This works because the Payment Link sends **no `X-Frame-Options` and no CSP
+  `frame-ancestors`** — verified via `curl -I` (the Customer *Portal* is NOT frameable,
+  the Payment Link is). A "open in a new tab" fallback link sits under the iframe in
+  case Stripe ever frame-busts. The **dashboard widget** doesn't embed the iframe (too
+  cramped) — it links to the Billing page.
+- **Subscribed vs Unsubscribed is a MANUAL toggle** — the ONLY setting, stored in the
+  `dante_subscription_status` option (radio in Settings). Unsubscribed → the embedded
+  checkout; Subscribed → a green "✓ Subscription active / Current Subscription"
+  confirmation. Client checks out once, owner flips the toggle. No live Stripe check
+  (if they cancel, the site won't know until you flip it back) — fine for a one-time
+  subscription; automatic status would need the API + a key.
+
 ---
 
 ## Deploy & Git
@@ -294,6 +320,25 @@ the compromise lived only on that server's DB + filesystem.
   **⚠️ This file lives on the server, NOT in Git** — a fresh rebuild/redeploy won't
   include it; recreate it (or promote it into the theme) if the box is rebuilt again.
 - `DISALLOW_FILE_EDIT` = true (no dashboard code editor).
+- **`DISALLOW_FILE_MODS` = true** (added 2026-07-25, in `wp-config.php`) — blocks
+  plugin/theme **install + updates** and the code editors from the dashboard. This is
+  what makes on-server secrets genuinely unreadable by board admins: they can't run
+  arbitrary PHP through the UI anymore. **Trade-off: do plugin/core updates via
+  `wp-cli`/SSH**, not the dashboard.
+
+### Server-side secrets (added 2026-07-25, NOT in Git)
+The board members are WP **admins**, so anything the WP process can read, a determined
+admin could too — *unless* they can't run code (hence `DISALLOW_FILE_MODS` above). Keys
+live in **`/var/www/dante-secrets.php`** — **outside** the web root (can't be fetched
+over HTTP), perms **`640 root:www-data`**, `require`d from `wp-config.php` (in the custom
+block, before `ABSPATH` — so **no `if(!defined('ABSPATH'))exit;` guard**, that would kill
+WP). It defines constants like `DANTE_ANTHROPIC_KEY` (and could hold `DANTE_STRIPE_SECRET`
+if Stripe ever moves to the API route). **Like the mu-plugin, this file is server-only —
+a rebuild won't recreate it.**
+- The **Dante Assistant** now resolves its key via `dante_assistant_api_key()`
+  (`inc/assistant/providers.php`): **`DANTE_ANTHROPIC_KEY` constant/env first, DB option
+  as fallback.** When the constant is set, Settings → Dante Assistant shows "Managed on
+  the server" (field disabled). Until then it still reads the DB key (currently present).
 
 ### HTTPS (Cloudflare Tunnel — interim demo TLS, added 2026-07-23)
 The box has **no TLS cert and 443 isn't public** (firewalled to admin IP), so phones
@@ -330,7 +375,17 @@ newsletter subscribers** to preserve.
 
 ### Still outstanding (as of the rebuild)
 - Update GitHub deploy secrets **`SSH_HOST` → 167.234.212.48** and
-  **`SSH_PRIVATE_KEY`** → the new key (they still point at the dead box).
+  **`SSH_PRIVATE_KEY`** → the new key (they still point at the dead box). Until then,
+  theme changes reach the live box via **manual rsync over SSH** (what was used on
+  2026-07-25 to deploy `inc/subscription.php` + the Assistant key-resolver changes).
+- **Finish the Anthropic-key migration:** it currently still sits in the DB (readable
+  by admins). Rotate it, put the NEW key in `DANTE_ANTHROPIC_KEY` in
+  `/var/www/dante-secrets.php`, then clear the DB copy
+  (`wp option patch update dante_assistant_settings anthropic_key ''`) and revoke the old.
+- **Stripe billing:** the Payment Link + product are hardcoded in `inc/subscription.php`
+  (single-client). Just set a **statement descriptor** (e.g. `DANTE SITE HOSTING`) so the
+  card statement reads as yours, not "WordPress." Post-launch, replace the hardcoded/
+  manual-toggle approach with a real per-client + live-status solution.
 - HTTPS: **interim TLS is live via a Cloudflare quick tunnel** (see "HTTPS" above) so
   demos work on phones today, but the URL is random and unstable. Still to do for a
   **truly public, stable** site: a named tunnel on the domain **or** Let's Encrypt +
@@ -373,6 +428,8 @@ client works. Pattern used to edit page content programmatically on Local:
   `dante_responsive_css` — iOS renders fixed backgrounds blurry/upscaled.
 - **Custom logo** needs the `.custom-logo { height: 64px }` rule or it's huge.
 - **Email** needs WP Mail SMTP (Other SMTP + Gmail app password / Brevo).
-- **Dante Assistant** needs an API key per site (**Settings → Dante Assistant**);
-  without it the widget shows "not set up yet."
+- **Dante Assistant** needs an API key per site. Preferred: the
+  **`DANTE_ANTHROPIC_KEY`** constant in `/var/www/dante-secrets.php` (server-side, hidden
+  from admins); fallback: the DB option via **Settings → Dante Assistant**. Without
+  either, the widget shows "not set up yet." Resolver: `dante_assistant_api_key()`.
 - **Seeder** (`inc/seed-events.php`) runs once per environment; delete it when done.

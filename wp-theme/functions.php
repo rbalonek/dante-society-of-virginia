@@ -40,6 +40,9 @@ require_once get_template_directory() . '/inc/photos.php';
 // Dante Assistant: chat-based site editing (dashboard widget + agent loop).
 require_once get_template_directory() . '/inc/assistant/assistant.php';
 
+// Subscription: client-facing billing screen linking to Stripe-hosted pages.
+require_once get_template_directory() . '/inc/subscription.php';
+
 /**
  * Theme Setup
  */

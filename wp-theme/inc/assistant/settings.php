@@ -75,6 +75,7 @@ function dante_assistant_settings_page() {
         return;
     }
     $settings  = get_option( 'dante_assistant_settings', array() );
+    $managed   = dante_assistant_key_is_managed();
     $has_key   = ! empty( $settings['anthropic_key'] );
     $model     = isset( $settings['model'] ) ? $settings['model'] : 'claude-sonnet-4-6';
     $key_field = $has_key ? '••••••••••••••••' : '';
@@ -89,15 +90,22 @@ function dante_assistant_settings_page() {
                 <tr>
                     <th scope="row"><label for="dante_assistant_key"><?php esc_html_e( 'Anthropic API key', 'dante-society' ); ?></label></th>
                     <td>
-                        <input type="password" id="dante_assistant_key" class="regular-text"
-                               name="dante_assistant_settings[anthropic_key]"
-                               value="<?php echo esc_attr( $key_field ); ?>"
-                               autocomplete="new-password" />
-                        <p class="description">
-                            <?php echo $has_key
-                                ? esc_html__( 'A key is saved. Leave the dots as-is to keep it, or paste a new key to replace it.', 'dante-society' )
-                                : esc_html__( 'Paste your Anthropic API key (starts with sk-ant-).', 'dante-society' ); ?>
-                        </p>
+                        <?php if ( $managed ) : ?>
+                            <input type="text" class="regular-text" value="<?php esc_attr_e( 'Managed on the server', 'dante-society' ); ?>" disabled />
+                            <p class="description">
+                                <?php esc_html_e( 'The API key is set server-side (DANTE_ANTHROPIC_KEY) and is not editable or visible here. To change it, edit the secrets file over SSH.', 'dante-society' ); ?>
+                            </p>
+                        <?php else : ?>
+                            <input type="password" id="dante_assistant_key" class="regular-text"
+                                   name="dante_assistant_settings[anthropic_key]"
+                                   value="<?php echo esc_attr( $key_field ); ?>"
+                                   autocomplete="new-password" />
+                            <p class="description">
+                                <?php echo $has_key
+                                    ? esc_html__( 'A key is saved. Leave the dots as-is to keep it, or paste a new key to replace it.', 'dante-society' )
+                                    : esc_html__( 'Paste your Anthropic API key (starts with sk-ant-).', 'dante-society' ); ?>
+                            </p>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <tr>

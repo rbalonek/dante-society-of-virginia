@@ -37,6 +37,39 @@ interface Dante_AI_Provider {
 }
 
 /**
+ * Resolve the Anthropic API key.
+ *
+ * Priority: a server-side secret (the DANTE_ANTHROPIC_KEY constant, defined in
+ * a secrets file outside the web root and required from wp-config.php, or the
+ * matching environment variable) beats the value in the options table. This
+ * lets the key live off the dashboard entirely — invisible to WordPress admins
+ * — while the DB option remains a fallback for sites that haven't migrated.
+ *
+ * @return string
+ */
+function dante_assistant_api_key() {
+    if ( defined( 'DANTE_ANTHROPIC_KEY' ) && DANTE_ANTHROPIC_KEY ) {
+        return trim( (string) DANTE_ANTHROPIC_KEY );
+    }
+    $env = getenv( 'DANTE_ANTHROPIC_KEY' );
+    if ( $env ) {
+        return trim( $env );
+    }
+    $settings = get_option( 'dante_assistant_settings', array() );
+    return isset( $settings['anthropic_key'] ) ? trim( $settings['anthropic_key'] ) : '';
+}
+
+/**
+ * True when the key comes from a server-side secret (not the DB option), so the
+ * settings UI can show a read-only "managed on the server" state.
+ *
+ * @return bool
+ */
+function dante_assistant_key_is_managed() {
+    return ( defined( 'DANTE_ANTHROPIC_KEY' ) && DANTE_ANTHROPIC_KEY ) || (bool) getenv( 'DANTE_ANTHROPIC_KEY' );
+}
+
+/**
  * Resolve the active provider from settings.
  *
  * @return Dante_AI_Provider|WP_Error
@@ -48,7 +81,7 @@ function dante_assistant_provider() {
     switch ( $which ) {
         case 'anthropic':
         default:
-            $key = isset( $settings['anthropic_key'] ) ? trim( $settings['anthropic_key'] ) : '';
+            $key = dante_assistant_api_key();
             if ( '' === $key ) {
                 return new WP_Error( 'no_key', 'The assistant is not set up yet. An administrator needs to add an API key under Settings → Dante Assistant.' );
             }

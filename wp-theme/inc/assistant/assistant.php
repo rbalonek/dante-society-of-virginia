@@ -123,7 +123,7 @@ function dante_assistant_admin_assets( $hook ) {
         true
     );
 
-    $configured = ! empty( get_option( 'dante_assistant_settings', array() )['anthropic_key'] );
+    $configured = '' !== dante_assistant_api_key();
 
     wp_localize_script( 'dante-assistant', 'danteAssistant', array(
         'root'       => esc_url_raw( rest_url( 'dante/v1/assistant' ) ),
