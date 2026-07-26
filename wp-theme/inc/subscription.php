@@ -2,17 +2,15 @@
 /**
  * Subscription / billing portal (single-client) — EMBEDDED CHECKOUT + LIVE STATUS.
  *
- * A client-facing "Subscription" screen in wp-admin (top-level menu + Dashboard
- * widget). Checkout is in-app via Stripe **Embedded Checkout**; subscription
- * status is read **live from Stripe** (no manual toggle) — the screen shows the
- * checkout until an active subscription exists for the plan's price, then flips
- * to a branded "Current Subscription" summary automatically. Status is cached in
- * a 5-minute transient (with a last-known-good option as a network fallback).
+ * Client-facing "Subscription" screen in wp-admin (top-level menu + Dashboard
+ * widget). Checkout is in-app via Stripe **Embedded Checkout** with a
+ * **Monthly / Yearly** plan selector; status is read **live from Stripe** (no
+ * manual toggle) and cached 5 min (last-known-good option as a network fallback).
  *
  * Config (hardcoded / server-side):
- *   - DANTE_SUB_PRICE_ID          recurring Price id (price_…)  [not secret]
- *   - DANTE_SUB_PUBLISHABLE_KEY   publishable key (pk_…)        [not secret]
- *   - DANTE_STRIPE_SECRET         secret/restricted key         [secrets file, SSH]
+ *   - DANTE_SUB_PRICE_MONTHLY / DANTE_SUB_PRICE_YEARLY   recurring Price ids  [not secret]
+ *   - DANTE_SUB_PUBLISHABLE_KEY                          publishable key      [not secret]
+ *   - DANTE_STRIPE_SECRET                                secret/restricted key [secrets file, SSH]
  *
  * @package Dante_Society
  */
@@ -21,12 +19,37 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// --- Hardcoded plan (matches the Stripe product) ---------------------------
+// --- Hardcoded plan config -------------------------------------------------
 define( 'DANTE_SUB_PLAN_NAME', 'Dante Society of Virginia Wordpress Site' );
 define( 'DANTE_SUB_PLAN_DESC', 'Monthly subscription to WordPress access to http://www.dantesocietyofva.org/' );
-define( 'DANTE_SUB_PAYMENT_LINK', 'https://buy.stripe.com/eVq3cudL22vO8KBaZj3AY00' ); // fallback (new tab)
-define( 'DANTE_SUB_PRICE_ID', 'price_1TxDuWCFukojpZoaOhKIfxqL' );
+define( 'DANTE_SUB_PRICE_MONTHLY', 'price_1TxDuWCFukojpZoaOhKIfxqL' );
+define( 'DANTE_SUB_PRICE_YEARLY', 'price_1TxUDeCFukojpZoad9A0fiSZ' );
 define( 'DANTE_SUB_PUBLISHABLE_KEY', 'pk_live_51QkBqDCFukojpZoa4dFU68wzFGrDxwqjj2zX8ZgJl77dzGxZaYdrZTl9ieOph6zeuxQP3BAUzrLwD58qLuvCVStO00GmKtLQ8s' );
+define( 'DANTE_SUB_PAYMENT_LINK_MONTHLY', 'https://buy.stripe.com/eVq3cudL22vO8KBaZj3AY00' );
+define( 'DANTE_SUB_PAYMENT_LINK_YEARLY', 'https://buy.stripe.com/4gM14m6iAb2kbWN3wR3AY01' );
+
+/**
+ * The plans offered, keyed by slug. Yearly is included only if its price is set.
+ */
+function dante_sub_plans() {
+    $plans = array(
+        'monthly' => array(
+            'id'    => DANTE_SUB_PRICE_MONTHLY,
+            'name'  => __( 'Monthly', 'dante-society' ),
+            'price' => __( '$15 / month', 'dante-society' ),
+            'link'  => DANTE_SUB_PAYMENT_LINK_MONTHLY,
+        ),
+    );
+    if ( '' !== DANTE_SUB_PRICE_YEARLY ) {
+        $plans['yearly'] = array(
+            'id'    => DANTE_SUB_PRICE_YEARLY,
+            'name'  => __( 'Yearly', 'dante-society' ),
+            'price' => __( '$180 / year', 'dante-society' ),
+            'link'  => DANTE_SUB_PAYMENT_LINK_YEARLY,
+        );
+    }
+    return $plans;
+}
 
 /**
  * Secret key — from the server-side secrets file (constant or env), never the DB.
@@ -40,20 +63,21 @@ function dante_sub_stripe_secret() {
 }
 
 /**
- * True when checkout can run (all three pieces present).
+ * True when checkout can run (monthly price + publishable + secret present).
  */
 function dante_sub_is_configured() {
-    return '' !== DANTE_SUB_PRICE_ID && '' !== DANTE_SUB_PUBLISHABLE_KEY && '' !== dante_sub_stripe_secret();
+    return '' !== DANTE_SUB_PRICE_MONTHLY && '' !== DANTE_SUB_PUBLISHABLE_KEY && '' !== dante_sub_stripe_secret();
 }
 
 /* ===========================================================================
- * Live subscription status (Stripe)
+ * Live subscription status (Stripe) — checks every offered price
  * ======================================================================== */
 
 /**
- * The active subscription object for our price, or null. Cached 5 min in a
- * transient; on a Stripe/network error, falls back to the last known value.
- * Memoised per request so a page never calls Stripe twice.
+ * The active subscription object across any offered plan, or null. Cached 5 min;
+ * on a Stripe/network error, falls back to the last known value. Memoised per
+ * request. Filtering by our specific price ids isolates THIS client's sub from
+ * any other subscriptions in the Stripe account.
  *
  * @return array|null
  */
@@ -74,22 +98,28 @@ function dante_sub_fetch_subscription() {
         return null;
     }
 
-    $resp = wp_remote_get(
-        'https://api.stripe.com/v1/subscriptions?status=active&limit=1&price=' . rawurlencode( DANTE_SUB_PRICE_ID ),
-        array(
-            'timeout' => 15,
-            'headers' => array( 'Authorization' => 'Bearer ' . dante_sub_stripe_secret() ),
-        )
-    );
+    $sub = null;
+    foreach ( dante_sub_plans() as $plan ) {
+        $resp = wp_remote_get(
+            'https://api.stripe.com/v1/subscriptions?status=active&limit=1&price=' . rawurlencode( $plan['id'] ),
+            array(
+                'timeout' => 15,
+                'headers' => array( 'Authorization' => 'Bearer ' . dante_sub_stripe_secret() ),
+            )
+        );
 
-    if ( is_wp_error( $resp ) || wp_remote_retrieve_response_code( $resp ) >= 400 ) {
-        $last = get_option( 'dante_sub_last' );
-        $memo = is_array( $last ) ? $last : null;
-        return $memo; // don't cache a failure
+        if ( is_wp_error( $resp ) || wp_remote_retrieve_response_code( $resp ) >= 400 ) {
+            $last = get_option( 'dante_sub_last' );
+            $memo = is_array( $last ) ? $last : null;
+            return $memo; // don't cache a failure
+        }
+
+        $body = json_decode( wp_remote_retrieve_body( $resp ), true );
+        if ( ! empty( $body['data'][0] ) ) {
+            $sub = $body['data'][0];
+            break;
+        }
     }
-
-    $body = json_decode( wp_remote_retrieve_body( $resp ), true );
-    $sub  = ( ! empty( $body['data'][0] ) ) ? $body['data'][0] : null;
 
     set_transient( 'dante_sub_cache', $sub ? $sub : 'none', 5 * MINUTE_IN_SECONDS );
     update_option( 'dante_sub_last', $sub ? $sub : '', false );
@@ -109,7 +139,7 @@ function dante_subscription_is_subscribed() {
 }
 
 /* ===========================================================================
- * REST: create an embedded Checkout Session
+ * REST: create an embedded Checkout Session for the chosen plan
  * ======================================================================== */
 
 function dante_subscription_rest() {
@@ -127,9 +157,16 @@ function dante_subscription_rest() {
 }
 add_action( 'rest_api_init', 'dante_subscription_rest' );
 
-function dante_subscription_create_session() {
+function dante_subscription_create_session( $request ) {
     $secret = dante_sub_stripe_secret();
-    if ( '' === $secret || '' === DANTE_SUB_PRICE_ID ) {
+    $plans  = dante_sub_plans();
+    $plan   = $request ? $request->get_param( 'plan' ) : 'monthly';
+    if ( ! is_string( $plan ) || ! isset( $plans[ $plan ] ) ) {
+        $plan = 'monthly';
+    }
+    $price_id = $plans[ $plan ]['id'];
+
+    if ( '' === $secret || '' === $price_id ) {
         return new WP_Error( 'not_configured', 'Checkout is not configured yet.', array( 'status' => 400 ) );
     }
 
@@ -146,7 +183,7 @@ function dante_subscription_create_session() {
             'body'    => array(
                 'mode'                    => 'subscription',
                 'ui_mode'                 => 'embedded',
-                'line_items[0][price]'    => DANTE_SUB_PRICE_ID,
+                'line_items[0][price]'    => $price_id,
                 'line_items[0][quantity]' => 1,
                 'return_url'              => $return_url,
             ),
@@ -223,6 +260,11 @@ function dante_subscription_assets( $hook ) {
         dante_ver( 'js/subscription.js' ),
         true
     );
+
+    $links = array();
+    foreach ( dante_sub_plans() as $slug => $plan ) {
+        $links[ $slug ] = $plan['link'];
+    }
     wp_localize_script(
         'dante-subscription',
         'danteSub',
@@ -230,6 +272,7 @@ function dante_subscription_assets( $hook ) {
             'endpoint' => esc_url_raw( rest_url( 'dante/v1/checkout-session' ) ),
             'nonce'    => wp_create_nonce( 'wp_rest' ),
             'pk'       => DANTE_SUB_PUBLISHABLE_KEY,
+            'links'    => $links,
         )
     );
 }
@@ -247,7 +290,7 @@ function dante_subscription_styles() {
         .dante-sub-desc{color:#6b6b5e;margin:2px 0 0;line-height:1.5;font-size:13px}
         .dante-sub-card--active{border-top-color:#1f7a3d}
         .dante-sub-badge{display:inline-block;background:#e6f4ea;color:#1f7a3d;font-weight:700;font-size:13px;padding:4px 12px;border-radius:999px;margin-bottom:16px}
-        /* Stripe-style product summary */
+        /* Stripe-style product summary (subscribed view) */
         .dante-sub-summary{display:flex;align-items:center;gap:16px;margin:4px 0 8px}
         .dante-sub-logo-wrap{flex:0 0 auto;width:56px;height:56px;border-radius:50%;overflow:hidden;background:#f3f2ea;display:flex;align-items:center;justify-content:center}
         .dante-sub-logo-wrap img{width:56px;height:56px;object-fit:cover}
@@ -258,9 +301,19 @@ function dante_subscription_styles() {
         .dante-sub-row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#444}
         .dante-sub-row span:first-child{color:#6b6b5e}
         .dante-sub-row strong{color:#1f4d2e;font-weight:600}
+        /* Plan selector */
+        .dante-plan-toggle{display:flex;gap:10px;max-width:540px;margin:16px 0 12px}
+        .dante-plan{flex:1;display:flex;flex-direction:column;gap:2px;align-items:flex-start;background:#fff;border:1.5px solid #e0e0d6;border-radius:12px;padding:12px 16px;cursor:pointer;text-align:left;font:inherit;transition:border-color .15s,box-shadow .15s}
+        .dante-plan:hover{border-color:#bcbcae}
+        .dante-plan.is-active{border-color:#1f7a3d;box-shadow:inset 0 0 0 1px #1f7a3d}
+        .dante-plan-name{font-size:14px;font-weight:700;color:#1f4d2e}
+        .dante-plan-price{font-size:13px;color:#6b6b5e}
         /* Embedded checkout */
-        #dante-embedded-checkout{max-width:700px;margin:16px 0;min-height:360px}
-        .dante-sub-fallback{font-size:13px;color:#6b6b5e;margin-top:8px;max-width:700px}
+        .dante-checkout-panel{max-width:540px;background:#fff;border:1px solid #e4e4dc;border-radius:14px;box-shadow:0 4px 22px rgba(0,0,0,.07);padding:4px 22px 20px;margin:8px 0 12px}
+        .dante-checkout-head{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#6b6b5e;border-bottom:1px solid #f0efe8;padding:12px 2px;margin-bottom:10px}
+        .dante-checkout-head .dashicons{font-size:16px;width:16px;height:16px;color:#1f7a3d}
+        #dante-embedded-checkout{min-height:360px;transition:opacity .15s}
+        .dante-sub-fallback{font-size:12px;color:#8a8a7d;margin-top:6px;max-width:540px}
         .dante-sub-notice{max-width:700px;background:#fff8e5;border:1px solid #e8d9a0;border-radius:8px;padding:16px 20px;margin:16px 0;color:#6b5a1e}
         .dante-sub-status{max-width:640px;background:#f6f7f4;border:1px solid #e2e2d5;border-radius:8px;padding:14px 18px;margin:8px 0 16px;font-size:14px;color:#444}
         .dante-sub-status b{color:#1f7a3d}
@@ -308,7 +361,7 @@ function dante_subscription_card( $compact = false ) {
         $amount = dante_sub_amount_label( $sub );
         $next   = dante_sub_next_payment( $sub );
 
-        $logo = '';
+        $logo    = '';
         $logo_id = get_theme_mod( 'custom_logo' );
         if ( $logo_id ) {
             $logo = wp_get_attachment_image( $logo_id, array( 56, 56 ) );
@@ -335,7 +388,6 @@ function dante_subscription_card( $compact = false ) {
             if ( $next ) {
                 echo '<div class="dante-sub-row"><span>' . esc_html__( 'Next payment', 'dante-society' ) . '</span><strong>' . esc_html( $next ) . '</strong></div>';
             }
-            echo '<div class="dante-sub-row"><span>' . esc_html__( 'Billed', 'dante-society' ) . '</span><strong>' . esc_html__( 'Monthly', 'dante-society' ) . '</strong></div>';
             echo '</div>';
         }
         echo '</div>'; // card
@@ -370,12 +422,29 @@ function dante_subscription_card( $compact = false ) {
         return;
     }
 
-    /* -------- Unsubscribed (Billing screen): embedded checkout -------- */
+    /* -------- Unsubscribed (Billing screen): plan selector + embedded checkout -------- */
+    $plans = dante_sub_plans();
+    if ( count( $plans ) > 1 ) {
+        echo '<div class="dante-plan-toggle">';
+        $first = true;
+        foreach ( $plans as $slug => $plan ) {
+            echo '<button type="button" class="dante-plan' . ( $first ? ' is-active' : '' ) . '" data-plan="' . esc_attr( $slug ) . '">';
+            echo '<span class="dante-plan-name">' . esc_html( $plan['name'] ) . '</span>';
+            echo '<span class="dante-plan-price">' . esc_html( $plan['price'] ) . '</span>';
+            echo '</button>';
+            $first = false;
+        }
+        echo '</div>';
+    }
+
+    echo '<div class="dante-checkout-panel">';
+    echo '<div class="dante-checkout-head"><span class="dashicons dashicons-lock"></span>' . esc_html__( 'Secure checkout', 'dante-society' ) . '</div>';
     echo '<div id="dante-embedded-checkout"></div>';
+    echo '</div>';
     printf(
-        '<p class="dante-sub-fallback">%s <a href="%s" target="_blank" rel="noopener">%s</a></p>',
+        '<p class="dante-sub-fallback">%s <a id="dante-fallback-link" href="%s" target="_blank" rel="noopener">%s</a></p>',
         esc_html__( 'Checkout not loading?', 'dante-society' ),
-        esc_url( DANTE_SUB_PAYMENT_LINK ),
+        esc_url( DANTE_SUB_PAYMENT_LINK_MONTHLY ),
         esc_html__( 'Open secure checkout in a new tab', 'dante-society' )
     );
 }
@@ -392,7 +461,7 @@ function dante_subscription_page() {
     echo '<div class="wrap">';
     echo '<h1>' . esc_html__( 'Subscription', 'dante-society' ) . '</h1>';
     if ( ! dante_subscription_is_subscribed() && ! isset( $_GET['session_id'] ) && dante_sub_is_configured() ) {
-        echo '<p style="max-width:680px;color:#555;">' . esc_html__( 'Complete the secure checkout below to activate your website subscription.', 'dante-society' ) . '</p>';
+        echo '<p style="max-width:680px;color:#555;">' . esc_html__( 'Choose a plan and complete the secure checkout to activate your website subscription.', 'dante-society' ) . '</p>';
     }
     dante_subscription_card( false );
     echo '</div>';
@@ -442,7 +511,7 @@ function dante_subscription_settings_page() {
     <div class="wrap">
         <h1><?php esc_html_e( 'Subscription Settings', 'dante-society' ); ?></h1>
         <p style="max-width:700px;color:#555;">
-            <?php esc_html_e( 'Status is read live from Stripe — no manual switch. The Billing screen shows checkout until an active subscription exists, then the confirmation.', 'dante-society' ); ?>
+            <?php esc_html_e( 'Status is read live from Stripe — no manual switch. The Billing screen shows the plan selector + checkout until an active subscription exists, then the confirmation.', 'dante-society' ); ?>
         </p>
 
         <div class="dante-sub-status">
@@ -451,9 +520,10 @@ function dante_subscription_settings_page() {
                 echo esc_html__( 'Not configured — missing Price ID, publishable key, or DANTE_STRIPE_SECRET.', 'dante-society' );
             } elseif ( $sub ) {
                 printf(
-                    /* translators: %s: next payment date */
-                    esc_html__( 'Live status: %1$s. Next payment: %2$s.', 'dante-society' ),
+                    /* translators: 1: Active, 2: amount, 3: next payment date */
+                    esc_html__( 'Live status: %1$s (%2$s). Next payment: %3$s.', 'dante-society' ),
                     '<b>' . esc_html__( 'Active', 'dante-society' ) . '</b>',
+                    esc_html( dante_sub_amount_label( $sub ) ),
                     esc_html( dante_sub_next_payment( $sub ) ?: '—' )
                 );
             } else {
