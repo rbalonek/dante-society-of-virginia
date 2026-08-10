@@ -3,9 +3,8 @@
             <div class="footer-col">
                 <h4>Contact</h4>
                 <p>
-                    P.O. Box 131<br>
-                    Forest, VA 24551<br>
-                    <a href="<?php echo esc_url( home_url( '/contact' ) ); ?>">Send us a message</a>
+                    3816 Manton Lane<br>
+                    Lynchburg, VA 24503
                 </p>
             </div>
 
