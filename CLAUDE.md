@@ -33,13 +33,13 @@ Corollaries that caused real confusion during the build:
   `…/Local Sites/dante/app/public/wp-content/themes/dante-society` → this repo's
   `wp-theme/`. So editing `wp-theme/` shows on `dante.local` immediately (no copy).
   `/images` is symlinked too.
-- **Live demo:** now `http://167.234.212.48/` — a **rebuilt** WordPress install on
-  a fresh **Oracle Cloud VM** (test/demo box; the client moves to permanent hosting
-  if they approve). Theme arrives via the deploy pipeline; content was rebuilt by
-  hand after a compromise and is edited directly in its wp-admin. **⚠️ The old box
+- **Live:** **`https://dantesocietyofva.org`** (Let's Encrypt TLS), served by a
+  **rebuilt** WordPress install on an **Oracle Cloud VM** at **`159.54.174.73`** —
+  which also answers directly over http. **It is publicly reachable**, not
+  IP-restricted. Theme arrives via the deploy pipeline; content was rebuilt by hand
+  after a compromise and is edited directly in its wp-admin. **⚠️ The old box
   `146.235.210.188` was hacked (July 2026) and is decommissioned — see "Security
-  incident & server rebuild" below.** Currently firewalled to the admin's IP only
-  (not yet public).
+  incident & server rebuild" below.**
 
 ## Repo layout
 - `wp-theme/` — the theme; this is what deploys.
@@ -291,7 +291,15 @@ the compromise lived only on that server's DB + filesystem.
   tampering — the box used a different RSA key that lived in the GitHub deploy secret.)
 
 ### The new box
-- **`167.234.212.48`** — Oracle **Ubuntu 22.04**, user `ubuntu`.
+- **`159.54.174.73`** — Oracle **Ubuntu 22.04**, user `ubuntu`. OCI instance
+  **`instance-20260719-1312`**, tenancy `rdevbob`, region **us-sanjose-1**, VCN
+  `dante-vcn`, with the reserved **`dante-static-ip`** attached.
+  ⚠️ **This doc previously said `167.234.212.48` — that IP was wrong and cost a day.**
+  It is not attached to any instance or reserved public IP in the tenancy (verified
+  2026-08-10 against the OCI console); probing it gives filtered ports and 100% packet
+  loss, which masquerades convincingly as "firewalled" or "instance stopped."
+  The **stopped** `dante-demo` instance at `146.235.210.188` is the OLD compromised
+  pre-rebuild box — **do not start it**.
 - SSH key: **`~/.ssh/dante-oracle-2026`** (passphraseless; also the intended deploy key).
 - Stack: **Apache + PHP 8.1 + MariaDB 10.11**, WordPress at **`/var/www/html`**.
 - DB `dante` / user `dante` — password in **`/root/.dante-db-pass`** (root-only).
@@ -302,11 +310,14 @@ the compromise lived only on that server's DB + filesystem.
 - **OCI Ubuntu ships iptables allowing only SSH.** Opening a port in the OCI
   Security List is **not enough** — you must also `iptables -I INPUT ... --dport 80
   -j ACCEPT` on the box and `netfilter-persistent save`. (Same for 443 at launch.)
-- **Loopback DNAT:** the box can't reach its own public IP (Security List only
-  allows the admin IP), which made every wp-admin request that does an internal
-  HTTP call hang ~15s. Fixed with nat `OUTPUT` DNAT of `167.234.212.48:80/443 →
-  127.0.0.1` (persisted). Also `DISABLE_WP_CRON=true` + a system cron running
+- **Loopback DNAT:** the box can't reach its own public IP, which made every wp-admin
+  request that does an internal HTTP call hang ~15s. Fixed with a nat `OUTPUT` DNAT to
+  `127.0.0.1` (persisted). Also `DISABLE_WP_CRON=true` + a system cron running
   `wp cron event run` (keeps cron off the loopback).
+  ⚠️ **The live DNAT rules still target the bogus `167.234.212.48`** (verified
+  2026-08-10) — so they match nothing and the loopback protection is effectively OFF.
+  Re-point them at `159.54.174.73` (and/or the domain's address) if the ~15s wp-admin
+  hangs reappear.
 - **AllowOverride:** Apache's default `AllowOverride None` makes WP ignore
   `.htaccess`, which **404s the REST API (`/wp-json/`) and all pretty permalinks**
   (symptom: editor says "Could not retrieve the featured image data"). Fixed via
@@ -340,30 +351,56 @@ a rebuild won't recreate it.**
   as fallback.** When the constant is set, Settings → Dante Assistant shows "Managed on
   the server" (field disabled). Until then it still reads the DB key (currently present).
 
-### HTTPS (Cloudflare Tunnel — interim demo TLS, added 2026-07-23)
-The box has **no TLS cert and 443 isn't public** (firewalled to admin IP), so phones
-that auto-upgrade to `https://167.234.212.48` **hang**. Fixed for demos with a
-**Cloudflare quick tunnel** — instant HTTPS, no domain, no DNS/GoDaddy work.
+### HTTPS — SUPERSEDED (status as of 2026-08-10)
+**The site is now fully public on its real domain with a real certificate.** Verified:
+- **`https://dantesocietyofva.org`** serves 200 — WP `siteurl`/`home` are both set to it.
+- **Let's Encrypt** cert, `CN=dantesocietyofva.org`, expires **2026-11-04**. Confirm
+  certbot's renewal timer is active — nothing else renews it.
+- DNS is at **Register.com** (NOT GoDaddy): `dns175.a.register.com` et al, with a plain
+  **A record → `159.54.174.73`**. Traffic does not pass through Cloudflare at all.
+- OCI Security List ingress now allows **22, 80 and 443 from `0.0.0.0/0`**, so the raw
+  IP is publicly reachable too. The "firewalled to the admin IP" note below is obsolete.
+
+**Two Cloudflare leftovers are still running and are now dead weight:**
+- `dante-tunnel.service` (the quick tunnel) — **active**, still burning a random
+  `trycloudflare.com` URL that nothing uses.
+- `cloudflared` — **active**, serving the healthy **named** tunnel `dante-wordpress`
+  (ID `635ffcb8-…`), which reports origin `159.54.174.73`. It has **no routes
+  configured**, so it publishes nothing.
+- The `dantesocietyofva.org` **Cloudflare zone is pending** — Cloudflare assigned
+  `giancarlo`/`luciane.ns.cloudflare.com`, but Register.com's nameservers were never
+  changed, so the zone will never activate as-is.
+- **Decide and clean up:** either finish the Cloudflare move (NS cutover at
+  Register.com, then routes on the named tunnel, then close 22/80/443) or
+  `systemctl disable --now dante-tunnel.service cloudflared` and delete the pending
+  zone. Leaving both running is just an unmonitored extra ingress path.
+
+<details><summary>Historical: the interim quick-tunnel setup (2026-07-23)</summary>
+
+The box had **no TLS cert and 443 wasn't public** (firewalled to admin IP), so phones
+that auto-upgraded to `https://<the box IP>` **hung**. Fixed for demos with a
+**Cloudflare quick tunnel** — instant HTTPS, no domain, no DNS work.
 - **`cloudflared`** (installed via the amd64 `.deb`) runs as **systemd service
   `dante-tunnel.service`** (`cloudflared tunnel --no-autoupdate --url http://localhost:80`;
   enabled, `Restart=on-failure`, survives reboot). **Lives on the server, NOT in Git**
   — like `dante-hardening.php`, a rebuild won't recreate it.
 - **The public URL is random** (`https://<words>.trycloudflare.com`) and **changes on
   every service restart / reboot** — quick tunnels aren't stable. Get the current one:
-  `ssh -i ~/.ssh/dante-oracle-2026 ubuntu@167.234.212.48 'dante-tunnel-url'`
+  `ssh -i ~/.ssh/dante-oracle-2026 ubuntu@159.54.174.73 'dante-tunnel-url'`
   (helper script `/usr/local/bin/dante-tunnel-url` greps it from the journal).
-- **WordPress gotcha (the actual fix):** stored siteurl/home is `http://167.234.212.48`,
+- **WordPress gotcha (the actual fix):** stored siteurl/home was the raw box IP,
   so WP was **301-redirecting every tunnel visitor back to the raw http IP** (= the phone
   hang) and emitting mixed content. A block in **`wp-config.php`** (backed up to
   `wp-config.php.bak-*`) makes WP protocol/host-aware: trusts `X-Forwarded-Proto: https`
   and defines `WP_HOME`/`WP_SITEURL` dynamically from `$_SERVER['HTTP_HOST']`. It's
-  host-agnostic **on purpose** so it keeps working as the tunnel URL changes; the raw IP
-  still resolves to `http://167.234.212.48` for admin. cloudflared forwards `HTTP_HOST` =
-  the tunnel hostname (verified). **Also server-side, NOT in Git.**
+  host-agnostic **on purpose** so it keeps working as the tunnel URL changes.
+  cloudflared forwards `HTTP_HOST` = the tunnel hostname (verified). **Also
+  server-side, NOT in Git.** This block is why the raw IP still returns 200 today
+  even though `siteurl` is the domain — it derives `WP_HOME`/`WP_SITEURL` from
+  `HTTP_HOST` instead of redirecting.
 - Manage: `sudo systemctl {status,restart,stop} dante-tunnel.service`.
-- **Upgrade path for a *stable* URL:** a **named tunnel** on the GoDaddy domain once it's
-  on Cloudflare (permanent `demo.<domain>` hostname), or the Let's Encrypt route below.
-  Waiting on the client granting domain access before switching over.
+
+</details>
 
 ### Content (rebuilt by hand — zero bytes imported from the compromised DB)
 The DB was never restored. Page text + event data were **extracted from a read-only
@@ -374,10 +411,22 @@ menus, front page = Home. Media was re-imported clean (46 MB, 26 attachments; th
 newsletter subscribers** to preserve.
 
 ### Still outstanding (as of the rebuild)
-- Update GitHub deploy secrets **`SSH_HOST` → 167.234.212.48** and
-  **`SSH_PRIVATE_KEY`** → the new key (they still point at the dead box). Until then,
-  theme changes reach the live box via **manual rsync over SSH** (what was used on
-  2026-07-25 to deploy `inc/subscription.php` + the Assistant key-resolver changes).
+- ✅ **RESOLVED 2026-08-10 — CI deploys work again.** All four secrets are correct:
+  `SSH_HOST` = `159.54.174.73`, `SSH_USER` = `ubuntu`, `SSH_PRIVATE_KEY` =
+  `~/.ssh/dante-oracle-2026`, `REMOTE_THEME_PATH` =
+  `/var/www/html/wp-content/themes/dante-society` (verified on the box, not guessed).
+  Deploys had failed since 2026-07-26 purely because `SSH_HOST` held a **nonexistent
+  IP**; nothing was wrong with the firewall or the instance.
+- **Theme dir ownership matters for deploys.** It was `www-data:www-data`, so rsync as
+  `ubuntu` died with `mkstemp … Permission denied (13)` even after connecting fine. Now
+  **`ubuntu:www-data`**, dirs `755` / files `644` — Apache only needs read, and
+  `DISALLOW_FILE_MODS=true` means WP never writes theme files. Chosen over giving the
+  runner `--rsync-path="sudo rsync"`, which would hand CI root on a box with a
+  compromise history. **If the theme dir is ever recreated as `www-data`, deploys break
+  again with that same error.**
+- **Before changing `REMOTE_THEME_PATH`, dry-run first** — the workflow runs
+  `rsync --delete`, so a wrong path mirror-deletes it:
+  `rsync -avzn --delete -e "ssh -i ~/.ssh/dante-oracle-2026" ./wp-theme/ ubuntu@159.54.174.73:<path>/`
 - **Finish the Anthropic-key migration:** it currently still sits in the DB (readable
   by admins). Rotate it, put the NEW key in `DANTE_ANTHROPIC_KEY` in
   `/var/www/dante-secrets.php`, then clear the DB copy
@@ -417,10 +466,15 @@ client works. Pattern used to edit page content programmatically on Local:
   editor-control changes.
 - **Content vs code / Local vs live** — see the top of this file. This is the
   source of ~every "why didn't my change show up" question.
-- **Live box was rebuilt (July 2026)** after a hack — new IP `167.234.212.48`, new
-  SSH key, OCI-specific firewall/DNAT/AllowOverride config, and a server-side
-  hardening mu-plugin that is **not in Git**. Deploy secrets still point at the dead
-  old box until updated. See "Security incident & server rebuild" above.
+- **Live box was rebuilt (July 2026)** after a hack — box is **`159.54.174.73`**
+  (serving `https://dantesocietyofva.org`), new SSH key, OCI-specific
+  firewall/DNAT/AllowOverride config, and a server-side hardening mu-plugin that is
+  **not in Git**. See "Security incident & server rebuild" above.
+- **Don't trust an IP in these docs over the OCI console.** A wrong `SSH_HOST` value
+  (`167.234.212.48`, attached to nothing) broke deploys for two weeks and read exactly
+  like a firewall block — filtered ports, dead ping, empty `ssh-keyscan`. If the box
+  looks unreachable, **confirm the IP against the OCI instance list first**, before
+  theorizing about Security Lists or a stopped instance.
 - **Meta stored as JSON** (assistant change-log `_ops`, newsletter `_nl_data`)
   must be `wp_slash()`ed before `update_post_meta` (it `wp_unslash`es internally),
   or `\uXXXX` escapes get corrupted (dashes/accents turn into `u2013` etc.).
