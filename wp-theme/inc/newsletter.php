@@ -456,18 +456,13 @@ function dante_newsletter_page() {
         'headline' => '',
         'intro'    => '',
         'event_id' => 0,
+        'custom_html' => '',
         'body'     => '',
         'footer'   => "You're receiving this email because you subscribed to updates from the Dante Society of Virginia.",
     );
 
     if ( isset( $_POST['dante_nl_nonce'] ) && wp_verify_nonce( $_POST['dante_nl_nonce'], 'dante_nl_compose' ) ) {
-        $data['template'] = isset( $_POST['template'] ) && in_array( $_POST['template'], array( 'all_events', 'single_event', 'message' ), true ) ? $_POST['template'] : 'all_events';
-        $data['subject']  = isset( $_POST['subject'] ) ? sanitize_text_field( wp_unslash( $_POST['subject'] ) ) : '';
-        $data['headline'] = isset( $_POST['headline'] ) ? sanitize_text_field( wp_unslash( $_POST['headline'] ) ) : '';
-        $data['intro']    = isset( $_POST['intro'] ) ? sanitize_textarea_field( wp_unslash( $_POST['intro'] ) ) : '';
-        $data['event_id'] = isset( $_POST['event_id'] ) ? absint( $_POST['event_id'] ) : 0;
-        $data['body']     = isset( $_POST['body'] ) ? wp_kses_post( wp_unslash( $_POST['body'] ) ) : '';
-        $data['footer']   = isset( $_POST['footer'] ) ? sanitize_textarea_field( wp_unslash( $_POST['footer'] ) ) : '';
+        $data = dante_nl_data_from_post();
 
         $action = isset( $_POST['dante_nl_action'] ) ? $_POST['dante_nl_action'] : 'preview';
         $inner  = dante_nl_build_inner( $data );
@@ -477,7 +472,7 @@ function dante_newsletter_page() {
             if ( ! is_email( $to ) ) {
                 $to = wp_get_current_user()->user_email;
             }
-            $html = dante_nl_email_shell( $inner, home_url( '/' ), $data['footer'] );
+            $html = dante_nl_compose_html( $data, home_url( '/' ) );
             $ok   = dante_nl_send( $to, $data['subject'] ? $data['subject'] : 'Test', $html );
             $notice = $ok
                 ? '<div class="notice notice-success"><p>Test sent to ' . esc_html( $to ) . '. (On Local, real email may not be delivered without SMTP setup.)</p></div>'
@@ -488,7 +483,7 @@ function dante_newsletter_page() {
             foreach ( $subs as $sub ) {
                 $token = get_post_meta( $sub->ID, '_nl_token', true );
                 $unsub = $token ? home_url( '/?dante_unsub=' . rawurlencode( $token ) ) : home_url( '/' );
-                $html  = dante_nl_email_shell( $inner, $unsub, $data['footer'] );
+                $html  = dante_nl_compose_html( $data, $unsub );
                 if ( dante_nl_send( $sub->post_title, $data['subject'] ? $data['subject'] : 'Newsletter', $html ) ) {
                     $count++;
                 }
@@ -496,7 +491,7 @@ function dante_newsletter_page() {
             $notice = '<div class="notice notice-success"><p>Newsletter sent to ' . (int) $count . ' subscriber(s). (On Local, real email may not be delivered without SMTP setup.)</p></div>';
         }
 
-        $preview = dante_nl_email_shell( dante_nl_build_inner( $data ), home_url( '/' ), $data['footer'] );
+        $preview = dante_nl_compose_html( $data, home_url( '/' ) );
     }
 
     // Events for the picker.
@@ -526,6 +521,7 @@ function dante_newsletter_page() {
                         <option value="all_events" <?php selected( $data['template'], 'all_events' ); ?>>All upcoming events</option>
                         <option value="single_event" <?php selected( $data['template'], 'single_event' ); ?>>A specific event</option>
                         <option value="message" <?php selected( $data['template'], 'message' ); ?>>Just a message</option>
+                        <option value="custom_html" <?php selected( $data['template'], 'custom_html' ); ?>>Paste finished HTML (designed elsewhere)</option>
                     </select>
                 </p>
 
@@ -561,6 +557,20 @@ function dante_newsletter_page() {
                     </p>
                 </div>
 
+                <div class="dante-nl-field" data-for="custom_html">
+                    <p><strong><?php esc_html_e( 'Finished HTML email', 'dante-society' ); ?></strong></p>
+                    <p>
+                        <input type="file" id="dante_nl_file" accept=".html,.htm,text/html" onchange="danteNlLoadFile(this)" />
+                        <span style="color:#666;font-size:12px;display:block;margin-top:4px;">
+                            <?php esc_html_e( 'Choose an .html file to load it below, or paste the code in directly. Sent exactly as written — the Dante header, footer and Unsubscribe button are NOT added. Images must already point at hosted https:// URLs.', 'dante-society' ); ?>
+                        </span>
+                    </p>
+                    <textarea name="custom_html" id="custom_html" rows="14" spellcheck="false" style="width:100%;font-family:Menlo,Consolas,monospace;font-size:12px;"><?php echo esc_textarea( $data['custom_html'] ); ?></textarea>
+                    <p style="color:#666;font-size:12px;">
+                        <?php esc_html_e( 'Optional: include {{unsubscribe_url}} anywhere in the HTML and each recipient gets their own one-click unsubscribe link.', 'dante-society' ); ?>
+                    </p>
+                </div>
+
                 <div class="dante-nl-field" data-for="message">
                     <p><strong><?php esc_html_e( 'Message', 'dante-society' ); ?></strong></p>
                     <?php
@@ -588,6 +598,7 @@ function dante_newsletter_page() {
                 <p style="margin-top:16px;">
                     <button type="submit" name="dante_nl_action" value="preview" class="button"><?php esc_html_e( 'Update preview', 'dante-society' ); ?></button>
                     <button type="submit" name="dante_nl_action" value="send_test" class="button"><?php esc_html_e( 'Send test', 'dante-society' ); ?></button>
+                    <button type="submit" class="button" formaction="<?php echo esc_url( admin_url( 'admin-post.php?action=dante_nl_download' ) ); ?>"><?php esc_html_e( 'Download HTML', 'dante-society' ); ?></button>
                     <button type="submit" name="dante_nl_action" value="send_all" class="button button-primary"
                         onclick="return confirm('Send this newsletter to all <?php echo (int) $sub_count; ?> subscribers?');">
                         <?php esc_html_e( 'Send to all subscribers', 'dante-society' ); ?></button>
@@ -613,6 +624,15 @@ function dante_newsletter_page() {
             el.style.display = forList.indexOf( t ) !== -1 ? '' : 'none';
         } );
     }
+    function danteNlLoadFile( input ) {
+        var file = input.files && input.files[0];
+        if ( ! file ) { return; }
+        var reader = new FileReader();
+        reader.onload = function ( e ) {
+            document.getElementById( 'custom_html' ).value = e.target.result;
+        };
+        reader.readAsText( file );
+    }
     document.addEventListener( 'DOMContentLoaded', danteNlToggle );
     </script>
     <?php
@@ -630,3 +650,87 @@ function dante_nl_send( $to, $subject, $html ) {
     );
     return wp_mail( $to, $subject, $html, $headers );
 }
+
+/* ===========================================================================
+ * Shared data reader, composer wrapper, and "Download HTML"
+ * ======================================================================== */
+
+/**
+ * Read a composer submission out of $_POST. Used by both the admin page and
+ * the download handler so the file you download is byte-identical to the send.
+ *
+ * @return array
+ */
+function dante_nl_data_from_post() {
+    $templates = array( 'all_events', 'single_event', 'message', 'custom_html' );
+
+    $data = array(
+        'template'    => isset( $_POST['template'] ) && in_array( $_POST['template'], $templates, true ) ? $_POST['template'] : 'all_events',
+        'subject'     => isset( $_POST['subject'] ) ? sanitize_text_field( wp_unslash( $_POST['subject'] ) ) : '',
+        'headline'    => isset( $_POST['headline'] ) ? sanitize_text_field( wp_unslash( $_POST['headline'] ) ) : '',
+        'intro'       => isset( $_POST['intro'] ) ? sanitize_textarea_field( wp_unslash( $_POST['intro'] ) ) : '',
+        'event_id'    => isset( $_POST['event_id'] ) ? absint( $_POST['event_id'] ) : 0,
+        'body'        => isset( $_POST['body'] ) ? wp_kses_post( wp_unslash( $_POST['body'] ) ) : '',
+        'footer'      => isset( $_POST['footer'] ) ? sanitize_textarea_field( wp_unslash( $_POST['footer'] ) ) : '',
+        'custom_html' => '',
+    );
+
+    // A pasted email is a whole document (<html>, <head>, <style>, conditional
+    // comments), so kses would gut it. Admin-only field, stored verbatim.
+    if ( isset( $_POST['custom_html'] ) && current_user_can( 'manage_options' ) ) {
+        $data['custom_html'] = wp_unslash( $_POST['custom_html'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+    }
+
+    return $data;
+}
+
+/**
+ * Final HTML for a composer submission: the branded shell for the built-in
+ * templates, or the pasted document untouched for 'custom_html'.
+ *
+ * @param array  $data      Composer data.
+ * @param string $unsub_url Recipient's unsubscribe URL.
+ * @return string
+ */
+function dante_nl_compose_html( $data, $unsub_url = '#' ) {
+    if ( 'custom_html' === $data['template'] ) {
+        return str_replace(
+            array( '{{unsubscribe_url}}', '{{UNSUBSCRIBE_URL}}' ),
+            esc_url( $unsub_url ),
+            (string) $data['custom_html']
+        );
+    }
+    return dante_nl_email_shell( dante_nl_build_inner( $data ), $unsub_url, $data['footer'] );
+}
+
+/**
+ * Download the composed email as a .html file — for uploading to Mailchimp,
+ * Constant Contact, Brevo, or for keeping a copy of what was sent.
+ */
+function dante_nl_handle_download() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( esc_html__( 'You are not allowed to do that.', 'dante-society' ), 403 );
+    }
+    check_admin_referer( 'dante_nl_compose', 'dante_nl_nonce' );
+
+    $data = dante_nl_data_from_post();
+    $html = dante_nl_compose_html( $data, home_url( '/' ) );
+
+    if ( '' === trim( $html ) ) {
+        wp_die( esc_html__( 'There is nothing to download yet — fill in the composer first.', 'dante-society' ) );
+    }
+
+    $slug = sanitize_title( $data['subject'] ? $data['subject'] : 'dante-newsletter' );
+    if ( ! $slug ) {
+        $slug = 'dante-newsletter';
+    }
+    $filename = $slug . '-' . gmdate( 'Y-m-d' ) . '.html';
+
+    nocache_headers();
+    header( 'Content-Type: text/html; charset=utf-8' );
+    header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+    header( 'Content-Length: ' . strlen( $html ) );
+    echo $html; // phpcs:ignore WordPress.Security.EscapeOutput
+    exit;
+}
+add_action( 'admin_post_dante_nl_download', 'dante_nl_handle_download' );
