@@ -559,6 +559,21 @@ function dante_newsletter_page() {
 
                 <div class="dante-nl-field" data-for="custom_html">
                     <p><strong><?php esc_html_e( 'Finished HTML email', 'dante-society' ); ?></strong></p>
+                    <?php $saved_tpls = dante_nl_saved_templates(); ?>
+                    <?php if ( $saved_tpls ) : ?>
+                    <p>
+                        <label for="dante_nl_saved"><strong><?php esc_html_e( 'Start from a saved template', 'dante-society' ); ?></strong></label><br>
+                        <select id="dante_nl_saved" style="width:100%;" onchange="danteNlLoadSaved(this)">
+                            <option value=""><?php esc_html_e( '— Choose a template —', 'dante-society' ); ?></option>
+                            <?php foreach ( $saved_tpls as $tpl_slug => $tpl_label ) : ?>
+                                <option value="<?php echo esc_attr( $tpl_slug ); ?>"><?php echo esc_html( $tpl_label ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span style="color:#666;font-size:12px;display:block;margin-top:4px;">
+                            <?php esc_html_e( 'Designed emails that ship with the theme. Choosing one loads it into the box below, where you can still edit it before sending.', 'dante-society' ); ?>
+                        </span>
+                    </p>
+                    <?php endif; ?>
                     <p>
                         <input type="file" id="dante_nl_file" accept=".html,.htm,text/html" onchange="danteNlLoadFile(this)" />
                         <span style="color:#666;font-size:12px;display:block;margin-top:4px;">
@@ -623,6 +638,30 @@ function dante_newsletter_page() {
             var forList = ( el.getAttribute( 'data-for' ) || '' ).split( ' ' );
             el.style.display = forList.indexOf( t ) !== -1 ? '' : 'none';
         } );
+    }
+    var danteNlTplNonce = '<?php echo esc_js( wp_create_nonce( 'dante_nl_tpl' ) ); ?>';
+    function danteNlLoadSaved( sel ) {
+        var slug = sel.value;
+        if ( ! slug ) { return; }
+        var ta = document.getElementById( 'custom_html' );
+        if ( ta.value.trim() && ! window.confirm( 'Replace the HTML below with this template?' ) ) {
+            sel.value = '';
+            return;
+        }
+        var body = new FormData();
+        body.append( 'action', 'dante_nl_load_template' );
+        body.append( 'nonce', danteNlTplNonce );
+        body.append( 'slug', slug );
+        fetch( ajaxurl, { method: 'POST', credentials: 'same-origin', body: body } )
+            .then( function ( r ) { return r.json(); } )
+            .then( function ( res ) {
+                if ( res && res.success ) {
+                    ta.value = res.data.html;
+                } else {
+                    window.alert( 'Could not load that template.' );
+                }
+            } )
+            .catch( function () { window.alert( 'Could not load that template.' ); } );
     }
     function danteNlLoadFile( input ) {
         var file = input.files && input.files[0];
@@ -734,3 +773,101 @@ function dante_nl_handle_download() {
     exit;
 }
 add_action( 'admin_post_dante_nl_download', 'dante_nl_handle_download' );
+
+/* ==========================================================================
+ * Saved newsletter templates
+ *
+ * Finished HTML emails live as .html files in wp-theme/newsletter-templates/.
+ * Because they are theme files they travel through Git and the normal theme
+ * deploy, so adding a new design is "commit a file", not "log in and paste".
+ * ======================================================================== */
+
+/**
+ * Directory holding the saved HTML email templates.
+ *
+ * @return string Absolute path, no trailing slash.
+ */
+function dante_nl_template_dir() {
+    return trailingslashit( get_stylesheet_directory() ) . 'newsletter-templates';
+}
+
+/**
+ * Every saved template, as slug => human label.
+ *
+ * The label is the "Template Name:" HTML comment when present, otherwise the
+ * document <title>, otherwise the filename. Keeping the comment optional means
+ * a design dropped straight in from a designer still shows up sensibly.
+ *
+ * @return array
+ */
+function dante_nl_saved_templates() {
+    $out   = array();
+    $files = glob( dante_nl_template_dir() . '/*.html' );
+
+    if ( empty( $files ) ) {
+        return $out;
+    }
+
+    foreach ( $files as $file ) {
+        $slug = basename( $file, '.html' );
+        $head = (string) file_get_contents( $file, false, null, 0, 2048 );
+
+        if ( preg_match( '/Template Name:\s*(.+?)\s*(?:-->|[\r\n])/i', $head, $m ) ) {
+            $label = $m[1];
+        } elseif ( preg_match( '#<title>(.*?)</title>#is', $head, $m ) ) {
+            $label = wp_strip_all_tags( html_entity_decode( $m[1], ENT_QUOTES, 'UTF-8' ) );
+        } else {
+            $label = ucwords( str_replace( array( '-', '_' ), ' ', $slug ) );
+        }
+
+        $out[ $slug ] = trim( $label );
+    }
+
+    asort( $out );
+
+    return $out;
+}
+
+/**
+ * Read one saved template. Returns '' unless the slug resolves to a real .html
+ * file inside the templates directory — basename() plus the is_file() check
+ * keep a crafted slug from reaching the rest of the filesystem.
+ *
+ * @param string $slug Template slug (filename without .html).
+ * @return string
+ */
+function dante_nl_read_template( $slug ) {
+    $slug = basename( sanitize_file_name( (string) $slug ) );
+
+    if ( '' === $slug ) {
+        return '';
+    }
+
+    $path = dante_nl_template_dir() . '/' . $slug . '.html';
+
+    if ( ! is_file( $path ) ) {
+        return '';
+    }
+
+    return (string) file_get_contents( $path );
+}
+
+/**
+ * AJAX: hand a saved template's HTML back to the composer textarea.
+ */
+function dante_nl_ajax_load_template() {
+    check_ajax_referer( 'dante_nl_tpl', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'forbidden', 403 );
+    }
+
+    $html = dante_nl_read_template( isset( $_POST['slug'] ) ? wp_unslash( $_POST['slug'] ) : '' );
+
+    if ( '' === $html ) {
+        wp_send_json_error( 'not_found', 404 );
+    }
+
+    wp_send_json_success( array( 'html' => $html ) );
+}
+add_action( 'wp_ajax_dante_nl_load_template', 'dante_nl_ajax_load_template' );

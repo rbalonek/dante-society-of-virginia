@@ -17,6 +17,29 @@ host on every push to `main`, using [`.github/workflows/deploy-theme.yml`](.gith
   deletions (`--delete`).
 - Skips gracefully (no failure) if the secrets below aren't set yet.
 
+## Current production values
+
+The host is settled — a self-managed Oracle Cloud VM (launched 2026-08-11):
+
+| Secret | Current value |
+|--------|---------------|
+| `SSH_HOST` | `159.54.174.73` |
+| `SSH_USER` | `ubuntu` |
+| `SSH_PRIVATE_KEY` | contents of `~/.ssh/dante-oracle-2026` |
+| `REMOTE_THEME_PATH` | `/var/www/html/wp-content/themes/dante-society` |
+
+> **⚠️ These are not what the repo secrets currently hold.** `SSH_HOST` still points
+> at `167.234.212.48`, a decommissioned box, so **the Action fails and pushes do not
+> reach the live site** (ClickUp 868kgagf5). Fix the secrets, or deploy by hand:
+>
+> ```bash
+> rsync -avz --delete -e "ssh -i ~/.ssh/dante-oracle-2026" \
+>   wp-theme/ ubuntu@159.54.174.73:/var/www/html/wp-content/themes/dante-society/
+> ```
+>
+> If rsync hits permission errors, `ubuntu` doesn't own the theme dir — sync to `~`
+> and `sudo rsync` into place.
+
 ## One-time setup (once you pick the permanent host)
 
 ### 1. Create an SSH deploy key
@@ -65,3 +88,9 @@ GitHub repo → **Settings → Secrets and variables → Actions → New reposit
   repo-managed, add a second rsync step targeting the host's web root `/images/`.
 - This pipeline does not deploy `wp-config.php`, the database, or uploads — those
   are environment-specific and are gitignored.
+- **Newsletter templates ride along.** `wp-theme/newsletter-templates/*.html` are
+  theme files, so a new designed email reaches the live composer's dropdown through
+  this same deploy — commit the file, deploy, done. Nothing to paste in wp-admin.
+- **Plugins are not deployed** and can't be installed from the dashboard
+  (`DISALLOW_FILE_MODS`). See "Installing a plugin on live" in
+  [CLAUDE.md](CLAUDE.md).

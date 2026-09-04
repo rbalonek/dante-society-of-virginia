@@ -33,13 +33,16 @@ Corollaries that caused real confusion during the build:
   `…/Local Sites/dante/app/public/wp-content/themes/dante-society` → this repo's
   `wp-theme/`. So editing `wp-theme/` shows on `dante.local` immediately (no copy).
   `/images` is symlinked too.
-- **Live demo:** now `http://167.234.212.48/` — a **rebuilt** WordPress install on
-  a fresh **Oracle Cloud VM** (test/demo box; the client moves to permanent hosting
-  if they approve). Theme arrives via the deploy pipeline; content was rebuilt by
-  hand after a compromise and is edited directly in its wp-admin. **⚠️ The old box
-  `146.235.210.188` was hacked (July 2026) and is decommissioned — see "Security
-  incident & server rebuild" below.** Currently firewalled to the admin's IP only
-  (not yet public).
+- **Live production:** **https://dantesocietyofva.org** (and `www.`) — **launched
+  2026-08-11**, public, HTTPS via Let's Encrypt. Self-managed WordPress on an
+  **Oracle Cloud Always-Free VM**, instance `instance-20260719-1312`, reserved IP
+  **`159.54.174.73`**, Ubuntu **22.04.5**, Apache 2.4 + MariaDB + PHP 8.3, web root
+  `/var/www/html`. SSH: `ssh -i ~/.ssh/dante-oracle-2026 ubuntu@159.54.174.73`
+  (key-only). **⚠️ Two earlier IPs are dead and appear all over older notes:
+  `146.235.210.188` (hacked July 2026) and `167.234.212.48` (the interim demo box).
+  Neither answers — if a command hangs or is refused, check which IP you used.**
+  Content is edited directly in its wp-admin; DNS is register.com via the Weebly
+  dashboard (never touch the nameservers — see the client-config `infrastructure.md`).
 
 ## Repo layout
 - `wp-theme/` — the theme; this is what deploys.
@@ -206,17 +209,41 @@ Custom, sends via `wp_mail`. Admin menu **Newsletter** → Compose + Subscribers
 - **Subscribers:** `dante_subscriber` CPT (email stored as the post title, plus
   `_nl_name`, `_nl_status`, `_nl_token`). Add/manage in Newsletter → Subscribers.
   Front-end signup via the `[dante_subscribe]` shortcode.
-- **Composer:** three templates — **all upcoming events**, **a single event**, and
-  **a free message** (rich editor). Editable subject/headline/intro + footer, live
-  preview, "send test to <address>", and "send to all subscribers".
+- **Composer:** four types — **all upcoming events**, **a single event**, **a free
+  message** (rich editor), and **finished HTML** (`custom_html`). Editable
+  subject/headline/intro + footer, live preview, "send test to <address>",
+  "send to all subscribers", and "download the composed HTML".
+- **Saved newsletter templates** (`wp-theme/newsletter-templates/*.html`) — the
+  designed-elsewhere route. Drop a complete HTML email in that folder, commit, and
+  it appears in the composer's **"Start from a saved template"** dropdown (visible
+  once *Newsletter type* is set to "Paste finished HTML"). Choosing one loads it
+  into the textarea, still editable before sending. Because they're theme files
+  they travel through Git and the normal theme deploy — **adding a design is
+  "commit a file", not "log in and paste"**.
+  - **Label** = the `<!-- Template Name: … -->` comment if present, else `<title>`,
+    else the filename. Keep the comment in the first 2KB of the file — that's all
+    the reader scans.
+  - **Loaded over AJAX** (`dante_nl_load_template`, nonce `dante_nl_tpl`,
+    `manage_options` only). Slug is `basename( sanitize_file_name() )` + an
+    `is_file()` check, so a crafted slug can't escape the templates dir.
+  - `custom_html` is sent **exactly as written** — the Dante header/footer and the
+    Unsubscribe button are NOT wrapped around it. Put `{{unsubscribe_url}}`
+    somewhere in the HTML and each recipient gets their own one-click link.
+    Images must already be hosted `https://` URLs (upload to the Media Library
+    first and paste those URLs in).
+  - First one in the folder: `magic-flute-invitation.html` (Oct 2026 Opera on the
+    James reception).
 - **Compliance:** every email includes the mailing address + a working
   **unsubscribe** link/button (token → `/?dante_unsub=…`, handled in
   `dante_handle_unsubscribe`).
 - **Delivery:** `wp_mail` alone has poor inbox placement, and Local doesn't send
-  real email. Install **WP Mail SMTP** and use the **"Other SMTP"** mailer (NOT the
-  OAuth "Google" mailer, which needs a Client ID/secret/URI). For ~10 recipients/
-  month a **Gmail App Password** is fine; Brevo (one API key) is the tidier
-  handoff. Settings live in the DB and are changeable per environment.
+  real email. **Live now uses FluentSMTP** (installed 2026-09-03 — see "Installing
+  a plugin" below, since `DISALLOW_FILE_MODS` blocks the dashboard installer).
+  WP Mail SMTP with the **"Other SMTP"** mailer is the equivalent alternative (NOT
+  the OAuth "Google" mailer, which needs a Client ID/secret/URI). For ~10
+  recipients/month a **Gmail App Password** is fine; Brevo (one API key) is the
+  tidier handoff. Settings live in the DB, so **Local and live are configured
+  separately**.
 
 ## Membership checkout demo (added later)
 - `template-membership.php` (Template: "Membership Page", renders the page's own
@@ -265,10 +292,74 @@ hardcoded** — "a better solution comes after launch."
   stored credential 403s. One-off:
   `GITHUB_TOKEN= git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin main`.
   Permanent fix: `gh auth setup-git`.
+- **⚠️ The Action is currently failing — the deploy secrets still point at the dead
+  `167.234.212.48` box.** Until `SSH_HOST` (→ `159.54.174.73`) and
+  `SSH_PRIVATE_KEY` (→ `~/.ssh/dante-oracle-2026`) are updated in
+  Settings → Secrets and variables → Actions, **a push does not reach the live
+  site**. Manual deploy in the meantime:
+  ```bash
+  rsync -avz --delete -e "ssh -i ~/.ssh/dante-oracle-2026" \
+    wp-theme/ ubuntu@159.54.174.73:/var/www/html/wp-content/themes/dante-society/
+  ```
+  (`REMOTE_THEME_PATH` = `/var/www/html/wp-content/themes/dante-society`,
+  `SSH_USER` = `ubuntu`.) Note `ubuntu` may not own the theme dir — if rsync gets
+  permission errors, sync to `~` and `sudo rsync` into place, or `sudo chown -R`
+  the theme dir once.
 - **All-in-One WP Migration caveat:** AIO carries the whole DB **and** theme files,
   but it can't follow Local's **symlinked** theme cleanly — importing a `.wpress`
   on live can overwrite the good git-deployed theme with a stale copy. After any
   AIO content migration, **re-run the deploy** to restore the correct theme.
+
+## Installing a plugin on live (with `DISALLOW_FILE_MODS` on)
+
+`wp-config.php` sets `DISALLOW_FILE_MODS = true`, so **Plugins → Add New is gone**
+from the dashboard. That's deliberate: board members are WordPress *administrators*,
+and without the flag an admin can upload a plugin containing one line of PHP and read
+`/var/www/dante-secrets.php` (the Anthropic key). Uploading a fake plugin is exactly
+how the July 2026 attacker landed their webshells. **Keep the flag on.**
+
+The line is guarded, which matters if you go looking for it:
+
+```php
+if ( ! defined( 'DISALLOW_FILE_MODS' ) ) {
+        define( 'DISALLOW_FILE_MODS', true );
+}
+```
+
+**Preferred — install over SSH, flag untouched:**
+```bash
+ssh dante 'set -e
+cd /tmp
+curl -sLO https://downloads.wordpress.org/plugin/<slug>.zip
+sudo unzip -oq <slug>.zip -d /var/www/html/wp-content/plugins/
+sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/<slug>
+rm <slug>.zip'
+ssh dante 'sudo -u www-data wp plugin activate <slug> --path=/var/www/html'
+```
+`<slug>` is the plugin's wordpress.org URL slug. **Activation is not blocked** by
+the flag — only install/update and the code editors are, so the dashboard's
+Activate link works too.
+
+**Fallback — temporarily lift the flag** (used 2026-09-03 for FluentSMTP): back up
+`wp-config.php` **outside the web root**, comment out *only* the `define(` line
+(an empty `if` block is valid PHP), install from the dashboard, then uncomment it
+**in the same sitting**. Verify with the function WordPress itself calls, not by
+reading the constant — the value passes through a `file_mod_allowed` filter that a
+constant check would miss:
+```bash
+sudo -u www-data wp eval 'var_dump( wp_is_file_mod_allowed("install_plugin") );' --path=/var/www/html
+```
+`bool(true)` = installs allowed (the open state), `bool(false)` = locked.
+
+An `ssh dante` shortcut is worth having in `~/.ssh/config` so nobody has to remember
+which of the three historical IPs is current:
+```
+Host dante
+    HostName 159.54.174.73
+    User ubuntu
+    IdentityFile ~/.ssh/dante-oracle-2026
+    IdentitiesOnly yes
+```
 
 ## Security incident & server rebuild (July 2026)
 
@@ -373,11 +464,12 @@ menus, front page = Home. Media was re-imported clean (46 MB, 26 attachments; th
 `.pages` source file was skipped — the PDF is the usable one). There were **no real
 newsletter subscribers** to preserve.
 
-### Still outstanding (as of the rebuild)
-- Update GitHub deploy secrets **`SSH_HOST` → 167.234.212.48** and
-  **`SSH_PRIVATE_KEY`** → the new key (they still point at the dead box). Until then,
-  theme changes reach the live box via **manual rsync over SSH** (what was used on
-  2026-07-25 to deploy `inc/subscription.php` + the Assistant key-resolver changes).
+### Still outstanding (updated 2026-09-03)
+- **Update GitHub deploy secrets** — `SSH_HOST` → **`159.54.174.73`**,
+  `SSH_PRIVATE_KEY` → `~/.ssh/dante-oracle-2026`, `REMOTE_THEME_PATH` →
+  `/var/www/html/wp-content/themes/dante-society`, `SSH_USER` → `ubuntu`. They still
+  point at a dead box, so **the deploy Action fails and pushes do not reach live**
+  (ClickUp 868kgagf5). Manual rsync in the meantime — see "Deploy & Git".
 - **Finish the Anthropic-key migration:** it currently still sits in the DB (readable
   by admins). Rotate it, put the NEW key in `DANTE_ANTHROPIC_KEY` in
   `/var/www/dante-secrets.php`, then clear the DB copy
@@ -386,10 +478,19 @@ newsletter subscribers** to preserve.
   (single-client). Just set a **statement descriptor** (e.g. `DANTE SITE HOSTING`) so the
   card statement reads as yours, not "WordPress." Post-launch, replace the hardcoded/
   manual-toggle approach with a real per-client + live-status solution.
-- HTTPS: **interim TLS is live via a Cloudflare quick tunnel** (see "HTTPS" above) so
-  demos work on phones today, but the URL is random and unstable. Still to do for a
-  **truly public, stable** site: a named tunnel on the domain **or** Let's Encrypt +
-  open **80/443 to the world** in the Security List + point DNS.
+- ~~HTTPS via Cloudflare quick tunnel~~ — **DONE and superseded.** The site launched
+  2026-08-11 on **https://dantesocietyofva.org** with a real Let's Encrypt cert
+  (certbot `--apache`, auto-renew installed, expires 2026-11-04) and 80/443 open to
+  the world. The "HTTPS (Cloudflare Tunnel)" section below is **historical only** —
+  it describes the retired `167.234.212.48` demo box.
+- **Server maintenance is overdue** (noticed 2026-09-03 at login): `*** System
+  restart required ***` has been pending ~27 days for a kernel update, plus 29
+  package updates, 3 of them security. Also note the OS is **Ubuntu 22.04.5**, not
+  the 24.04 that the client-config `infrastructure.md` claims — a `do-release-upgrade`
+  is a real unperformed migration, not a doc typo.
+- **Rotate the DB password + salts** if `wp-config.php.bak-*` was ever publicly
+  fetchable (see the Gotchas entry) — `wp config shuffle-salts` handles the salts and
+  just logs everyone out.
 - Terminate the old compromised instance (keep the forensic boot-volume clone a
   while as evidence).
 
@@ -408,6 +509,19 @@ client works. Pattern used to edit page content programmatically on Local:
 ---
 
 ## Gotchas (quick list)
+- **Three historical IPs.** Live is **`159.54.174.73`** (dantesocietyofva.org).
+  `146.235.210.188` (hacked) and `167.234.212.48` (interim demo) are **dead** but
+  still litter older notes — a refused/hanging SSH is usually the wrong IP, not a
+  down server.
+- **Never back up `wp-config.php` inside the web root.** A `wp-config.php.bak-*`
+  has a non-PHP extension, so Apache serves it as **plain text** — DB password and
+  auth salts to anyone who guesses the name. Two such files sat in `/var/www/html`
+  from July to Sept 2026. Back up to `/root/wp-config-backups/` (`chmod 600`).
+- **Plugin installs need SSH** — `DISALLOW_FILE_MODS` removes Plugins → Add New.
+  See "Installing a plugin on live" above. Activation still works from the dashboard.
+- **Newsletter templates are theme files** — drop an `.html` in
+  `wp-theme/newsletter-templates/`, commit, deploy, and it shows in the composer
+  dropdown. No DB involved, so it works the same on Local and live.
 - **No JS build step.** Editor/block/calendar scripts use global `wp.*`.
 - **Slug-collision rule:** a `page-{slug}.php` file auto-renders that page
   regardless of the Template dropdown. Name custom templates `template-*.php`. See

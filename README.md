@@ -3,7 +3,8 @@
 A custom WordPress theme (plus seed content) for the Dante Alighieri Society of
 Virginia, a non-profit promoting Italian culture in the Commonwealth of Virginia.
 
-- **Live demo:** http://146.235.210.188/
+- **Live site:** **https://dantesocietyofva.org** (launched 2026-08-11; self-managed
+  WordPress on an Oracle Cloud VM — see [CLAUDE.md](CLAUDE.md) for server details)
 - **Local dev:** `http://dante.local` (runs in [Local](https://localwp.com))
 - **Design:** deep green / gold / cream, Playfair Display headings + Lato body,
   with the Domenico di Michelino *Dante and the Divine Comedy* painting behind the
@@ -27,9 +28,10 @@ wp-theme/            The WordPress theme — THIS is what deploys
   js/                calendar.js, events-block.js, editor.js, checkout.js, navigation.js,
                      lib/fullcalendar.min.js (bundled)
   images/            Bundled background images (deploy with the theme)
+  newsletter-templates/  Finished HTML emails, offered in the composer's dropdown
   inc/
     events.php       "Event" post type + the dante/events block + FullCalendar + popup
-    newsletter.php   Subscribers + a newsletter composer that sends via wp_mail
+    newsletter.php   Subscribers + a newsletter composer (sends via wp_mail/SMTP)
     photos.php       "Photo" post type + Bulk Add + the dante/photos collage block
     hero-block.php   The dante/hero full-screen splash block
     seed-events.php  One-time starter-events seeder (safe to delete after it runs)
@@ -61,8 +63,13 @@ docs/ASSISTANT.md    Guide to the Dante Assistant (board + developer)
   a "Next Event" jump button, and clickable events that open a poster-friendly
   detail card.
 - **Newsletter tool** — manage subscribers and compose/send newsletters (all
-  upcoming events / a single event / a free message) with a live preview, test
-  send, scheduling, and a compliant unsubscribe footer. Sends via WP Mail SMTP.
+  upcoming events / a single event / a free message / **a finished HTML design**)
+  with a live preview, test send, scheduling, and a compliant unsubscribe footer.
+  Delivered over SMTP (FluentSMTP on live).
+- **Saved newsletter templates** — designed HTML emails live in
+  `wp-theme/newsletter-templates/`. Commit one and it appears in the composer's
+  **"Start from a saved template"** dropdown, ready to load, tweak and send — no
+  downloading and re-uploading a file each time.
 - **Photos** — a Photos post type with **Bulk Add** (multi-select from the media
   library) and a **Photo Collage** block; a dark **Photos Page** gallery template.
 - **Full-screen home** — a "Home Page" template + a configurable **Full Screen
@@ -88,7 +95,9 @@ docs/ASSISTANT.md    Guide to the Dante Assistant (board + developer)
 - **Pages & text:** Pages → open a page → edit like a document → Update. For bigger
   changes, use the editor's **Code Editor** (⋮ menu) to paste block markup.
 - **Events:** Events → Add Event. They appear on the site automatically.
-- **Newsletter:** Newsletter → Compose (and Subscribers to manage the list).
+- **Newsletter:** Newsletter → Compose (and Subscribers to manage the list). For a
+  designed email, set *Newsletter type* to **"Paste finished HTML"** and pick one
+  from **Start from a saved template**.
 - **Logo / hero / background / colors:** Appearance → Customize. The homepage
   **Opening Message** box lives under **Customize → Hero Section** (it stays hidden
   until you add text).
