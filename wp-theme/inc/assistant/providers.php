@@ -100,17 +100,43 @@ class Dante_AI_Anthropic implements Dante_AI_Provider {
 
     private $key;
     private $model;
+    private $max_tokens;
+    private $cache_system;
 
-    public function __construct( $key, $model ) {
-        $this->key   = $key;
-        $this->model = $model;
+    /**
+     * @param string $key          API key.
+     * @param string $model        Model id.
+     * @param int    $max_tokens   Output allowance. The chat default is small; the
+     *                             newsletter editor needs more, because one edit
+     *                             carries two verbatim snippets of the document.
+     * @param bool   $cache_system Cache the system prompt. Worth it when the system
+     *                             prompt is large and stable across the tool
+     *                             round-trips of a single turn (the newsletter
+     *                             editor puts the whole email document in it).
+     */
+    public function __construct( $key, $model, $max_tokens = 1024, $cache_system = false ) {
+        $this->key          = $key;
+        $this->model        = $model;
+        $this->max_tokens   = (int) $max_tokens;
+        $this->cache_system = (bool) $cache_system;
     }
 
     public function chat( $system, array $messages, array $tools ) {
+        // A cached system prompt has to be sent as content blocks, not a string.
+        $system_param = $this->cache_system
+            ? array(
+                array(
+                    'type'          => 'text',
+                    'text'          => $system,
+                    'cache_control' => array( 'type' => 'ephemeral' ),
+                ),
+            )
+            : $system;
+
         $body = array(
             'model'      => $this->model,
-            'max_tokens' => 1024,
-            'system'     => $system,
+            'max_tokens' => $this->max_tokens,
+            'system'     => $system_param,
             'messages'   => $messages,   // already in Anthropic content-block shape
             'tools'      => $tools,
         );

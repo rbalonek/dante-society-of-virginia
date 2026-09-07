@@ -1,0 +1,480 @@
+/**
+ * Newsletter Studio — the guided composer screen.
+ *
+ * Sized up deliberately: 16px base (WordPress admin defaults to 13px), tall
+ * targets, high-contrast labels, and one visible step at a time. The board
+ * members using this screen are volunteers, some of them older, and the whole
+ * point of the redesign is that it should feel like writing an email.
+ */
+
+/* The script hides and shows things with el.hidden. Several of those elements
+ * also carry an author display rule (grid, flex, block), which outranks the
+ * browser's own [hidden] { display: none } -- so state this explicitly. */
+.dante-studio [hidden] {
+	display: none !important;
+}
+
+.dante-studio {
+	--dst-green: #1b4332;
+	--dst-gold: #c8963e;
+	--dst-cream: #faf3e0;
+	--dst-ink: #2d2d2d;
+	--dst-line: #d8d2c4;
+	max-width: 1500px;
+	font-size: 16px;
+	color: var(--dst-ink);
+}
+
+/* ---------------------------------------------------------------- Header */
+
+.dante-studio .dst-head h1 {
+	font-size: 30px;
+	font-weight: 700;
+	color: var(--dst-green);
+	margin: 12px 0 4px;
+	padding: 0;
+}
+
+.dante-studio .dst-sub {
+	font-size: 16px;
+	margin: 0 0 20px;
+}
+
+/* --------------------------------------------------------------- Columns */
+
+.dante-studio .dst-columns {
+	display: flex;
+	gap: 28px;
+	align-items: flex-start;
+	flex-wrap: wrap;
+}
+
+.dante-studio .dst-left {
+	flex: 1 1 520px;
+	min-width: 380px;
+}
+
+.dante-studio .dst-right {
+	flex: 1 1 480px;
+	min-width: 360px;
+	position: sticky;
+	top: 46px;
+}
+
+/* ----------------------------------------------------------------- Steps */
+
+.dante-studio .dst-step {
+	background: #fff;
+	border: 1px solid var(--dst-line);
+	border-radius: 10px;
+	padding: 22px 24px 24px;
+	margin: 0 0 20px;
+}
+
+.dante-studio .dst-step h2 {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 21px;
+	font-weight: 700;
+	color: var(--dst-green);
+	margin: 0 0 16px;
+	padding: 0;
+}
+
+.dante-studio .dst-num {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	flex: 0 0 34px;
+	border-radius: 50%;
+	background: var(--dst-green);
+	color: var(--dst-cream);
+	font-size: 17px;
+	font-weight: 700;
+}
+
+/* ------------------------------------------------------ Step 1: the cards */
+
+.dante-studio .dst-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: 14px;
+}
+
+.dante-studio .dst-card {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	text-align: left;
+	padding: 18px;
+	background: var(--dst-cream);
+	border: 2px solid var(--dst-line);
+	border-radius: 10px;
+	cursor: pointer;
+	font: inherit;
+	color: inherit;
+	transition: border-color .15s, transform .15s;
+}
+
+.dante-studio .dst-card:hover,
+.dante-studio .dst-card:focus-visible {
+	border-color: var(--dst-gold);
+	transform: translateY(-2px);
+	outline: none;
+}
+
+.dante-studio .dst-card-icon { font-size: 30px; line-height: 1; }
+.dante-studio .dst-card-label { font-size: 18px; font-weight: 700; color: var(--dst-green); }
+.dante-studio .dst-card-blurb { font-size: 14px; line-height: 1.45; color: #5a5348; }
+
+.dante-studio .dst-chosen {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--dst-green);
+	margin: 0;
+}
+
+/* ----------------------------------------------------- Step 2: the fields */
+
+.dante-studio .dst-field { margin: 0 0 20px; }
+
+.dante-studio .dst-field label {
+	display: block;
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0 0 3px;
+}
+
+.dante-studio .dst-hint {
+	display: block;
+	font-size: 14px;
+	color: #6b6459;
+	margin: 0 0 7px;
+}
+
+.dante-studio .dst-input {
+	width: 100%;
+	font-size: 16px;
+	line-height: 1.5;
+	padding: 11px 13px;
+	border: 2px solid var(--dst-line);
+	border-radius: 7px;
+	background: #fff;
+	box-sizing: border-box;
+}
+
+.dante-studio .dst-input:focus {
+	border-color: var(--dst-gold);
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(200, 150, 62, .22);
+}
+
+.dante-studio textarea.dst-input { resize: vertical; }
+.dante-studio .dst-tall { min-height: 220px; }
+
+.dante-studio .dst-inline { display: flex; gap: 10px; align-items: stretch; }
+.dante-studio .dst-inline .dst-input { flex: 1 1 auto; }
+
+/* File pickers: the real input is hidden behind a proper-sized button. */
+.dante-studio .dst-file input,
+.dante-studio .dst-photo-btn input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.dante-studio .dst-file,
+.dante-studio .dst-photo-btn {
+	position: relative;
+	display: inline-block;
+}
+
+.dante-studio .dst-file span,
+.dante-studio .dst-photo-btn span {
+	display: inline-block;
+	padding: 11px 20px;
+	font-size: 16px;
+	font-weight: 600;
+	border: 2px solid var(--dst-green);
+	border-radius: 7px;
+	background: #fff;
+	color: var(--dst-green);
+	cursor: pointer;
+}
+
+.dante-studio .dst-file span:hover,
+.dante-studio .dst-photo-btn span:hover { background: var(--dst-cream); }
+
+.dante-studio .dst-file input:focus-visible + span,
+.dante-studio .dst-photo-btn input:focus-visible + span {
+	box-shadow: 0 0 0 3px rgba(200, 150, 62, .35);
+}
+
+.dante-studio .dst-paste summary {
+	cursor: pointer;
+	font-size: 15px;
+	color: var(--dst-green);
+	margin: 12px 0;
+}
+
+.dante-studio .dst-code {
+	width: 100%;
+	font-family: Menlo, Consolas, monospace;
+	font-size: 12px;
+	padding: 10px;
+	border: 2px solid var(--dst-line);
+	border-radius: 7px;
+	box-sizing: border-box;
+	margin: 0 0 10px;
+}
+
+.dante-studio .dst-saving { font-size: 14px; color: #3f7d55; margin: 0; }
+
+/* ------------------------------------------------------ Step 3: the chat */
+
+.dante-studio .dst-notice,
+.dante-studio .dst-handover {
+	background: var(--dst-cream);
+	border: 1px dashed var(--dst-line);
+	border-radius: 8px;
+	padding: 18px;
+	font-size: 16px;
+	line-height: 1.55;
+}
+
+.dante-studio .dst-handover p { margin: 0 0 14px; font-size: 16px; }
+
+.dante-studio .dst-log {
+	max-height: 340px;
+	overflow-y: auto;
+	padding: 4px 2px 10px;
+	margin: 0 0 14px;
+}
+
+.dante-studio .dst-empty-chat {
+	font-size: 15px;
+	line-height: 1.6;
+	color: #6b6459;
+	background: var(--dst-cream);
+	border-radius: 8px;
+	padding: 16px;
+	margin: 0;
+}
+
+.dante-studio .dst-bubble {
+	max-width: 88%;
+	padding: 12px 15px;
+	border-radius: 12px;
+	margin: 0 0 10px;
+	font-size: 16px;
+	line-height: 1.55;
+}
+
+.dante-studio .dst-bubble p { margin: 0; font-size: 16px; white-space: pre-wrap; }
+
+.dante-studio .dst-me {
+	margin-left: auto;
+	background: var(--dst-green);
+	color: var(--dst-cream);
+}
+
+.dante-studio .dst-bot {
+	background: var(--dst-cream);
+	border: 1px solid var(--dst-line);
+}
+
+.dante-studio .dst-bubble-photo {
+	display: block;
+	max-width: 130px;
+	border-radius: 6px;
+	margin: 9px 0 0;
+}
+
+.dante-studio .dst-note {
+	display: block;
+	font-size: 14px;
+	color: #3f7d55;
+	margin: 7px 0 0;
+	padding-left: 20px;
+	position: relative;
+}
+
+.dante-studio .dst-note::before {
+	content: "\2713";
+	position: absolute;
+	left: 0;
+	font-weight: 700;
+}
+
+.dante-studio .dst-photos {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0 0 10px;
+}
+
+.dante-studio .dst-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	background: var(--dst-cream);
+	border: 1px solid var(--dst-line);
+	border-radius: 20px;
+	padding: 4px 6px 4px 4px;
+	font-size: 14px;
+}
+
+.dante-studio .dst-chip.is-pending { opacity: .6; }
+.dante-studio .dst-chip img { width: 30px; height: 30px; object-fit: cover; border-radius: 50%; }
+
+.dante-studio .dst-chip-x {
+	border: 0;
+	background: none;
+	cursor: pointer;
+	font-size: 19px;
+	line-height: 1;
+	padding: 0 5px;
+	color: #8a7f6d;
+}
+
+.dante-studio .dst-compose-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	margin: 10px 0 0;
+}
+
+.dante-studio .dst-history {
+	display: flex;
+	gap: 20px;
+	margin: 14px 0 0;
+}
+
+/* ------------------------------------------------------ Step 4: sending */
+
+.dante-studio .dst-warn {
+	background: #fdecea;
+	border-left: 5px solid #c0392b;
+	padding: 13px 16px;
+	font-size: 15px;
+	line-height: 1.55;
+	margin: 0 0 18px;
+}
+
+.dante-studio .dst-send-row {
+	display: flex;
+	align-items: center;
+	gap: 22px;
+	flex-wrap: wrap;
+	margin: 22px 0 0;
+	padding: 18px 0 0;
+	border-top: 1px solid var(--dst-line);
+}
+
+/* Buttons: override the admin's small defaults. */
+.dante-studio .button.dst-big {
+	font-size: 16px;
+	height: auto;
+	padding: 10px 22px;
+	line-height: 1.3;
+	border-radius: 7px;
+}
+
+.dante-studio .button.dst-huge {
+	font-size: 18px;
+	font-weight: 700;
+	height: auto;
+	padding: 15px 34px;
+	line-height: 1.3;
+	border-radius: 8px;
+}
+
+.dante-studio .dst-link {
+	background: none;
+	border: 0;
+	padding: 0;
+	font: inherit;
+	font-size: 15px;
+	color: var(--dst-green);
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.dante-studio .dst-link:hover { color: var(--dst-gold); }
+.dante-studio .dst-danger { color: #a5342a; }
+
+/* --------------------------------------------------------- The preview */
+
+.dante-studio .dst-preview-head {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin: 0 0 10px;
+}
+
+.dante-studio .dst-preview-head h2 {
+	font-size: 21px;
+	font-weight: 700;
+	color: var(--dst-green);
+	margin: 0;
+	padding: 0;
+}
+
+.dante-studio .dst-flash {
+	background: #d8f0de;
+	color: #1e5b32;
+	font-size: 13px;
+	font-weight: 700;
+	padding: 4px 12px;
+	border-radius: 20px;
+}
+
+.dante-studio .dst-preview-wrap {
+	position: relative;
+	background: #fff;
+	border: 1px solid var(--dst-line);
+	border-radius: 10px;
+	overflow: hidden;
+	min-height: 300px;
+}
+
+.dante-studio #dst-preview {
+	display: block;
+	width: 100%;
+	height: 74vh;
+	min-height: 480px;
+	border: 0;
+	background: #fff;
+}
+
+.dante-studio .dst-preview-empty {
+	padding: 60px 30px;
+	text-align: center;
+	font-size: 16px;
+	color: #6b6459;
+	margin: 0;
+}
+
+.dante-studio .dst-preview-note {
+	font-size: 14px;
+	color: #6b6459;
+	margin: 9px 0 0;
+}
+
+.dante-studio #dst-download-form { display: none; }
+
+/* On a narrow screen the preview stops following the page. */
+@media screen and (max-width: 1100px) {
+	.dante-studio .dst-right { position: static; }
+	.dante-studio #dst-preview { height: 60vh; }
+}

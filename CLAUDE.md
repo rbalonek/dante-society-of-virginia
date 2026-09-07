@@ -203,9 +203,66 @@ Assistant** (stored in the DB, so Local and live are configured separately).
   the template predates it. (Renamed from `page-events.php` — see the
   slug-collision rule above.)
 
-## Newsletter system (`inc/newsletter.php`)
+## Newsletter system (`inc/newsletter.php` + `inc/newsletter-studio.php`)
 
-Custom, sends via `wp_mail`. Admin menu **Newsletter** → Compose + Subscribers.
+Custom, sends via `wp_mail`. Admin menu **Newsletter** → Compose + Subscribers
++ Classic Composer.
+
+### Newsletter Studio — the composer the board actually uses
+
+`inc/newsletter-studio.php` + `js/newsletter-studio.js` + `css/newsletter-studio.css`.
+**Newsletter → Compose** is now a four-step screen built for non-technical
+volunteers: pick a kind (One Event / All Upcoming Events / Just a Message / Use a
+Design) → fill a few fields → **ask an AI chat for changes in plain English** →
+send. The preview is live at every step and is the real email, not an
+approximation.
+
+- **The AI never rewrites the document.** It proposes edits as exact
+  `(find, replace)` pairs via two tools (`replace_text`, `insert_html`, plus
+  `set_subject`); the server applies one only when the snippet matches the
+  current document **exactly once** (or `all: true` was passed deliberately).
+  A miss comes back as a plain-English error the model retries against. This is
+  what keeps Outlook conditional comments, VML fallbacks, preheader spans and
+  tracking pixels byte-identical — a "return the updated document" design
+  silently eats them.
+- **History is nearly free.** The draft stores the **original** document plus an
+  ordered list of edits; the working copy is the original replayed through them
+  (`dante_nl_studio_replay`). So *undo* pops one edit and *start over* empties
+  the list — the original is never mutated. Storage is a few KB, not a stack of
+  40KB snapshots.
+- **State lives on the server**, one draft per user (a `dante_newsletter` post
+  with `_studio*` meta — meta, not `post_content`, so kses never strips an
+  email's `<style>` block). Every REST route returns the whole new state and the
+  browser redraws from it, so a reload or a second tab can't show something
+  different from what would be sent.
+- **Photos** upload straight into the **WordPress media library**
+  (`POST newsletter-studio/photo`) and their URLs are handed to the model, which
+  places them with `insert_html`. Several at once; they attach to the next chat
+  message.
+- **"Edit freely"** converts a field-driven email into a standalone HTML
+  document (`dante_nl_studio_to_document`) so all four kinds end up in the same
+  chat-editable place — one mental model. Note the `DANTE_NL_UNSUB_SENTINEL`
+  dance: `dante_nl_email_shell` runs `esc_url()` on the unsubscribe URL, which
+  would mangle `{{unsubscribe_url}}`, so it renders with a sentinel URL that
+  survives escaping and swaps the token back afterwards.
+- **Model:** its own setting (Settings → Dante Assistant → *Newsletter editor
+  model*), default **`claude-haiku-4-5`** — the edits are small and
+  well-specified, so a whole newsletter costs a few cents. Reuses
+  `dante_assistant_api_key()` (server-side `DANTE_ANTHROPIC_KEY` first, DB
+  option as fallback) and `Dante_AI_Anthropic`, which gained optional
+  `$max_tokens` + `$cache_system` constructor args for this (the whole email
+  document sits in the system prompt, so caching pays across the tool
+  round-trips of one turn).
+- **The preview iframe is `sandbox=""`** — an uploaded design is untrusted
+  markup and must not run scripts inside wp-admin.
+- **The AI cannot send.** Test, send-to-all and download are human clicks, the
+  same rule the Dashboard assistant follows. Before send-to-all the screen warns
+  if the design has no unsubscribe link at all.
+- **Classic Composer** (`dante_newsletter_page`, the old one-page form) is kept
+  as a submenu fallback: no API key, no JavaScript, still sends.
+
+### Under the hood (shared by both composers)
+
 - **Subscribers:** `dante_subscriber` CPT (email stored as the post title, plus
   `_nl_name`, `_nl_status`, `_nl_token`). Add/manage in Newsletter → Subscribers.
   Front-end signup via the `[dante_subscribe]` shortcode.
@@ -522,6 +579,14 @@ client works. Pattern used to edit page content programmatically on Local:
 - **Newsletter templates are theme files** — drop an `.html` in
   `wp-theme/newsletter-templates/`, commit, deploy, and it shows in the composer
   dropdown. No DB involved, so it works the same on Local and live.
+- **The newsletter AI edits by find/replace, never by rewriting.** If you add a
+  tool to `dante_nl_studio_tools()`, keep that property — it is the only reason
+  designed emails survive editing intact. Verification lives server-side in
+  `dante_nl_studio_run_tool()`, not in the prompt.
+- **Newsletter drafts are `original` + a list of edits**, not a saved document.
+  Anything that reads the current email must go through
+  `dante_nl_studio_render()` / `dante_nl_studio_replay()` — reading
+  `_studio_original` alone gives you the un-edited version.
 - **No JS build step.** Editor/block/calendar scripts use global `wp.*`.
 - **Slug-collision rule:** a `page-{slug}.php` file auto-renders that page
   regardless of the Template dropdown. Name custom templates `template-*.php`. See
