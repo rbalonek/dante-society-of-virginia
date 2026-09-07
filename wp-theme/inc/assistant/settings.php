@@ -21,9 +21,10 @@ function dante_assistant_register_settings() {
         'type'              => 'array',
         'sanitize_callback' => 'dante_assistant_sanitize_settings',
         'default'           => array(
-            'provider'      => 'anthropic',
-            'model'         => 'claude-sonnet-4-6',
-            'anthropic_key' => '',
+            'provider'         => 'anthropic',
+            'model'            => 'claude-sonnet-4-6',
+            'newsletter_model' => 'claude-haiku-4-5',
+            'anthropic_key'    => '',
         ),
     ) );
 }
@@ -41,6 +42,12 @@ function dante_assistant_sanitize_settings( $input ) {
     $allowed_models = array( 'claude-sonnet-4-6', 'claude-opus-4-8', 'claude-haiku-4-5-20251001' );
     $model          = isset( $input['model'] ) ? sanitize_text_field( $input['model'] ) : 'claude-sonnet-4-6';
     $out['model']   = in_array( $model, $allowed_models, true ) ? $model : 'claude-sonnet-4-6';
+
+    // The newsletter editor makes small, well-specified find-and-replace edits,
+    // so it runs on its own (cheaper) model rather than the chat model above.
+    $allowed_nl                 = array( 'claude-haiku-4-5', 'claude-sonnet-5', 'claude-opus-5' );
+    $nl_model                   = isset( $input['newsletter_model'] ) ? sanitize_text_field( $input['newsletter_model'] ) : 'claude-haiku-4-5';
+    $out['newsletter_model']    = in_array( $nl_model, $allowed_nl, true ) ? $nl_model : 'claude-haiku-4-5';
 
     // Only overwrite the key when a new one is actually entered.
     $submitted = isset( $input['anthropic_key'] ) ? trim( $input['anthropic_key'] ) : '';
@@ -78,6 +85,7 @@ function dante_assistant_settings_page() {
     $managed   = dante_assistant_key_is_managed();
     $has_key   = ! empty( $settings['anthropic_key'] );
     $model     = isset( $settings['model'] ) ? $settings['model'] : 'claude-sonnet-4-6';
+    $nl_model  = isset( $settings['newsletter_model'] ) ? $settings['newsletter_model'] : 'claude-haiku-4-5';
     $key_field = $has_key ? '••••••••••••••••' : '';
     ?>
     <div class="wrap">
@@ -117,6 +125,19 @@ function dante_assistant_settings_page() {
                             <option value="claude-opus-4-8" <?php selected( $model, 'claude-opus-4-8' ); ?>>Claude Opus 4.8 — most capable</option>
                         </select>
                         <p class="description"><?php esc_html_e( 'Sonnet is the best default for this site. Switch anytime.', 'dante-society' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="dante_nl_model"><?php esc_html_e( 'Newsletter editor model', 'dante-society' ); ?></label></th>
+                    <td>
+                        <select id="dante_nl_model" name="dante_assistant_settings[newsletter_model]">
+                            <option value="claude-haiku-4-5" <?php selected( $nl_model, 'claude-haiku-4-5' ); ?>>Claude Haiku 4.5 &mdash; cheapest (recommended)</option>
+                            <option value="claude-sonnet-5" <?php selected( $nl_model, 'claude-sonnet-5' ); ?>>Claude Sonnet 5 &mdash; better with vague requests</option>
+                            <option value="claude-opus-5" <?php selected( $nl_model, 'claude-opus-5' ); ?>>Claude Opus 5 &mdash; most capable</option>
+                        </select>
+                        <p class="description">
+                            <?php esc_html_e( 'Powers the chat on the Newsletter > Compose screen. It only makes small find-and-replace edits to the email, so the cheapest model is usually plenty: a whole newsletter costs a few cents.', 'dante-society' ); ?>
+                        </p>
                     </td>
                 </tr>
             </table>

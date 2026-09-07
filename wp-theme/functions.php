@@ -40,6 +40,10 @@ require_once get_template_directory() . '/inc/photos.php';
 // Dante Assistant: chat-based site editing (dashboard widget + agent loop).
 require_once get_template_directory() . '/inc/assistant/assistant.php';
 
+// Newsletter Studio: the guided, chat-assisted composer. Builds on the render
+// helpers in inc/newsletter.php and the provider + key resolver in inc/assistant/.
+require_once get_template_directory() . '/inc/newsletter-studio.php';
+
 // Subscription: client-facing billing screen linking to Stripe-hosted pages.
 require_once get_template_directory() . '/inc/subscription.php';
 

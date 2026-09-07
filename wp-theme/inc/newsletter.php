@@ -417,19 +417,19 @@ function dante_newsletter_menu() {
         __( 'Newsletter', 'dante-society' ),
         'manage_options',
         'dante-newsletter',
-        'dante_newsletter_page',
+        'dante_nl_studio_page',
         'dashicons-email',
         6
     );
 
-    // First submenu = the composer (rename the auto-created duplicate).
+    // First submenu = the guided composer (rename the auto-created duplicate).
     add_submenu_page(
         'dante-newsletter',
-        __( 'Compose Newsletter', 'dante-society' ),
+        __( 'Write a Newsletter', 'dante-society' ),
         __( 'Compose', 'dante-society' ),
         'manage_options',
         'dante-newsletter',
-        'dante_newsletter_page'
+        'dante_nl_studio_page'
     );
 
     // Then the subscriber list.
@@ -439,6 +439,17 @@ function dante_newsletter_menu() {
         __( 'Subscribers', 'dante-society' ),
         'manage_options',
         'edit.php?post_type=dante_subscriber'
+    );
+
+    // The original one-page form, kept as a fallback: it needs no API key and
+    // no JavaScript, so it still works if the assistant is down or unconfigured.
+    add_submenu_page(
+        'dante-newsletter',
+        __( 'Classic Composer', 'dante-society' ),
+        __( 'Classic Composer', 'dante-society' ),
+        'manage_options',
+        'dante-newsletter-classic',
+        'dante_newsletter_page'
     );
 }
 add_action( 'admin_menu', 'dante_newsletter_menu' );
