@@ -744,13 +744,97 @@ function dante_nl_data_from_post() {
  */
 function dante_nl_compose_html( $data, $unsub_url = '#' ) {
     if ( 'custom_html' === $data['template'] ) {
-        return str_replace(
-            array( '{{unsubscribe_url}}', '{{UNSUBSCRIBE_URL}}' ),
-            esc_url( $unsub_url ),
-            (string) $data['custom_html']
-        );
+        return dante_nl_finalize_html( (string) $data['custom_html'], $unsub_url );
     }
     return dante_nl_email_shell( dante_nl_build_inner( $data ), $unsub_url, $data['footer'] );
+}
+
+/**
+ * Does this document already give the reader a way out?
+ *
+ * Deliberately generous, because the cost of a false negative (bolting a second
+ * unsubscribe footer onto a design that already has one) is worse than the cost
+ * of a false positive. Recognises our own {{unsubscribe_url}} token, a link
+ * pointing at an unsubscribe route, and a link whose visible words say so —
+ * which covers designs that arrive from Mailchimp, Brevo or a designer.
+ *
+ * @param string $html The email document.
+ * @return bool
+ */
+function dante_nl_has_unsubscribe( $html ) {
+    if ( false !== stripos( $html, '{{unsubscribe_url}}' ) ) {
+        return true;
+    }
+    // A link whose target mentions unsubscribing (incl. our /?dante_unsub= route).
+    if ( preg_match( '/<a\b[^>]*href=["\'][^"\']*unsub/i', $html ) ) {
+        return true;
+    }
+    // A link whose wording offers it.
+    if ( preg_match( '/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*?(unsubscribe|opt[\s-]?out)/i', $html ) ) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * The safety-net footer: an unsubscribe button and the society's postal address.
+ *
+ * Styled to match dante_nl_email_shell's own footer so it does not read as
+ * bolted on, and written email-safe (table layout, inline styles only).
+ *
+ * @param string $unsub_url The recipient's unsubscribe link.
+ * @return string
+ */
+function dante_nl_compliance_footer( $unsub_url ) {
+    return '<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#1B4332;font-family:Arial,Helvetica,sans-serif;">'
+        . '<tr><td align="center" style="padding:22px 28px;color:#cbbfa6;font-size:12px;line-height:1.6;">'
+        . '<p style="margin:0 0 14px;">'
+        . '<a href="' . esc_url( $unsub_url ) . '" style="background:#C8963E;color:#1B4332;text-decoration:none;font-weight:bold;padding:9px 18px;border-radius:5px;display:inline-block;">Unsubscribe</a>'
+        . '</p>'
+        . 'Dante Society of Virginia &middot; P.O. Box 131, Forest, VA 24551'
+        . '</td></tr></table>';
+}
+
+/**
+ * Turn a finished HTML document into the email one recipient actually receives.
+ *
+ * Two jobs, and every path that sends or previews a pasted/uploaded design goes
+ * through here so they cannot drift apart:
+ *
+ *   1. Swap {{unsubscribe_url}} for this recipient's own one-click link.
+ *   2. If the design offers no way to unsubscribe at all, append one, together
+ *      with the postal address. CAN-SPAM requires both, and a design handed in
+ *      from outside frequently has neither — leaving that to a warning the
+ *      person has to notice and act on is not good enough.
+ *
+ * A design that already has its own unsubscribe link is left completely alone.
+ *
+ * @param string $document  The email document.
+ * @param string $unsub_url The recipient's unsubscribe link.
+ * @return string
+ */
+function dante_nl_finalize_html( $document, $unsub_url ) {
+    $needs_footer = ! dante_nl_has_unsubscribe( $document );
+
+    $html = str_replace(
+        array( '{{unsubscribe_url}}', '{{UNSUBSCRIBE_URL}}' ),
+        esc_url( $unsub_url ),
+        $document
+    );
+
+    if ( ! $needs_footer || '' === trim( $html ) ) {
+        return $html;
+    }
+
+    $footer = dante_nl_compliance_footer( $unsub_url );
+
+    // Inside </body> when there is one, so it lands within the document.
+    $pos = strripos( $html, '</body>' );
+    if ( false !== $pos ) {
+        return substr_replace( $html, $footer, $pos, 0 );
+    }
+
+    return $html . $footer;
 }
 
 /**

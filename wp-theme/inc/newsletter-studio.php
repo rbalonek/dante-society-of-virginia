@@ -211,11 +211,13 @@ function dante_nl_studio_render( $draft, $unsub_url = '' ) {
     }
 
     if ( 'custom_html' === $draft['type'] ) {
-        $html = dante_nl_studio_replay( $draft['original'], $draft['ops'] );
-        return str_replace(
-            array( '{{unsubscribe_url}}', '{{UNSUBSCRIBE_URL}}' ),
-            esc_url( $unsub_url ),
-            $html
+        // dante_nl_finalize_html() fills in this recipient's unsubscribe link
+        // and, if the design offers no way out at all, appends one with the
+        // postal address. The preview goes through it too, so what is on screen
+        // is what arrives.
+        return dante_nl_finalize_html(
+            dante_nl_studio_replay( $draft['original'], $draft['ops'] ),
+            $unsub_url
         );
     }
 
@@ -549,6 +551,7 @@ function dante_nl_studio_system_prompt( $draft, $photos = array() ) {
         . "- Make several small edits rather than one huge one. If an edit is rejected, read why and try again more precisely.\n"
         . "- Keep the design intact. Do not restyle things nobody asked you to change, and never remove the unsubscribe link or the mailing address — they are required by law.\n"
         . "- Leave {{unsubscribe_url}} exactly as it is. It becomes each person's own link when the email goes out.\n"
+        . "- If this design has no unsubscribe link of its own, the website adds the standard one and the postal address at the very bottom automatically. It will not be in the document you can see, so do not add a second one, and if they ask about it just tell them it is already taken care of.\n"
         . "- New HTML must be email-safe: inline style attributes, tables for layout, no stylesheets, no script.\n"
         . "- You cannot send anything. Sending is always their click.\n\n"
         . "THIS EMAIL\n"
@@ -598,11 +601,12 @@ function dante_nl_studio_state( $id ) {
     $preview = dante_nl_studio_render( $draft );
 
     // Compliance: a design somebody sent in may have no unsubscribe link at all.
-    $document    = 'custom_html' === $draft['type'] ? dante_nl_studio_replay( $draft['original'], $draft['ops'] ) : '';
-    $needs_unsub = ( 'custom_html' === $draft['type'] )
+    // True when the design brought no unsubscribe link of its own and the
+    // standard one is being added for them. Informational, not a blocker.
+    $document   = 'custom_html' === $draft['type'] ? dante_nl_studio_replay( $draft['original'], $draft['ops'] ) : '';
+    $unsub_added = ( 'custom_html' === $draft['type'] )
         && '' !== trim( $preview )
-        && false === strpos( $document, '{{unsubscribe_url}}' )
-        && false === stripos( $document, 'unsubscribe' );
+        && ! dante_nl_has_unsubscribe( $document );
 
     $undo_label = '';
     if ( $draft['ops'] ) {
@@ -620,7 +624,7 @@ function dante_nl_studio_state( $id ) {
         'source'       => $draft['source'],
         'edit_count'   => count( $draft['ops'] ),
         'undo_label'   => $undo_label,
-        'needs_unsub'  => $needs_unsub,
+        'unsub_added'  => $unsub_added,
         'subscribers'  => count( dante_get_subscribers() ),
         'chat_ready'   => '' !== dante_assistant_api_key(),
     );
@@ -1283,8 +1287,8 @@ function dante_nl_studio_page() {
                 <section class="dst-step" id="dst-step-send" hidden>
                     <h2><span class="dst-num">4</span> <?php esc_html_e( 'Send it', 'dante-society' ); ?></h2>
 
-                    <p class="dst-warn" id="dst-unsub-warn" hidden>
-                        <?php esc_html_e( 'This design has no unsubscribe link. The law requires one on a newsletter. Ask the assistant: "add an unsubscribe link at the bottom".', 'dante-society' ); ?>
+                    <p class="dst-note-box" id="dst-unsub-note" hidden>
+                        <?php esc_html_e( 'This design did not come with an unsubscribe link, so the usual one and our mailing address are being added at the very bottom for you. You can see them in the preview.', 'dante-society' ); ?>
                     </p>
 
                     <div class="dst-field">

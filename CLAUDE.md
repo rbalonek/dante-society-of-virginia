@@ -256,8 +256,7 @@ approximation.
 - **The preview iframe is `sandbox=""`** — an uploaded design is untrusted
   markup and must not run scripts inside wp-admin.
 - **The AI cannot send.** Test, send-to-all and download are human clicks, the
-  same rule the Dashboard assistant follows. Before send-to-all the screen warns
-  if the design has no unsubscribe link at all.
+  same rule the Dashboard assistant follows.
 - **Classic Composer** (`dante_newsletter_page`, the old one-page form) is kept
   as a submenu fallback: no API key, no JavaScript, still sends.
 
@@ -290,9 +289,23 @@ approximation.
     first and paste those URLs in).
   - First one in the folder: `magic-flute-invitation.html` (Oct 2026 Opera on the
     James reception).
-- **Compliance:** every email includes the mailing address + a working
-  **unsubscribe** link/button (token → `/?dante_unsub=…`, handled in
-  `dante_handle_unsubscribe`).
+- **Compliance (guaranteed, not advisory):** every email that goes out carries a
+  working **unsubscribe** link + the mailing address. For the three field-driven
+  types that comes from `dante_nl_email_shell`. For a pasted/uploaded design it
+  comes from **`dante_nl_finalize_html()`** in `inc/newsletter.php` — the single
+  chokepoint every send, preview and download passes through. It:
+  1. swaps `{{unsubscribe_url}}` for that recipient's own one-click link
+     (token → `/?dante_unsub=…`, handled in `dante_handle_unsubscribe`), and
+  2. **appends the standard footer when the design offers no way out at all**,
+     inside `</body>` where there is one.
+  `dante_nl_has_unsubscribe()` decides, and is deliberately generous — our token,
+  an `href` mentioning unsub (incl. `*|UNSUB|*`), or link wording saying
+  unsubscribe/opt out all count — because wrongly adding a *second* footer is
+  worse than skipping one. A design with its own link is left byte-identical.
+  ⚠️ **Do not add another path that renders a `custom_html` document**; route it
+  through `dante_nl_finalize_html()` or it will send without an unsubscribe link.
+  Note the shipped `magic-flute-invitation.html` has none of its own, so it
+  relies on this.
 - **Delivery:** `wp_mail` alone has poor inbox placement, and Local doesn't send
   real email. **Live now uses FluentSMTP** (installed 2026-09-03 — see "Installing
   a plugin" below, since `DISALLOW_FILE_MODS` blocks the dashboard installer).

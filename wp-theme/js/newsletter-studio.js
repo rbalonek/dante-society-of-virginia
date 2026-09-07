@@ -233,7 +233,7 @@
 		$( 'dst-step-chat' ).hidden = ! ready;
 		$( 'dst-step-send' ).hidden = ! ready;
 
-		$( 'dst-unsub-warn' ).hidden = ! state.needs_unsub;
+		$( 'dst-unsub-note' ).hidden = ! state.unsub_added;
 
 		$( 'dst-send' ).textContent = 'Send to all ' + state.subscribers +
 			( state.subscribers === 1 ? ' subscriber' : ' subscribers' );
@@ -533,10 +533,6 @@
 	$( 'dst-send' ).addEventListener( 'click', function () {
 		var count = state.subscribers;
 
-		if ( state.needs_unsub &&
-			! confirm( 'This email has no unsubscribe link, which a newsletter is required to have. Send it anyway?' ) ) {
-			return;
-		}
 		if ( ! confirm( 'Send this to all ' + count + ' subscribers? This cannot be undone.' ) ) {
 			return;
 		}

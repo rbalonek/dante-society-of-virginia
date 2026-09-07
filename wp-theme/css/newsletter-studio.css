@@ -362,9 +362,10 @@
 
 /* ------------------------------------------------------ Step 4: sending */
 
-.dante-studio .dst-warn {
-	background: #fdecea;
-	border-left: 5px solid #c0392b;
+/* Reassurance, not an alarm: the missing unsubscribe link has been handled. */
+.dante-studio .dst-note-box {
+	background: var(--dst-cream);
+	border-left: 5px solid var(--dst-gold);
 	padding: 13px 16px;
 	font-size: 15px;
 	line-height: 1.55;
